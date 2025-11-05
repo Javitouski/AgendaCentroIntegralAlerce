@@ -17,7 +17,7 @@ public class PerfilActivity extends AppCompatActivity {
                 () -> startActivity(new Intent(this, InfUsuarioActivity.class)));
 
         bindClickByIdOrText("rv6ictxqv14", "Cambiar contraseña",
-                () -> startActivity(new Intent(this, prog.android.centroalr.view.NewPasswordActivity.class)));
+                () -> startActivity(new Intent(PerfilActivity.this, ChangePasswordActivity.class)));
 
         bindClickByIdOrText("rjidxs2v4tj8", "Tus actividades",
                 () -> startActivity(new Intent(this, AgndSemActivity.class)));
@@ -46,4 +46,3 @@ public class PerfilActivity extends AppCompatActivity {
         for (View v : out) v.setOnClickListener(x -> action.run());
     }
 }
-//hola//
