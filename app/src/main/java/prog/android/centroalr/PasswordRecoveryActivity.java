@@ -79,7 +79,7 @@ public class PasswordRecoveryActivity extends AppCompatActivity implements Passw
 
     @Override
     public void showSuccessMessage(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Si tu correo está registrado, recibirás un enlace en breve.", Toast.LENGTH_LONG).show();
     }
 
     @Override
