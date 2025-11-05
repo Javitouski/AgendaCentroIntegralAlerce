@@ -1,7 +1,11 @@
 package prog.android.centroalr;
 
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Button;
@@ -9,6 +13,7 @@ import android.widget.Button;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.FirebaseApp;
@@ -29,6 +34,7 @@ public class LogInActivity extends AppCompatActivity implements LoginView {
     private TextInputLayout emailInputLayout, passwordInputLayout;
     private Button loginButton;
     private TextView forgotPasswordTextView;
+    private View loadingOverlay;
 
     // 2. Referencia al Controlador y al Modelo
     private LoginController controller;
@@ -39,19 +45,21 @@ public class LogInActivity extends AppCompatActivity implements LoginView {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
 
-        // 3. Inicializar MVC (ESTO FALTABA)
+        // 3. Inicializar MVC
         model = new AuthModel();
         controller = new LoginController(this, model);
 
-        // UI refs (ESTO FALTABA)
+        // UI refs
         emailInputLayout = findViewById(R.id.emailInputLayout);
         passwordInputLayout = findViewById(R.id.passwordInputLayout);
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         loginButton = findViewById(R.id.loginButton);
         forgotPasswordTextView = findViewById(R.id.forgotPasswordTextView);
+        loadingOverlay = findViewById(R.id.loadingOverlay);
 
-        // 4. Delegar eventos al Controlador (ESTO FALTABA)
+
+        // 4. Delegar eventos al Controlador
         forgotPasswordTextView.setOnClickListener(v ->
                 controller.onForgotPasswordClicked());
 
@@ -89,7 +97,13 @@ public class LogInActivity extends AppCompatActivity implements LoginView {
 
     @Override
     public void showLoading(boolean isLoading) {
-        loginButton.setEnabled(!isLoading);
+        if (isLoading) {
+            loadingOverlay.setVisibility(View.VISIBLE);
+            loginButton.setEnabled(false);
+        } else {
+            loadingOverlay.setVisibility(View.GONE);
+            loginButton.setEnabled(true);
+        }
     }
 
     @Override

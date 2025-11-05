@@ -149,7 +149,15 @@
 		app:cornerRadius="100dp"
 		app:layout_constraintTop_toBottomOf="@id/forgotPasswordTextView"
 		app:layout_constraintStart_toStartOf="@id/passwordInputLayout"
-		app:layout_constraintEnd_toEndOf="@id/passwordInputLayout" />
+		app:layout_constraintEnd_toEndOf="@id/passwordInputLayout"/>
+	<include
+		layout="@layout/loading_dialog"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintEnd_toEndOf="parent" />
 
 	<!-- Handle inferior -->
 	<View
@@ -158,19 +166,6 @@
 		android:layout_height="4dp"
 		android:layout_marginBottom="8dp"
 		android:background="@drawable/rounded_black_bar"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintEnd_toEndOf="parent" />
-
-	<!-- (Opcional) ProgressBar para loading de login -->
-	<!-- Muestra/oculta desde código (setVisibility) -->
-	<ProgressBar
-		android:id="@+id/loginProgress"
-		style="?android:attr/progressBarStyleLarge"
-		android:layout_width="48dp"
-		android:layout_height="48dp"
-		android:visibility="gone"
-		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintEnd_toEndOf="parent" />
