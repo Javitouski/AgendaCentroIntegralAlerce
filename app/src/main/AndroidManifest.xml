@@ -67,6 +67,24 @@
                     tools:ignore="IntentFilterUniqueDataAttributes" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".AgndSemActivity"
+            android:exported="false" />
 
+        <activity
+            android:name=".PerfilActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".InfUsuarioActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".DetActActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".CrearActActivity"
+            android:exported="false" />
     </application>
 </manifest>
