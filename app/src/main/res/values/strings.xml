@@ -58,7 +58,7 @@
     <string name="funcion">Función</string>
     <string name="funcion_placeholder">Coordinador de eventos.</string>
     <string name="permisos">Permisos</string>
-    <string name="crear_actividad">Crear Actividad</string>
+    <string name="crearactividad">Crear Actividad</string>
     <string name="dropdown_icon">Icono de menú desplegable</string>
 
 </resources>
