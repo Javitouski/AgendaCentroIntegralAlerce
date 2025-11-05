@@ -1,4 +1,5 @@
 <resources>
+
     <string name="app_name">CentroALR</string>
 
     <string name="cdla_logo_centro_alr">Logo del Centro Integral de Alerce</string>
@@ -9,4 +10,40 @@
     <string name="txt_olvide_contrasena">¿Olvidaste tu contraseña?\n¡Haz click aquí para recuperarla!</string>
     <string name="btn_iniciar_sesion">Iniciar sesión</string>
 
+
+    <!-- Content Descriptions -->
+    <string name="signal_icon">Icono de señal</string>
+    <string name="wifi_icon">Icono de WiFi</string>
+    <string name="battery_icon">Icono de batería</string>
+    <string name="user_avatar">Avatar de usuario</string>
+    <string name="home_button">Botón de inicio</string>
+    <string name="event_badge">Insignia de evento</string>
+
+    <!-- Textos de la interfaz -->
+    <string name="time">9:30</string>
+    <string name="cerrar_sesion">Cerrar Sesion</string>
+    <string name="agenda_semanal">Agenda Semanal</string>
+    <string name="octubre">Octubre</string>
+
+    <!-- Días de la semana -->
+    <string name="lunes">L</string>
+    <string name="martes">M</string>
+    <string name="miercoles">M</string>
+    <string name="jueves">J</string>
+    <string name="viernes">V</string>
+    <string name="sabado">S</string>
+    <string name="domingo">D</string>
+
+    <!-- Bottom Navigation -->
+    <string name="perfil">Perfil</string>
+    <string name="inicio">Inicio</string>
+    <string name="crear_actividad">Crear Actividad</string>
+
+    <!-- Eventos de ejemplo -->
+    <string name="evento1_badge">R/1</string>
+    <string name="evento1_fecha">13/10/2025 - Sala de Reuniones 1 - 13:30</string>
+    <string name="evento1_desc">Reunion Aplicacion Santo Tomas.</string>
+    <string name="evento2_badge">M/1</string>
+    <string name="evento2_fecha">13/10/2025 - Sala Multi-Uso Podologia - 13:45</string>
+    <string name="evento2_desc">Atencion Podologica para 6 personas.</string>
 </resources>
