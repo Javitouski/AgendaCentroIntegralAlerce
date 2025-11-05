@@ -1,4 +1,4 @@
-package prog.android.centroalr;
+package prog.android.centroalr.view;
 
 import android.os.Bundle;
 import android.widget.LinearLayout;

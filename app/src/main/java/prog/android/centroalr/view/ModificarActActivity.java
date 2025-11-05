@@ -1,21 +1,20 @@
-package prog.android.centroalr;
+package prog.android.centroalr.view;
 
 import android.os.Bundle;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class CancelActActivity extends AppCompatActivity {
+public class ModificarActActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        int id = findLayout("activity_cancelar_act", "activity_cancel_act", "cancelar_act", "cancel_act");
+        int id = findLayout("activity_modificar_act", "modificar_act", "activity_editar_act", "editar_act");
         if (id != 0) {
             setContentView(id);
         } else {
-            // Fallback ultra simple para no romper si el XML no se llama como esperamos
             LinearLayout l = new LinearLayout(this); l.setOrientation(LinearLayout.VERTICAL);
-            TextView t = new TextView(this); t.setText("Cancelar actividad"); t.setTextSize(20f);
+            TextView t = new TextView(this); t.setText("Modificar actividad"); t.setTextSize(20f);
             l.addView(t); setContentView(l);
         }
     }

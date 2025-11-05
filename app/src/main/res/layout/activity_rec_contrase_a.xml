@@ -7,7 +7,7 @@
 	android:layout_height="match_parent"
 	android:background="@android:color/white"
 	android:padding="16dp"
-	tools:context=".PasswordRecoveryActivity">
+	tools:context=".view.PasswordRecoveryActivity">
 
 	<ImageButton
 		android:id="@+id/backButton"
