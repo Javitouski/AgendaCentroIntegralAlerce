@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "prog.android.centroalr"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -50,4 +50,5 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation ("androidx.gridlayout:gridlayout:1.0.0")
+    implementation("androidx.cardview:cardview:1.0.0")
 }

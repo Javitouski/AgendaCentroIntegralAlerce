@@ -6,15 +6,14 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical"
-	android:background="#FFFFFF">
+	android:background="#FFFFFF"
+	tools:context=".AgendMensActivity">
 
 	<LinearLayout
 		android:id="@+id/status_bar_simulated"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingHorizontal="24dp"
-		android:paddingTop="12dp"
-		android:paddingBottom="8dp"
+		android:layout_height="?attr/actionBarSize"
+		android:paddingHorizontal="16dp"
 		android:orientation="horizontal"
 		android:gravity="center_vertical">
 
@@ -26,8 +25,8 @@
 			android:textColor="#18990D"
 			android:textSize="14sp"
 			android:textStyle="bold"
-			android:paddingHorizontal="4dp"
-			android:paddingVertical="4dp"
+			android:padding="8dp"
+			android:background="?attr/selectableItemBackgroundBorderless"
 			android:clickable="true"
 			android:focusable="true"
 			android:contentDescription="Cerrar Sesión"/>
@@ -37,13 +36,11 @@
 			android:layout_height="0dp"
 			android:layout_weight="1"/>
 
-
 		<ImageView
 			android:id="@+id/profile_icon"
-			android:layout_width="48dp"
-			android:layout_height="48dp"
+			android:layout_width="40dp"
+			android:layout_height="40dp"
 			android:src="@drawable/ic_person_circle_green"
-			android:layout_gravity="center_horizontal"
 			android:contentDescription="Icono de Perfil"/>
 
 		<View
@@ -51,14 +48,9 @@
 			android:layout_height="0dp"
 			android:layout_weight="1"/>
 
-		<TextView
-			android:id="@+id/time_display"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="9:30"
-			android:textColor="#000000"
-			android:textSize="14sp"
-			android:layout_marginStart="8dp"/>
+		<Space
+			android:layout_width="48dp"
+			android:layout_height="48dp"/>
 
 	</LinearLayout>
 
@@ -79,152 +71,142 @@
 				android:text="Agenda Mensual"
 				android:gravity="center_horizontal"
 				android:textColor="#18990D"
-				android:textSize="32sp"
+				android:textSize="28sp"
+				android:textStyle="bold"
 				android:layout_marginTop="16dp"
-				android:layout_marginBottom="24dp"/>
+				android:layout_marginBottom="16dp"/>
 
-			<LinearLayout
+			<androidx.cardview.widget.CardView
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:orientation="vertical"
-				android:paddingHorizontal="20dp"
-				android:paddingTop="10dp"
-				android:paddingBottom="10dp">
+				android:layout_marginHorizontal="16dp"
+				android:layout_marginBottom="16dp"
+				app:cardCornerRadius="20dp"
+				app:cardElevation="4dp">
 
 				<LinearLayout
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:orientation="horizontal"
-					android:gravity="center_vertical"
-					android:layout_marginBottom="16dp">
+					android:orientation="vertical"
+					android:padding="16dp">
 
-					<TextView
-						android:layout_width="wrap_content"
+					<RelativeLayout
+						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="Octubre 2025"
-						android:textColor="#000000"
-						android:textSize="17sp"/>
+						android:layout_marginBottom="16dp">
 
-					<ImageView
-						android:layout_width="16dp"
-						android:layout_height="16dp"
-						android:src="@drawable/ic_arrow_forward_green"
-						android:layout_marginStart="4dp"
-						android:contentDescription="Próximo Mes"/>
+						<TextView
+							android:id="@+id/monthYearTextView"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:layout_centerInParent="true"
+							android:text="Octubre 2025"
+							android:textColor="#000000"
+							android:textSize="18sp"
+							android:textStyle="bold"/>
 
-					<View
-						android:layout_width="0dp"
-						android:layout_height="1dp"
-						android:layout_weight="1"/>
+						<LinearLayout
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:layout_alignParentEnd="true"
+							android:layout_centerVertical="true">
+							<ImageView
+								android:layout_width="24dp"
+								android:layout_height="24dp"
+								android:src="@drawable/ic_arrow_back_green"
+								android:background="?attr/selectableItemBackgroundBorderless"
+								android:contentDescription="Mes Anterior"/>
+							<ImageView
+								android:layout_width="24dp"
+								android:layout_height="24dp"
+								android:src="@drawable/ic_arrow_forward_green"
+								android:layout_marginStart="16dp"
+								android:background="?attr/selectableItemBackgroundBorderless"
+								android:contentDescription="Mes Siguiente"/>
+						</LinearLayout>
+					</RelativeLayout>
 
-					<ImageView
-						android:layout_width="24dp"
-						android:layout_height="24dp"
-						android:src="@drawable/ic_arrow_back_green"
-						android:contentDescription="Mes Anterior"/>
+					<LinearLayout
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:orientation="horizontal"
+						android:weightSum="7"
+						android:layout_marginBottom="12dp">
 
-					<ImageView
-						android:layout_width="24dp"
-						android:layout_height="24dp"
-						android:src="@drawable/ic_arrow_forward_green"
-						android:layout_marginStart="16dp"
-						android:contentDescription="Mes Siguiente"/>
+						<TextView style="@style/DayOfWeekHeader" android:text="LUN"/>
+						<TextView style="@style/DayOfWeekHeader" android:text="MAR"/>
+						<TextView style="@style/DayOfWeekHeader" android:text="MIE"/>
+						<TextView style="@style/DayOfWeekHeader" android:text="JUE"/>
+						<TextView style="@style/DayOfWeekHeader" android:text="VIE"/>
+						<TextView style="@style/DayOfWeekHeader" android:text="SAB"/>
+						<TextView style="@style/DayOfWeekHeader" android:text="DOM"/>
+					</LinearLayout>
+
+					<androidx.gridlayout.widget.GridLayout
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						app:rowCount="5"
+						app:columnCount="7">
+
+						<TextView style="@style/CalendarDay.OtherMonth" android:text="29" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay.OtherMonth" android:text="30" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="1" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="2" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="3" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="4" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="5" app:layout_columnWeight="1" />
+
+						<TextView style="@style/CalendarDay" android:text="6" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="7" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="8" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="9" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="10" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="11" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="12" app:layout_columnWeight="1" />
+
+						<LinearLayout style="@style/CalendarCell" app:layout_columnWeight="1">
+							<TextView style="@style/CalendarDay.WithEvent" android:text="13" />
+							<TextView style="@style/ScheduleTag" android:text="R/1-13:30" />
+							<TextView style="@style/ScheduleTag" android:text="M/1-13:45" />
+						</LinearLayout>
+						<TextView style="@style/CalendarDay" android:text="14" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="15" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="16" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="17" app:layout_columnWeight="1" />
+						<LinearLayout style="@style/CalendarCell" app:layout_columnWeight="1">
+							<TextView style="@style/CalendarDay.WithEvent" android:text="18" />
+							<TextView style="@style/ScheduleTag" android:text="R/3-11:30" />
+						</LinearLayout>
+						<TextView style="@style/CalendarDay" android:text="19" app:layout_columnWeight="1" />
+
+						<TextView style="@style/CalendarDay" android:text="20" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="21" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="22" app:layout_columnWeight="1" />
+						<LinearLayout style="@style/CalendarCell" app:layout_columnWeight="1">
+							<TextView style="@style/CalendarDay.WithEvent" android:text="23" />
+							<TextView style="@style/ScheduleTag" android:text="M/1-14:30" />
+						</LinearLayout>
+						<TextView style="@style/CalendarDay" android:text="24" app:layout_columnWeight="1" />
+						<LinearLayout style="@style/CalendarCell" app:layout_columnWeight="1">
+							<TextView style="@style/CalendarDay.WithEvent" android:text="25" />
+							<TextView style="@style/ScheduleTag" android:text="P/1-12:00" />
+						</LinearLayout>
+						<TextView style="@style/CalendarDay" android:text="26" app:layout_columnWeight="1" />
+
+						<TextView style="@style/CalendarDay" android:text="27" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="28" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="29" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="30" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay" android:text="31" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay.OtherMonth" android:text="1" app:layout_columnWeight="1" />
+						<TextView style="@style/CalendarDay.OtherMonth" android:text="2" app:layout_columnWeight="1" />
+
+					</androidx.gridlayout.widget.GridLayout>
+
 				</LinearLayout>
-
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="horizontal"
-					android:gravity="center"
-					android:weightSum="7"
-					android:layout_marginBottom="8dp">
-
-					<TextView style="@style/DayOfWeekHeader" android:text="LUN"/>
-					<TextView style="@style/DayOfWeekHeader" android:text="MAR"/>
-					<TextView style="@style/DayOfWeekHeader" android:text="MIE"/>
-					<TextView style="@style/DayOfWeekHeader" android:text="JUE"/>
-					<TextView style="@style/DayOfWeekHeader" android:text="VIE"/>
-					<TextView style="@style/DayOfWeekHeader" android:text="SAB"/>
-					<TextView style="@style/DayOfWeekHeader" android:text="DOM"/>
-				</LinearLayout>
-
-				<androidx.gridlayout.widget.GridLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					app:rowCount="5"
-					app:columnCount="7">
-
-					<TextView style="@style/CalendarDay" android:text="29" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="30" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="1" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="2" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="3" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="4" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="5" app:layout_columnWeight="1" />
-
-					<TextView style="@style/CalendarDay" android:text="6" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="7" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="8" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="9" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="10" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="11" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="12" app:layout_columnWeight="1" />
-
-					<LinearLayout style="@style/DayWithScheduleContainer" app:layout_columnWeight="1" app:layout_rowWeight="1">
-						<TextView style="@style/CalendarDaySelected" android:text="13" />
-						<TextView style="@style/ScheduleTag" android:text="R/1-13:30" />
-						<TextView style="@style/ScheduleTag" android:text="M/1-13:45" />
-					</LinearLayout>
-					<TextView style="@style/CalendarDay" android:text="14" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="15" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="16" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="17" app:layout_columnWeight="1" />
-					<LinearLayout style="@style/DayWithScheduleContainer" app:layout_columnWeight="1" app:layout_rowWeight="1">
-						<TextView style="@style/CalendarDaySelected" android:text="18" />
-						<TextView style="@style/ScheduleTag" android:text="R/3-11:30" />
-					</LinearLayout>
-					<TextView style="@style/CalendarDay" android:text="19" app:layout_columnWeight="1" />
-
-					<TextView style="@style/CalendarDay" android:text="20" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="21" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="22" app:layout_columnWeight="1" />
-					<LinearLayout style="@style/DayWithScheduleContainer" app:layout_columnWeight="1" app:layout_rowWeight="1">
-						<TextView style="@style/CalendarDaySelected" android:text="23" />
-						<TextView style="@style/ScheduleTag" android:text="M/1-14:30" />
-					</LinearLayout>
-					<TextView style="@style/CalendarDay" android:text="24" app:layout_columnWeight="1" />
-					<LinearLayout style="@style/DayWithScheduleContainer" app:layout_columnWeight="1" app:layout_rowWeight="1">
-						<TextView style="@style/CalendarDaySelected" android:text="25" />
-						<TextView style="@style/ScheduleTag" android:text="P/1-12:00" />
-					</LinearLayout>
-					<TextView style="@style/CalendarDay" android:text="26" app:layout_columnWeight="1" />
-
-					<TextView style="@style/CalendarDay" android:text="27" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="28" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="29" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="30" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="31" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="1" android:textColor="#A0A0A0" app:layout_columnWeight="1" />
-					<TextView style="@style/CalendarDay" android:text="2" android:textColor="#A0A0A0" app:layout_columnWeight="1" />
-
-				</androidx.gridlayout.widget.GridLayout>
-
-			</LinearLayout>
+			</androidx.cardview.widget.CardView>
 
 		</LinearLayout>
 	</ScrollView>
-
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:gravity="center_horizontal"
-		android:paddingBottom="8dp"
-		android:paddingTop="8dp">
-		<View
-			android:layout_width="134dp"
-			android:layout_height="4dp"
-			android:background="@drawable/bg_rounded_black"
-			tools:ignore="ViewSize" />
-	</LinearLayout>
 
 </LinearLayout>

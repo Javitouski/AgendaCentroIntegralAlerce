@@ -1,7 +1,9 @@
 <resources xmlns:app="http://schemas.android.com/apk/res-auto">
+
 	<style name="cr100">
 		<item name="cornerSize">100dp</item>
 	</style>
+
 	<style name="ShapeAppearance.App.CircleImageView" parent="">
 		<item name="cornerFamily">rounded</item>
 		<item name="cornerSize">24dp</item>
@@ -12,49 +14,46 @@
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:layout_weight">1</item>
 		<item name="android:gravity">center</item>
-		<item name="android:textColor">#3C3C43</item>
-		<item name="android:textSize">13sp</item>
+		<item name="android:textColor">#A0A0A0</item> <item name="android:textSize">12sp</item>
 	</style>
 
-	<style name="CalendarDay">
-		<item name="android:layout_width">0dp</item>
-		<item name="android:layout_height">wrap_content</item>
-		<item name="android:gravity">center_horizontal</item>
-		<item name="android:textColor">#000000</item>
-		<item name="android:textSize">20sp</item>
-		<item name="android:paddingTop">16dp</item>
-		<item name="android:paddingBottom">16dp</item>
-	</style>
-
-	<style name="CalendarDaySelected" parent="CalendarDay">
-		<item name="android:background">@drawable/bg_rounded_green_outline</item>
-		<item name="android:textColor">#18990D</item>
-		<item name="android:textSize">20sp</item>
-		<item name="android:layout_gravity">center_horizontal</item>
-		<item name="android:paddingTop">6dp</item>
-		<item name="android:paddingBottom">6dp</item>
-		<item name="android:paddingStart">10dp</item>
-		<item name="android:paddingEnd">10dp</item>
-	</style>
-
-	<style name="DayWithScheduleContainer">
+	<style name="CalendarCell" parent="">
 		<item name="android:layout_width">0dp</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:orientation">vertical</item>
 		<item name="android:gravity">center_horizontal</item>
-		<item name="android:paddingTop">16dp</item>
+		<item name="android:minHeight">70dp</item>
+		<item name="android:paddingTop">4dp</item>
+		<item name="android:paddingBottom">4dp</item>
+	</style>
+
+	<style name="CalendarDay" parent="CalendarCell">
+		<item name="android:gravity">center</item> <item name="android:textColor">@android:color/black</item>
+		<item name="android:textSize">14sp</item>
+	</style>
+
+	<style name="CalendarDay.OtherMonth">
+		<item name="android:textColor">#A0A0A0</item>
+	</style>
+
+	<style name="CalendarDay.WithEvent">
+		<item name="android:layout_width">36dp</item>
+		<item name="android:layout_height">36dp</item>
+		<item name="android:background">@drawable/calendar_date_selected_bg</item>
+		<item name="android:gravity">center</item>
+		<item name="android:textColor">@android:color/white</item>
+		<item name="android:textSize">14sp</item>
+		<item name="android:textStyle">bold</item>
 	</style>
 
 	<style name="ScheduleTag">
 		<item name="android:layout_width">wrap_content</item>
 		<item name="android:layout_height">wrap_content</item>
-		<item name="android:background">@drawable/bg_schedule_tag</item>
-		<item name="android:textColor">#FFFFFF</item>
-		<item name="android:textSize">10sp</item>
-		<item name="android:paddingHorizontal">4dp</item>
-		<item name="android:paddingVertical">1dp</item>
+		<item name="android:textColor">@android:color/black</item>
+		<item name="android:textSize">8sp</item>
+		<item name="android:maxLines">1</item>
+		<item name="android:ellipsize">end</item>
 		<item name="android:layout_marginTop">2dp</item>
-		<item name="android:layout_marginBottom">2dp</item>
-		<item name="android:gravity">center</item>
 	</style>
+
 </resources>
