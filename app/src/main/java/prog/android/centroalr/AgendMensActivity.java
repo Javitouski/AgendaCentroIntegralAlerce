@@ -59,9 +59,9 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
         bindByText("Agenda Mensual", () ->
                 startActivity(new Intent(AgendMensActivity.this, AgndSemActivity.class)));
 
-        // (Opcional) Si tu título fuera "Calendario Mensual", descomenta:
-        // bindByText("Calendario Mensual", () ->
-        //         startActivity(new Intent(AgendMensActivity.this, AgndSemActivity.class)));
+
+        bindByText("Calendario Mensual", () ->
+        startActivity(new Intent(AgendMensActivity.this, AgndSemActivity.class)));
 
         // 3) Etiquetas tipo R/1-13:30, M/1-14:30... -> DetActActivity (regex por texto)
         attachEventClickers();
