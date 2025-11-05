@@ -46,4 +46,19 @@
     <string name="evento2_badge">M/1</string>
     <string name="evento2_fecha">13/10/2025 - Sala Multi-Uso Podologia - 13:45</string>
     <string name="evento2_desc">Atencion Podologica para 6 personas.</string>
+
+    <!-- Perfil de Usuario -->
+    <string name="back_button">Volver</string>
+    <string name="profile_picture">Foto de perfil</string>
+    <string name="presiona_cambiar_foto">Presiona para cambiar la foto de perfil</string>
+    <string name="nombre">Nombre</string>
+    <string name="nombre_placeholder">Javier Rebolledo</string>
+    <string name="rut">Rut</string>
+    <string name="rut_placeholder">20.524.730-0</string>
+    <string name="funcion">Función</string>
+    <string name="funcion_placeholder">Coordinador de eventos.</string>
+    <string name="permisos">Permisos</string>
+    <string name="crear_actividad">Crear Actividad</string>
+    <string name="dropdown_icon">Icono de menú desplegable</string>
+
 </resources>
