@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">CentroALR</string>
+
+    <string name="cdla_logo_centro_alr">Logo del Centro Integral de Alerce</string>
+    <string name="txt_bienvenida">¡Bienvenidos al Centro Integral de Alerce!</string>
+    <string name="hint_email">Ingrese su correo electrónico</string>
+    <string name="help_email">Ej: nombre@dominio.com</string>
+    <string name="hint_password">Ingrese su contraseña</string>
+    <string name="txt_olvide_contrasena">¿Olvidaste tu contraseña?\n¡Haz click aquí para recuperarla!</string>
+    <string name="btn_iniciar_sesion">Iniciar sesión</string>
+
+</resources>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1051157247735",
+    "project_id": "centroalr",
+    "storage_bucket": "centroalr.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1051157247735:android:12f9e505e639874553c5f2",
+        "android_client_info": {
+          "package_name": "prog.android.centroalr"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByq2I3SAI-D1aMBU2gTaAtS8Ai2SXD91I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

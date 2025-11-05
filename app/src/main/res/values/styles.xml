@@ -1,0 +1,60 @@
+<resources xmlns:app="http://schemas.android.com/apk/res-auto">
+	<style name="cr100">
+		<item name="cornerSize">100dp</item>
+	</style>
+	<style name="ShapeAppearance.App.CircleImageView" parent="">
+		<item name="cornerFamily">rounded</item>
+		<item name="cornerSize">24dp</item>
+	</style>
+
+	<style name="DayOfWeekHeader">
+		<item name="android:layout_width">0dp</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:layout_weight">1</item>
+		<item name="android:gravity">center</item>
+		<item name="android:textColor">#3C3C43</item>
+		<item name="android:textSize">13sp</item>
+	</style>
+
+	<style name="CalendarDay">
+		<item name="android:layout_width">0dp</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:gravity">center_horizontal</item>
+		<item name="android:textColor">#000000</item>
+		<item name="android:textSize">20sp</item>
+		<item name="android:paddingTop">16dp</item>
+		<item name="android:paddingBottom">16dp</item>
+	</style>
+
+	<style name="CalendarDaySelected" parent="CalendarDay">
+		<item name="android:background">@drawable/bg_rounded_green_outline</item>
+		<item name="android:textColor">#18990D</item>
+		<item name="android:textSize">20sp</item>
+		<item name="android:layout_gravity">center_horizontal</item>
+		<item name="android:paddingTop">6dp</item>
+		<item name="android:paddingBottom">6dp</item>
+		<item name="android:paddingStart">10dp</item>
+		<item name="android:paddingEnd">10dp</item>
+	</style>
+
+	<style name="DayWithScheduleContainer">
+		<item name="android:layout_width">0dp</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:orientation">vertical</item>
+		<item name="android:gravity">center_horizontal</item>
+		<item name="android:paddingTop">16dp</item>
+	</style>
+
+	<style name="ScheduleTag">
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:background">@drawable/bg_schedule_tag</item>
+		<item name="android:textColor">#FFFFFF</item>
+		<item name="android:textSize">10sp</item>
+		<item name="android:paddingHorizontal">4dp</item>
+		<item name="android:paddingVertical">1dp</item>
+		<item name="android:layout_marginTop">2dp</item>
+		<item name="android:layout_marginBottom">2dp</item>
+		<item name="android:gravity">center</item>
+	</style>
+</resources>

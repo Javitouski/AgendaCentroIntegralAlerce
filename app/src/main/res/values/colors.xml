@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="dark_green_background">#FF1A5C2E</color> <color name="logo_background_color">#FF8BC34A</color> <color name="text_field_background_color">#FFE8EAF6</color> <color name="dark_green_text">#FF1A5C2E</color> <color name="bright_green_button">#FF00C853</color> ```
+    <color name="text_green">#FF1A5C2E</color>
+</resources>
