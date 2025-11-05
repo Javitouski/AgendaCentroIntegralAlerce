@@ -46,3 +46,4 @@ public class PerfilActivity extends AppCompatActivity {
         for (View v : out) v.setOnClickListener(x -> action.run());
     }
 }
+//hola//
