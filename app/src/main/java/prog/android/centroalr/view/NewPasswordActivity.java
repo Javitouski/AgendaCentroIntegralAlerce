@@ -31,7 +31,7 @@ public class NewPasswordActivity extends AppCompatActivity implements NewPasswor
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_password); // Asegúrate de que el nombre coincida
+        setContentView(R.layout.activity_new_password); // Asegúrate de que el nombre coincidaa
 
         // Inicializa tus vistas
         newPasswordInputLayout = findViewById(R.id.newPasswordInputLayout);
