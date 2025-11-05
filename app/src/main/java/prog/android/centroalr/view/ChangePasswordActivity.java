@@ -1,4 +1,4 @@
-package prog.android.centroalr;
+package prog.android.centroalr.view;
 
 import android.os.Bundle;
 import android.text.InputType;
@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import prog.android.centroalr.R;
 
 public class ChangePasswordActivity extends AppCompatActivity {
 

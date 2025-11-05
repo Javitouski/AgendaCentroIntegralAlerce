@@ -1,4 +1,4 @@
-package prog.android.centroalr;
+package prog.android.centroalr.view;
 
 import android.content.Intent;
 import android.os.Bundle;

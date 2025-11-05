@@ -1,9 +1,11 @@
-package prog.android.centroalr;
+package prog.android.centroalr.view;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
+
+import prog.android.centroalr.R;
 
 public class PerfilActivity extends AppCompatActivity {
 

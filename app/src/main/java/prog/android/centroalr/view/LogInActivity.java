@@ -1,11 +1,8 @@
-package prog.android.centroalr;
+package prog.android.centroalr.view;
 
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Button;
@@ -13,18 +10,11 @@ import android.widget.Button;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.appcheck.FirebaseAppCheck;
-import com.google.firebase.appcheck.debug.BuildConfig;
-import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory;
-import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory;
-
+import prog.android.centroalr.R;
 import prog.android.centroalr.controller.LoginController;
 import prog.android.centroalr.model.AuthModel;
-import prog.android.centroalr.view.LoginView;
 
 // 1. Implementa la interfaz de la Vista
 public class LogInActivity extends AppCompatActivity implements LoginView {

@@ -12,7 +12,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import prog.android.centroalr.LogInActivity;
 import prog.android.centroalr.R;
 import prog.android.centroalr.model.AuthModel; // Importa tu AuthModel
 import prog.android.centroalr.controller.NewPasswordController; // Nuevo controlador

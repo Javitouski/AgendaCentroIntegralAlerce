@@ -1,23 +1,19 @@
-package prog.android.centroalr;
+package prog.android.centroalr.view;
 
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
 import android.widget.Toast;
-import android.graphics.drawable.ColorDrawable;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import prog.android.centroalr.R;
 import prog.android.centroalr.controller.PasswordRecoveryController;
 import prog.android.centroalr.model.AuthModel;
-import prog.android.centroalr.view.PasswordRecoveryView;
 
 // 1. Implementa la interfaz de la Vista
 public class PasswordRecoveryActivity extends AppCompatActivity implements PasswordRecoveryView {

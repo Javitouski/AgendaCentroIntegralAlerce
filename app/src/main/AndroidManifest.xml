@@ -20,7 +20,7 @@
 
         <!-- Launcher -->
         <activity
-            android:name=".LogInActivity"
+            android:name=".view.LogInActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustPan"><intent-filter>
             <action android:name="android.intent.action.MAIN" />
@@ -30,17 +30,17 @@
 
         <!-- Pantallas internas -->
         <activity
-            android:name=".AgendMensActivity"
+            android:name=".view.AgendMensActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
 
         <activity
-            android:name=".PasswordRecoveryActivity"
+            android:name=".view.PasswordRecoveryActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".view.MainActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
 
@@ -68,30 +68,30 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AgndSemActivity"
+            android:name=".view.AgndSemActivity"
             android:exported="false" />
 
         <activity
-            android:name=".PerfilActivity"
+            android:name=".view.PerfilActivity"
             android:exported="false" />
 
         <activity
-            android:name=".InfUsuarioActivity"
+            android:name=".view.InfUsuarioActivity"
             android:exported="false" />
 
         <activity
-            android:name=".DetActActivity"
+            android:name=".view.DetActActivity"
             android:exported="false" />
         <activity
-            android:name=".ChangePasswordActivity"
+            android:name=".view.ChangePasswordActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".CancelActActivity" android:exported="false" />
-        <activity android:name=".ReagActActivity" android:exported="false" />
-        <activity android:name=".ModificarActActivity" android:exported="false" />
+        <activity android:name=".view.CancelActActivity" android:exported="false" />
+        <activity android:name=".view.ReagActActivity" android:exported="false" />
+        <activity android:name=".view.ModificarActActivity" android:exported="false" />
 
         <activity
-            android:name=".CrearActActivity"
+            android:name=".view.CrearActActivity"
             android:exported="false" />
     </application>
 </manifest>

@@ -1,4 +1,4 @@
-package prog.android.centroalr;
+package prog.android.centroalr.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -7,9 +7,9 @@ import android.content.Intent;
 import android.widget.Toast;
 import android.view.View; // <-- necesario para findViewsWithText y flags
 
+import prog.android.centroalr.R;
 import prog.android.centroalr.controller.LogoutController;
 import prog.android.centroalr.model.AuthModel;
-import prog.android.centroalr.view.LogoutView;
 
 // 1. Implementa la interfaz de la Vista
 public class AgendMensActivity extends AppCompatActivity implements LogoutView {
