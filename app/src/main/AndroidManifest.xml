@@ -82,6 +82,13 @@
         <activity
             android:name=".DetActActivity"
             android:exported="false" />
+        <activity
+            android:name=".ChangePasswordActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".CancelActActivity" android:exported="false" />
+        <activity android:name=".ReagActActivity" android:exported="false" />
+        <activity android:name=".ModificarActActivity" android:exported="false" />
 
         <activity
             android:name=".CrearActActivity"
