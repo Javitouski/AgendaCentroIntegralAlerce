@@ -1,7 +1,13 @@
 package prog.android.centroalr;
 
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+import android.graphics.drawable.ColorDrawable;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
@@ -19,6 +25,8 @@ public class PasswordRecoveryActivity extends AppCompatActivity implements Passw
     private TextInputEditText emailEditText;
     private TextInputLayout emailInputLayout;
     private MaterialButton sendCodeButton;
+    private View loadingOverlay;
+
 
     // 2. Referencia al Controlador y Modelo
     private PasswordRecoveryController controller;
@@ -37,6 +45,7 @@ public class PasswordRecoveryActivity extends AppCompatActivity implements Passw
         emailEditText = findViewById(R.id.emailEditText);
         emailInputLayout = findViewById(R.id.emailInputLayout);
         sendCodeButton = findViewById(R.id.sendCodeButton);
+        loadingOverlay = findViewById(R.id.loadingOverlay);
 
         // 4. Delegar evento al Controlador
         sendCodeButton.setOnClickListener(v -> {
@@ -45,7 +54,7 @@ public class PasswordRecoveryActivity extends AppCompatActivity implements Passw
         });
     }
 
-    // --- Implementación de los métodos de PasswordRecoveryView ---
+
 
     @Override
     public void showEmailError(String message) {
@@ -59,7 +68,13 @@ public class PasswordRecoveryActivity extends AppCompatActivity implements Passw
 
     @Override
     public void showLoading(boolean isLoading) {
-        sendCodeButton.setEnabled(!isLoading);
+        if (isLoading) {
+            loadingOverlay.setVisibility(View.VISIBLE);
+            sendCodeButton.setEnabled(false);
+        } else {
+            loadingOverlay.setVisibility(View.GONE);
+            sendCodeButton.setEnabled(true);
+        }
     }
 
     @Override
