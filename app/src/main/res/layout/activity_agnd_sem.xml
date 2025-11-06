@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".view.MainActivity">
 
     <ScrollView
         android:id="@+id/scrollView"
@@ -294,7 +294,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/crear_actividad"
+                    android:text="@string/crearActividad"
                     android:textColor="#49454F"
                     android:textSize="12sp"/>
             </LinearLayout>
