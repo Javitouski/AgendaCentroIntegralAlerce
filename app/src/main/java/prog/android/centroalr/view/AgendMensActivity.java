@@ -78,6 +78,13 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
                 }
             });
         }
+        // --- ir a notificaciones ---
+
+        View btnNotifications = findViewById(R.id.btn_notifications);
+        if (btnNotifications != null) {
+            btnNotifications.setOnClickListener(v ->
+                    startActivity(new Intent(AgendMensActivity.this, NotificationsActivity.class)));
+        }
 
         // Tap en el texto “Agenda Mensual” => abrir semanal
         bindClickByText("Agenda Mensual", () -> {

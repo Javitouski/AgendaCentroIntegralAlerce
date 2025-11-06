@@ -49,17 +49,17 @@
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
-        <ImageView
-            android:id="@+id/btn_notifications"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:contentDescription="Notificaciones"
-            android:focusable="true"
-            android:padding="12dp"
-            android:src="@drawable/ic_notifications" />
-    </LinearLayout>
+		<ImageView
+			android:id="@+id/btn_notifications"
+			android:layout_width="48dp"
+			android:layout_height="48dp"
+			android:background="?attr/selectableItemBackgroundBorderless"
+			android:clickable="true"
+			android:contentDescription="Notificaciones"
+			android:focusable="true"
+			android:padding="12dp"
+			android:src="@drawable/ic_notifications" />
+	</LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -116,18 +116,24 @@
                             android:textSize="18sp"
                             android:textStyle="bold"/>
 
-                        <!-- Flecha mes anterior (alineada a la izquierda) -->
+						<!-- Flecha mes anterior (alineada a la izquierda) -->
 
-                        <!-- Contenedor derecho con flecha siguiente -->
-                        <ImageView
-                            android:id="@+id/btn_prev_month"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_alignParentStart="true"
-                            android:layout_marginStart="3dp"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="Mes Anterior"
-                            android:src="@drawable/ic_arrow_back_green" />
+						<!-- Contenedor derecho con flecha siguiente -->
+						<ImageView
+							android:id="@+id/btn_prev_month"
+							android:layout_width="24dp"
+							android:layout_height="24dp"
+							android:layout_alignParentStart="true"
+							android:layout_marginStart="3dp"
+							android:background="?attr/selectableItemBackgroundBorderless"
+							android:contentDescription="Mes Anterior"
+							android:src="@drawable/ic_arrow_back_green" />
+
+						<LinearLayout
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:layout_alignParentEnd="true"
+							android:layout_centerVertical="true">
 
                         <LinearLayout
                             android:layout_width="wrap_content"
@@ -314,8 +320,5 @@
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
-
-        </LinearLayout>
-    </ScrollView>
 
 </LinearLayout>
