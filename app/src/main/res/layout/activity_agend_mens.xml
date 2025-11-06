@@ -9,7 +9,6 @@
     android:background="#FFFFFF"
     tools:context=".view.AgendMensActivity">
 
-    <!-- Barra superior simulada -->
     <LinearLayout
         android:id="@+id/status_bar_simulated"
         android:layout_width="match_parent"
@@ -49,17 +48,17 @@
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
-		<ImageView
-			android:id="@+id/btn_notifications"
-			android:layout_width="48dp"
-			android:layout_height="48dp"
-			android:background="?attr/selectableItemBackgroundBorderless"
-			android:clickable="true"
-			android:contentDescription="Notificaciones"
-			android:focusable="true"
-			android:padding="12dp"
-			android:src="@drawable/ic_notifications" />
-	</LinearLayout>
+        <ImageView
+            android:id="@+id/btn_notifications"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="Notificaciones"
+            android:focusable="true"
+            android:padding="12dp"
+            android:src="@drawable/ic_notifications" />
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -72,7 +71,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Título grande clickeable (lo usamos para abrir la vista semanal) -->
             <TextView
                 android:id="@+id/title_agenda_mensual"
                 android:layout_width="match_parent"
@@ -99,13 +97,21 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <!-- Header del mes -->
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp">
 
-                        <!-- Texto Mes Año (doble tap vuelve al mes actual) -->
+                        <ImageView
+                            android:id="@+id/btn_prev_month"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="Mes Anterior"
+                            android:src="@drawable/ic_arrow_back_green" />
+
                         <TextView
                             android:id="@+id/monthYearTextView"
                             android:layout_width="wrap_content"
@@ -116,43 +122,19 @@
                             android:textSize="18sp"
                             android:textStyle="bold"/>
 
-						<!-- Flecha mes anterior (alineada a la izquierda) -->
-
-						<!-- Contenedor derecho con flecha siguiente -->
-						<ImageView
-							android:id="@+id/btn_prev_month"
-							android:layout_width="24dp"
-							android:layout_height="24dp"
-							android:layout_alignParentStart="true"
-							android:layout_marginStart="3dp"
-							android:background="?attr/selectableItemBackgroundBorderless"
-							android:contentDescription="Mes Anterior"
-							android:src="@drawable/ic_arrow_back_green" />
-
-						<LinearLayout
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:layout_alignParentEnd="true"
-							android:layout_centerVertical="true">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                        <ImageView
+                            android:id="@+id/btn_next_month"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:rotation="180"
                             android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true">
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="16dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="Mes Siguiente"
+                            android:src="@drawable/ic_arrow_forward_green" />
 
-                            <ImageView
-                                android:id="@+id/btn_next_month"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:layout_marginStart="16dp"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:contentDescription="Mes Siguiente"
-                                android:src="@drawable/ic_arrow_forward_green" />
-                        </LinearLayout>
                     </RelativeLayout>
-
-                    <!-- Encabezado de días -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -169,7 +151,6 @@
                         <TextView style="@style/DayOfWeekHeader" android:text="DOM"/>
                     </LinearLayout>
 
-                    <!-- Grilla 6x7 sin números fijos (se rellenan por código) -->
                     <androidx.gridlayout.widget.GridLayout
                         android:id="@+id/calendar_grid"
                         android:layout_width="match_parent"
@@ -177,8 +158,6 @@
                         app:rowCount="6"
                         app:columnCount="7">
 
-                        <!-- 42 celdas: cada una con un TextView del número -->
-                        <!-- Fila 1 -->
                         <LinearLayout style="@style/CalendarCell" app:layout_columnWeight="1">
                             <TextView android:id="@+id/day_0"  style="@style/CalendarDay"/>
                         </LinearLayout>
@@ -201,7 +180,6 @@
                             <TextView android:id="@+id/day_6"  style="@style/CalendarDay"/>
                         </LinearLayout>
 
-                        <!-- Fila 2 -->
                         <LinearLayout style="@style/CalendarCell" app:layout_columnWeight="1">
                             <TextView android:id="@+id/day_7"  style="@style/CalendarDay"/>
                         </LinearLayout>
@@ -224,7 +202,6 @@
                             <TextView android:id="@+id/day_13" style="@style/CalendarDay"/>
                         </LinearLayout>
 
-                        <!-- Fila 3 -->
                         <LinearLayout style="@style/CalendarCell" app:layout_columnWeight="1">
                             <TextView android:id="@+id/day_14" style="@style/CalendarDay"/>
                         </LinearLayout>
@@ -247,7 +224,6 @@
                             <TextView android:id="@+id/day_20" style="@style/CalendarDay"/>
                         </LinearLayout>
 
-                        <!-- Fila 4 -->
                         <LinearLayout style="@style/CalendarCell" app:layout_columnWeight="1">
                             <TextView android:id="@+id/day_21" style="@style/CalendarDay"/>
                         </LinearLayout>
@@ -270,7 +246,6 @@
                             <TextView android:id="@+id/day_27" style="@style/CalendarDay"/>
                         </LinearLayout>
 
-                        <!-- Fila 5 -->
                         <LinearLayout style="@style/CalendarCell" app:layout_columnWeight="1">
                             <TextView android:id="@+id/day_28" style="@style/CalendarDay"/>
                         </LinearLayout>
@@ -293,7 +268,6 @@
                             <TextView android:id="@+id/day_34" style="@style/CalendarDay"/>
                         </LinearLayout>
 
-                        <!-- Fila 6 -->
                         <LinearLayout style="@style/CalendarCell" app:layout_columnWeight="1">
                             <TextView android:id="@+id/day_35" style="@style/CalendarDay"/>
                         </LinearLayout>
@@ -321,4 +295,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>
