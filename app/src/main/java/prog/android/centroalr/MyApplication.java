@@ -12,6 +12,7 @@ public class MyApplication extends Application {
 
     @Override
     public void onCreate() {
+
         super.onCreate();
 
         // 2. SOLO el código de App Check va aquí
