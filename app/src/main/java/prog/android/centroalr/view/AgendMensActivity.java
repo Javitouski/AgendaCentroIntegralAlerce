@@ -1,312 +1,229 @@
 package prog.android.centroalr.view;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.gridlayout.widget.GridLayout;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Locale;
-import java.util.regex.Pattern;
 
-import prog.android.centroalr.R; // <-- IMPORTANTE: R del paquete raíz
+import prog.android.centroalr.R;
 import prog.android.centroalr.controller.LogoutController;
 import prog.android.centroalr.model.AuthModel;
 
 public class AgendMensActivity extends AppCompatActivity implements LogoutView {
 
-    // --- Logout (lo que ya tenías) ---
+    // Logout MVC
     private TextView btnLogout;
     private LogoutController controller;
     private AuthModel model;
 
-    // --- Calendario (nuevo) ---
+    // Calendario
     private YearMonth shownMonth;
-    private TextView monthTitle; // se resuelve por id o por contenido
+    private TextView monthTitle;
+    private View prevBtn, nextBtn;
+    private GridLayout grid;
+
     private final Locale esCL = new Locale("es", "CL");
-    private final DateTimeFormatter monthFmt = DateTimeFormatter.ofPattern("MMMM yyyy", esCL);
-    private final Pattern monthYearRegex = Pattern.compile(
-            "(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)\\s+\\d{4}",
-            Pattern.CASE_INSENSITIVE
-    );
+    private final DateTimeFormatter monthFmt =
+            DateTimeFormatter.ofPattern("MMMM yyyy", esCL);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_agend_mens);
 
-        // ---- MVC logout (tal cual) ----
+        // --- Logout ---
         model = new AuthModel();
         controller = new LogoutController(this, model);
-        btnLogout = findViewById(getId("btn_logout"));
+        btnLogout = findViewById(R.id.btn_logout);
         if (btnLogout != null) btnLogout.setOnClickListener(v -> controller.onLogoutClicked());
 
-        // ---- Navegación y calendario ----
-        wireUi();                 // perfil, semanal, detalle por etiquetas
-        setupMonthHeader();       // título dinámico + hoy
-        bindPrevNextButtons();    // botones prev/next si existen
-        enableSwipeNavigation();  // gestos izquierda/derecha
-    }
+        // --- Header / flechas ---
+        monthTitle = findViewById(R.id.monthYearTextView);
+        prevBtn = findViewById(R.id.btn_prev_month);
+        nextBtn = findViewById(R.id.btn_next_month);
 
-    // =============================================================================================
-    // ==========  CALENDARIO MENSUAL: TÍTULO DINÁMICO + NAVEGACIÓN DE MESES  ======================
-    // =============================================================================================
+        // --- ir a perfil ---
+        View profile = findViewById(R.id.profile_icon);
+        if (profile != null) {
+            profile.setOnClickListener(v ->
+                    startActivity(new Intent(AgendMensActivity.this, PerfilActivity.class)));
+        }
 
-    /** Resuelve el TextView del título y lo setea al mes actual. */
-    private void setupMonthHeader() {
-        // 1) Intento por IDs comunes
-        monthTitle = findTextViewByAnyId("tv_month", "month_title", "title_month", "txt_month", "titulo_mes");
+        if (prevBtn != null) prevBtn.setOnClickListener(v -> { shownMonth = shownMonth.minusMonths(1); updateAndRender(); });
+        if (nextBtn != null) nextBtn.setOnClickListener(v -> { shownMonth = shownMonth.plusMonths(1);  updateAndRender(); });
 
-        // 2) Si no hay ID, busco cualquiera cuyo texto parezca "octubre 2025", etc.
-        if (monthTitle == null) monthTitle = findFirstMonthYearTextView();
-
-        // 3) Seteo mes actual
-        shownMonth = YearMonth.now();
-        updateMonthTitle();
-
-        // 4) Doble tap en el título => volver a "hoy"
+        // Doble tap en el título => volver a mes actual
         if (monthTitle != null) {
             monthTitle.setOnClickListener(new View.OnClickListener() {
-                private long lastTap = 0;
+                long last = 0;
                 @Override public void onClick(View v) {
                     long t = System.currentTimeMillis();
-                    if (t - lastTap < 350) { // double tap
-                        shownMonth = YearMonth.now();
-                        updateMonthTitle();
-                        Toast.makeText(AgendMensActivity.this, "Volviendo a este mes", Toast.LENGTH_SHORT).show();
-                    }
-                    lastTap = t;
+                    if (t - last < 350) { shownMonth = YearMonth.now(); updateAndRender(); }
+                    last = t;
                 }
             });
         }
 
-        // 5) Si hay texto "Hoy" en la pantalla, lo engancho también
-        bindByTextContains("Hoy", () -> {
-            shownMonth = YearMonth.now();
-            updateMonthTitle();
+        // Tap en el texto “Agenda Mensual” => abrir semanal
+        bindClickByText("Agenda Mensual", () -> {
+            startActivity(new Intent(AgendMensActivity.this, AgndSemActivity.class));
         });
+
+        // Swipe izquierda/derecha para navegar meses
+        enableSwipeNavigation();
+
+        grid = findViewById(R.id.calendar_grid);
+
+        // Mes actual
+        shownMonth = YearMonth.now();
+        updateAndRender();
     }
 
-    /** Botones prev/next si existen (IDs comunes + fallback por texto). */
-    private void bindPrevNextButtons() {
-        // Prev
-        bindClickByIdOrText("btn_prev_month", "Anterior", this::goPrevMonth);
-        bindClickByIdOrText("prev_month", "«", this::goPrevMonth);
-        bindClickByIdOrText("arrow_back", "<", this::goPrevMonth);
-        bindClickByIdOrText("ic_arrow_back", "<", this::goPrevMonth);
-
-        // Next
-        bindClickByIdOrText("btn_next_month", "Siguiente", this::goNextMonth);
-        bindClickByIdOrText("next_month", "»", this::goNextMonth);
-        bindClickByIdOrText("arrow_forward", ">", this::goNextMonth);
-        bindClickByIdOrText("ic_arrow_forward", ">", this::goNextMonth);
-    }
-
-    /** Gestos izquierda/derecha para cambiar de mes sin depender de XML. */
-    private void enableSwipeNavigation() {
-        final GestureDetector gd = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
-            private static final int THRESHOLD = 80;
-            private static final int VELOCITY = 80;
-            @Override public boolean onFling(MotionEvent e1, MotionEvent e2, float vx, float vy) {
-                if (e1 == null || e2 == null) return false;
-                float dx = e2.getX() - e1.getX();
-                if (Math.abs(dx) > THRESHOLD && Math.abs(vx) > VELOCITY) {
-                    if (dx < 0) goNextMonth(); else goPrevMonth();
-                    return true;
-                }
-                return false;
-            }
-        });
-        View root = findViewById(android.R.id.content);
-        if (root != null) root.setOnTouchListener((v, ev) -> gd.onTouchEvent(ev));
-    }
-
-    private void goPrevMonth() { shownMonth = shownMonth.minusMonths(1); updateMonthTitle(); }
-    private void goNextMonth() { shownMonth = shownMonth.plusMonths(1); updateMonthTitle(); }
-
-    /** Actualiza el texto del título. Si no encontré título, intento reemplazar el que exista. */
-    private void updateMonthTitle() {
-        String title = capitalizeFirst(shownMonth.format(monthFmt));
+    private void updateAndRender() {
+        // Título mes en español (primera letra mayúscula)
         if (monthTitle != null) {
+            String title = shownMonth.format(monthFmt);
+            if (!title.isEmpty()) {
+                title = title.substring(0,1).toUpperCase(esCL) + title.substring(1);
+            }
             monthTitle.setText(title);
-            return;
         }
-        // Fallback: busca cualquier TextView con "mes yyyy" y lo reemplaza
-        View root = findViewById(android.R.id.content);
-        if (root == null) return;
-        ArrayDeque<View> st = new ArrayDeque<>();
-        st.push(root);
-        while (!st.isEmpty()) {
-            View v = st.pop();
-            if (v instanceof android.view.ViewGroup) {
-                android.view.ViewGroup g = (android.view.ViewGroup) v;
-                for (int i = 0; i < g.getChildCount(); i++) st.push(g.getChildAt(i));
+        renderMonth(shownMonth);
+    }
+
+    /**
+     * Renderiza el mes creando las 42 celdas desde cero.
+     * No dependemos de TextViews preexistentes, así evitamos problemas de estilos/IDs.
+     */
+    private void renderMonth(YearMonth ym) {
+        if (grid == null) return;
+
+        // Limpiamos TODO y configuramos 6x7
+        grid.removeAllViews();
+        grid.setRowCount(6);
+        grid.setColumnCount(7);
+
+        // Cálculo de celdas
+        final int firstDow = ym.atDay(1).getDayOfWeek().getValue(); // L=1..D=7
+        final int offset   = (firstDow + 6) % 7;                    // Lunes->0
+        final int daysIn   = ym.lengthOfMonth();
+
+        final YearMonth prev = ym.minusMonths(1);
+        final int prevLen    = prev.lengthOfMonth();
+
+        final LocalDate today = LocalDate.now();
+
+        // Tamaños/márgenes
+        int cellMinHeight = dp(44);
+        int cellMargin = dp(4);
+
+        for (int i = 0; i < 42; i++) {
+            int row = i / 7;
+            int col = i % 7;
+
+            // Contenedor para facilitar futuro: tags/eventos/etc.
+            GridLayout.LayoutParams lp = new GridLayout.LayoutParams(
+                    GridLayout.spec(row, 1f), GridLayout.spec(col, 1f)
+            );
+            lp.width = 0;                  // weight hace que ocupe 1/7 del ancho
+            lp.height = GridLayout.LayoutParams.WRAP_CONTENT;
+            lp.setMargins(cellMargin, cellMargin, cellMargin, cellMargin);
+
+            // Crea el TextView del número
+            TextView tv = new TextView(this);
+            tv.setLayoutParams(lp);
+            tv.setMinHeight(cellMinHeight);
+            tv.setGravity(Gravity.CENTER);
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+            tv.setTextColor(Color.BLACK);
+            tv.setTypeface(Typeface.DEFAULT);
+
+            // Determina número y si pertenece al mes actual
+            int dayNumber;
+            boolean inCurrent;
+            if (i < offset) {
+                dayNumber = prevLen - (offset - 1 - i); // arrastre anterior
+                inCurrent = false;
+            } else if (i < offset + daysIn) {
+                dayNumber = (i - offset) + 1;           // mes actual
+                inCurrent = true;
+            } else {
+                dayNumber = (i - (offset + daysIn)) + 1; // arrastre siguiente
+                inCurrent = false;
             }
-            if (v instanceof TextView) {
-                CharSequence cs = ((TextView) v).getText();
-                if (cs != null && monthYearRegex.matcher(cs.toString()).matches()) {
-                    ((TextView) v).setText(title);
-                    break;
-                }
+
+            tv.setText(String.valueOf(dayNumber));
+            tv.setAlpha(inCurrent ? 1f : 0.45f);
+
+            LocalDate cellDate = (inCurrent ? ym : (i < offset ? prev : ym.plusMonths(1)))
+                    .atDay(dayNumber);
+            if (cellDate.equals(today)) {
+                tv.setTypeface(Typeface.DEFAULT_BOLD);
             }
+
+            // (Opcional) click del día para abrir semanal con esa fecha
+            // tv.setOnClickListener(v -> {
+            //     Intent it = new Intent(this, AgndSemActivity.class);
+            //     it.putExtra("selected_date", cellDate.toString());
+            //     startActivity(it);
+            // });
+
+            grid.addView(tv);
         }
     }
 
-    private TextView findFirstMonthYearTextView() {
-        View root = findViewById(android.R.id.content);
-        if (root == null) return null;
-        ArrayDeque<View> st = new ArrayDeque<>();
-        st.push(root);
-        while (!st.isEmpty()) {
-            View v = st.pop();
-            if (v instanceof android.view.ViewGroup) {
-                android.view.ViewGroup g = (android.view.ViewGroup) v;
-                for (int i = 0; i < g.getChildCount(); i++) st.push(g.getChildAt(i));
-            }
-            if (v instanceof TextView) {
-                CharSequence cs = ((TextView) v).getText();
-                if (cs != null && monthYearRegex.matcher(cs.toString()).matches()) {
-                    return (TextView) v;
-                }
-            }
-        }
-        return null;
-    }
-
-    private String capitalizeFirst(String s) {
-        if (s == null || s.isEmpty()) return s;
-        return s.substring(0, 1).toUpperCase(esCL) + s.substring(1);
-    }
-
-    // =============================================================================================
-    // ==================  NAVEGACIÓN PREVIA (perfil / semanal / detalle)  =========================
-    // =============================================================================================
-
-    private void wireUi() {
-        // Icono de perfil (id = profile_icon) -> PerfilActivity (mismo paquete .view)
-        int profId = getId("profile_icon");
-        if (profId != 0) {
-            View profile = findViewById(profId);
-            if (profile != null) {
-                profile.setOnClickListener(v ->
-                        startActivity(new Intent(AgendMensActivity.this, PerfilActivity.class)));
-            }
-        }
-
-        // Texto "Agenda Mensual" -> Semanal (fallback por texto visible)
-        bindByText("Agenda Mensual",
-                () -> startActivity(new Intent(AgendMensActivity.this, AgndSemActivity.class)));
-        // Alternativa por si en tu layout dice "Calendario Mensual"
-        bindByText("Calendario Mensual",
-                () -> startActivity(new Intent(AgendMensActivity.this, AgndSemActivity.class)));
-
-        // Etiquetas de evento tipo R/1-13:30 -> Detalle
-        attachEventClickers();
-    }
-
-    /** Hace clickeables los TextView que parezcan etiquetas de evento (R/1-13:30, etc.). */
-    private void attachEventClickers() {
-        final View root = findViewById(android.R.id.content);
-        if (root == null) return;
-
-        ArrayDeque<View> stack = new ArrayDeque<>();
-        stack.push(root);
-
-        while (!stack.isEmpty()) {
-            View v = stack.pop();
-
-            if (v instanceof android.view.ViewGroup) {
-                android.view.ViewGroup g = (android.view.ViewGroup) v;
-                for (int i = 0; i < g.getChildCount(); i++) stack.push(g.getChildAt(i));
-            }
-
-            if (v instanceof TextView) {
-                CharSequence cs = ((TextView) v).getText();
-                if (cs != null) {
-                    String s = cs.toString();
-                    // Coincide con "R/1-13:30", "M/1-14:30", etc. (no depende de IDs)
-                    if (s.matches(".*\\w+/\\d+-\\d{1,2}:\\d{2}.*")) {
-                        v.setOnClickListener(click -> {
-                            Intent i = new Intent(AgendMensActivity.this, DetActActivity.class);
-                            i.putExtra("event_text", s);
-                            startActivity(i);
-                        });
+    private void enableSwipeNavigation() {
+        final GestureDetector gd = new GestureDetector(
+                this,
+                new GestureDetector.SimpleOnGestureListener() {
+                    private static final int T = 80, V = 80;
+                    @Override public boolean onFling(MotionEvent e1, MotionEvent e2, float vx, float vy) {
+                        if (e1 == null || e2 == null) return false;
+                        float dx = e2.getX() - e1.getX();
+                        if (Math.abs(dx) > T && Math.abs(vx) > V) {
+                            shownMonth = (dx < 0) ? shownMonth.plusMonths(1) : shownMonth.minusMonths(1);
+                            updateAndRender();
+                            return true;
+                        }
+                        return false;
                     }
-                }
-            }
+                });
+
+        View root = findViewById(android.R.id.content);
+        if (root != null) {
+            root.setOnTouchListener((v, ev) -> gd.onTouchEvent(ev));
         }
     }
 
-    // =============================================================================================
-    // ====================================  HELPERS  ==============================================
-    // =============================================================================================
-
-    private int getId(String name) {
-        return getResources().getIdentifier(name, "id", getPackageName());
-    }
-
-    private TextView findTextViewByAnyId(String... names) {
-        for (String n : names) {
-            int id = getId(n);
-            if (id != 0) {
-                View v = findViewById(id);
-                if (v instanceof TextView) return (TextView) v;
-            }
-        }
-        return null;
-    }
-
-    private void bindClickByIdOrText(String idName, String fallbackText, Runnable action) {
-        boolean bound = false;
-        int id = getId(idName);
-        if (id != 0) {
-            View v = findViewById(id);
-            if (v != null) { v.setOnClickListener(x -> action.run()); bound = true; }
-        }
-        if (!bound) bindByTextContains(fallbackText, action);
-    }
-
-    private void bindByText(String text, Runnable action) {
-        final View root = findViewById(android.R.id.content);
+    /** Busca una vista por texto visible y le asigna una acción. */
+    private void bindClickByText(String text, Runnable action) {
+        View root = findViewById(android.R.id.content);
         if (root == null) return;
-        ArrayList<View> out = new ArrayList<>();
-        root.findViewsWithText(out, text, View.FIND_VIEWS_WITH_TEXT);
-        for (View v : out) v.setOnClickListener(x -> action.run());
+        java.util.ArrayList<View> found = new java.util.ArrayList<>();
+        root.findViewsWithText(found, text, View.FIND_VIEWS_WITH_TEXT);
+        for (View v : found) v.setOnClickListener(x -> action.run());
     }
 
-    private void bindByTextContains(String piece, Runnable action) {
-        final View root = findViewById(android.R.id.content);
-        if (root == null) return;
-
-        ArrayDeque<View> stack = new ArrayDeque<>();
-        stack.push(root);
-
-        while (!stack.isEmpty()) {
-            View v = stack.pop();
-
-            if (v instanceof TextView) {
-                CharSequence cs = ((TextView) v).getText();
-                if (cs != null && cs.toString().toLowerCase(esCL).contains(piece.toLowerCase(esCL))) {
-                    v.setOnClickListener(x -> action.run());
-                }
-            }
-
-            if (v instanceof android.view.ViewGroup) {
-                android.view.ViewGroup g = (android.view.ViewGroup) v;
-                for (int i = 0; i < g.getChildCount(); i++) stack.push(g.getChildAt(i));
-            }
-        }
+    private int dp(int value) {
+        return Math.round(getResources().getDisplayMetrics().density * value);
     }
 
-    // ---- LogoutView ----
+    // ==== LogoutView ====
     @Override public void showLogoutSuccessMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
