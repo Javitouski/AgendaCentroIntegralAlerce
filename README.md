@@ -29,7 +29,7 @@ Esta aplicacion es una agenda mensual y semanal, con sistema de LogIn a base de 
 ---
 
 ## 🎯 Requisitos Generales del Proyecto
-** ugu
+
 ### 1. Requisitos Técnicos Obligatorios
 
 * **Plataforma y Tecnologías:**

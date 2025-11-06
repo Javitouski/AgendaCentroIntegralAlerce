@@ -1,323 +1,207 @@
-<LinearLayout 
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	android:background="#FFFFFF"
-	android:clipChildren="false"
-	android:clipToPadding="false"
-	android:orientation="vertical"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent">
-	<ScrollView 
-		android:clipChildren="false"
-		android:clipToPadding="false"
-		android:id="@+id/ro9hjcnx5uf"
-		android:layout_width="match_parent"
-		android:layout_height="0dp"
-		android:layout_weight="1">
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:clipChildren="false"
-			android:clipToPadding="false"
-			android:orientation="vertical">
-			<LinearLayout
-				android:id="@+id/rfporwo0hh2k"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:background="@drawable/cr18bffffff"
-				android:paddingVertical="18dp"
-				android:clipChildren="false"
-				android:clipToPadding="false"
-				android:orientation="vertical">
-				<LinearLayout
-					android:id="@+id/rumcxkjegyc"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:gravity="center_vertical"
-					android:layout_marginBottom="17dp"
-					android:layout_marginHorizontal="24dp"
-					android:orientation="horizontal">
-					<TextView
-						android:id="@+id/r2s0ufgddtu"
-						android:textColor="#000000"
-						android:textSize="14sp"
-						android:layout_height="wrap_content"
-						android:layout_width="wrap_content"
-						android:text="9:30"
-					/>
-					<LinearLayout
-						android:id="@+id/rgfdbtghkwe"
-						android:layout_width="0dp"
-						android:layout_height="match_parent"
-						android:layout_weight="1"
-						android:orientation="vertical">
-					</LinearLayout>
-					<ImageView
-						android:id="@+id/ru46dnbg8qh8"
-						android:layout_width="24dp"
-						android:layout_height="24dp"
-						android:layout_marginEnd="124dp"
-						android:src="@mipmap/ic_launcher"
-						android:scaleType="fitXY"
-					/>
-					<ImageView
-						android:id="@+id/r2wvfuygg1tx"
-						android:layout_width="46dp"
-						android:layout_height="17dp"
-						android:src="@mipmap/ic_launcher"
-						android:scaleType="fitXY"
-					/>
-				</LinearLayout>
-				<RelativeLayout
-					android:id="@+id/r26qhx1n47hg"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginBottom="83dp"
-					android:clipChildren="false"
-					android:clipToPadding="false"
-					>
-					<LinearLayout
-						android:layout_width="match_parent"
-						android:layout_height="match_parent"
-						android:clipChildren="false"
-						android:clipToPadding="false"
-						android:orientation="vertical">
-						<ImageView
-							android:id="@+id/r6kamgkpv46"
-							android:layout_width="51dp"
-							android:layout_height="48dp"
-							android:src="@mipmap/ic_launcher"
-							android:scaleType="fitXY"
-						/>
-					</LinearLayout>
-					<TextView
-						android:id="@+id/rf908vuuu6n"
-						android:textColor="#18990D"
-						android:textSize="32sp"
-						android:layout_marginBottom="-17dp"
-						android:layout_marginStart="54dp"
-						android:layout_alignParentBottom="true"
-						android:layout_height="wrap_content"
-						android:layout_width="285.765625dp"
-						android:gravity="center"
-						android:text="Modificar una nueva actividad"
-					/>
-				</RelativeLayout>
-				<LinearLayout
-					android:id="@+id/rfnocw43xwce"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginBottom="1dp"
-					android:layout_marginStart="36dp"
-					android:elevation="4dp"
-					android:clipChildren="false"
-					android:clipToPadding="false"
-					android:orientation="vertical">
-					<TextView
-						android:id="@+id/rj0yu51obvyg"
-						android:textColor="#18990D"
-						android:textSize="18sp"
-						android:textStyle="bold"
-						android:layout_height="wrap_content"
-						android:layout_width="wrap_content"
-						android:text="Nombre"
-					/>
-				</LinearLayout>
-				<LinearLayout
-					android:id="@+id/r77x5qfnrj8r"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:gravity="end"
-					android:background="@drawable/tl4tr4be6e0e9"
-					android:paddingVertical="16dp"
-					android:layout_marginHorizontal="36dp"
-					android:clipChildren="false"
-					android:clipToPadding="false"
-					android:orientation="vertical">
-					<LinearLayout
-						android:id="@+id/rlb7kivtqci"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:paddingBottom="1dp"
-						android:paddingRight="207dp"
-						android:clipChildren="false"
-						android:clipToPadding="false"
-						android:orientation="vertical">
-						<TextView
-							android:id="@+id/r46inf33monl"
-							android:textColor="#1D1B20"
-							android:textSize="16sp"
-							android:layout_height="wrap_content"
-							android:layout_width="wrap_content"
-							android:text="Sesion de Yoga"
-						/>
-					</LinearLayout>
-				</LinearLayout>
-				<LinearLayout
-					android:id="@+id/rmpjaggrunaa"
-					android:layout_width="match_parent"
-					android:layout_height="1dp"
-					android:background="#49454F"
-					android:layout_marginBottom="15dp"
-					android:layout_marginHorizontal="36dp"
-					android:clipChildren="false"
-					android:clipToPadding="false"
-					android:orientation="vertical">
-				</LinearLayout>
-				<LinearLayout
-					android:id="@+id/roduusvxwn8"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginBottom="16dp"
-					android:layout_marginStart="36dp"
-					android:elevation="4dp"
-					android:clipChildren="false"
-					android:clipToPadding="false"
-					android:orientation="vertical">
-					<TextView
-						android:id="@+id/rbu89atg2m6f"
-						android:textColor="#18990D"
-						android:textSize="18sp"
-						android:textStyle="bold"
-						android:layout_height="wrap_content"
-						android:layout_width="wrap_content"
-						android:text="Tipo"
-					/>
-				</LinearLayout>
-				<LinearLayout
-					android:id="@+id/r89nujbyyzku"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:gravity="end"
-					android:background="@drawable/tl4tr4be6e0e9"
-					android:paddingVertical="4dp"
-					android:layout_marginHorizontal="36dp"
-					android:clipChildren="false"
-					android:clipToPadding="false"
-					android:orientation="vertical">
-					<LinearLayout
-						android:id="@+id/rodixy4q6mul"
-						android:layout_width="321dp"
-						android:layout_height="48dp"
-						android:clipChildren="false"
-						android:clipToPadding="false"
-						android:orientation="vertical">
-					</LinearLayout>
-				</LinearLayout>
-				<LinearLayout
-					android:id="@+id/rt3jrw4eb2y"
-					android:layout_width="match_parent"
-					android:layout_height="1dp"
-					android:background="#49454F"
-					android:layout_marginBottom="34dp"
-					android:layout_marginHorizontal="36dp"
-					android:clipChildren="false"
-					android:clipToPadding="false"
-					android:orientation="vertical">
-				</LinearLayout>
-				<LinearLayout
-					android:id="@+id/rschib05tqu"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginBottom="47dp"
-					android:layout_marginStart="38dp"
-					android:elevation="4dp"
-					android:clipChildren="false"
-					android:clipToPadding="false"
-					android:orientation="vertical">
-					<TextView
-						android:id="@+id/reqngcsw93s"
-						android:textColor="#18990D"
-						android:textSize="18sp"
-						android:textStyle="bold"
-						android:layout_height="wrap_content"
-						android:layout_width="wrap_content"
-						android:text="Fecha"
-					/>
-				</LinearLayout>
-				<LinearLayout
-					android:id="@+id/r62ax7i22r3e"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:background="@drawable/cr12b30d158"
-					android:paddingVertical="17dp"
-					android:paddingHorizontal="20dp"
-					android:layout_marginBottom="158dp"
-					android:layout_marginStart="36dp"
-					android:clipChildren="false"
-					android:clipToPadding="false"
-					android:clickable="true"
-					android:focusable="true"
-					android:orientation="horizontal">
-					<TextView
-						android:id="@+id/rl4o323mtm7"
-						android:textColor="#000000"
-						android:textSize="17sp"
-						android:layout_marginEnd="7dp"
-						android:layout_height="wrap_content"
-						android:layout_width="wrap_content"
-						android:text="Oct, 18"
-					/>
-					<TextView
-						android:id="@+id/robem0p86ug"
-						android:textColor="#000000"
-						android:textSize="17sp"
-						android:layout_height="wrap_content"
-						android:layout_width="wrap_content"
-						android:text="2025"
-					/>
-				</LinearLayout>
-				<LinearLayout
-					android:id="@+id/rgxqz03rqum"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:background="@drawable/cr100b02af1c"
-					android:paddingVertical="16dp"
-					android:paddingHorizontal="52dp"
-					android:layout_marginBottom="108dp"
-					android:layout_marginStart="88dp"
-					android:clipChildren="false"
-					android:clipToPadding="false"
-					android:clickable="true"
-					android:focusable="true"
-					android:orientation="vertical">
-					<TextView
-						android:id="@+id/rmnmil38njg"
-						android:textColor="#02AF1C"
-						android:textSize="16sp"
-						android:layout_height="wrap_content"
-						android:layout_width="wrap_content"
-						android:text="Editar Actividad"
-					/>
-				</LinearLayout>
-				<LinearLayout
-					android:id="@+id/r3zmdem711v6"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:gravity="center_horizontal"
-					android:clipChildren="false"
-					android:clipToPadding="false"
-					android:orientation="vertical">
-					<LinearLayout
-						android:id="@+id/ra4vqmbe09al"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:clipChildren="false"
-						android:clipToPadding="false"
-						android:orientation="vertical">
-						<LinearLayout
-							android:id="@+id/r5rdpmiith0g"
-							android:layout_width="108dp"
-							android:layout_height="4dp"
-							android:background="@drawable/cr12b000000"
-							android:clipChildren="false"
-							android:clipToPadding="false"
-							android:orientation="vertical">
-						</LinearLayout>
-					</LinearLayout>
-				</LinearLayout>
-			</LinearLayout>
-		</LinearLayout>
-	</ScrollView>
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:orientation="vertical">
+
+    <!-- Status Bar Space -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:minHeight="24dp" />
+
+    <!-- Top Bar con back button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_arrow_back"
+            android:contentDescription="Volver" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <!-- Título Principal -->
+    <TextView
+        android:id="@+id/txtTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="32dp"
+        android:text="Modificar una nueva\nactividad"
+        android:textAlignment="center"
+        android:textColor="#18990D"
+        android:textSize="26sp"
+        android:textStyle="bold" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp">
+
+            <!-- Sección Nombre -->
+            <TextView
+                android:id="@+id/lblName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Nombre"
+                android:textColor="#18990D"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:hint="Sesión de Yoga"
+                android:inputType="text"
+                android:paddingVertical="12dp"
+                android:text="Sesion de Yoga"
+                android:textColor="#1D1B20"
+                android:textColorHint="#9E9E9E"
+                android:textSize="15sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="20dp"
+                android:background="#E0E0E0" />
+
+            <!-- Sección Tipo -->
+            <TextView
+                android:id="@+id/lblType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Tipo"
+                android:textColor="#18990D"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:hint=""
+                android:inputType="text"
+                android:paddingVertical="12dp"
+                android:textColor="#1D1B20"
+                android:textColorHint="#9E9E9E"
+                android:textSize="15sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="20dp"
+                android:background="#E0E0E0" />
+
+            <!-- Sección Fecha -->
+            <TextView
+                android:id="@+id/lblDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="Fecha"
+                android:textColor="#18990D"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/btnDatePicker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:background="@drawable/button_date_time"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="12dp">
+
+                <TextView
+                    android:id="@+id/txtDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Oct, 18 2025"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Espaciador -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:minHeight="80dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Botón fijo en la parte inferior -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp">
+
+        <LinearLayout
+            android:id="@+id/btnEditActivity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/button_green"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingVertical="14dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Editar Actividad"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Home Indicator -->
+        <View
+            android:layout_width="120dp"
+            android:layout_height="4dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/home_indicator" />
+    </LinearLayout>
+
 </LinearLayout>

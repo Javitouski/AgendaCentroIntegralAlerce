@@ -10,7 +10,6 @@
     <string name="txt_olvide_contrasena">¿Olvidaste tu contraseña?\n¡Haz click aquí para recuperarla!</string>
     <string name="btn_iniciar_sesion">Iniciar sesión</string>
 
-
     <!-- Content Descriptions -->
     <string name="signal_icon">Icono de señal</string>
     <string name="wifi_icon">Icono de WiFi</string>
@@ -60,5 +59,11 @@
     <string name="permisos">Permisos</string>
     <string name="crearactividad">Crear Actividad</string>
     <string name="dropdown_icon">Icono de menú desplegable</string>
+
+    <!-- 🔔 Notificaciones -->
+    <string name="btn_notificaciones_desc">Botón de notificaciones</string>
+    <string name="panel_notificaciones_titulo">🔔 Notificaciones</string>
+    <string name="notif_1_texto">- Tienes una nueva cita agendada.</string>
+    <string name="notif_2_texto">- Recordatorio: cita médica mañana a las 10:00.</string>
 
 </resources>
