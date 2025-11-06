@@ -36,7 +36,7 @@
     <!-- Bottom Navigation -->
     <string name="perfil">Perfil</string>
     <string name="inicio">Inicio</string>
-    <string name="crear_actividad">Crear Actividad</string>
+    <string name="crearActividad">Crear Actividad</string>
 
     <!-- Eventos de ejemplo -->
     <string name="evento1_badge">R/1</string>
@@ -57,7 +57,7 @@
     <string name="funcion">Función</string>
     <string name="funcion_placeholder">Coordinador de eventos.</string>
     <string name="permisos">Permisos</string>
-    <string name="crear_actividad1">Crear Actividad</string>
+    <string name="crear_actividad">Crear Actividad</string>
     <string name="dropdown_icon">Icono de menú desplegable</string>
 
     <!-- 🔔 Notificaciones -->

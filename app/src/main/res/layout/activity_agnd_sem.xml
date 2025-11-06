@@ -7,9 +7,8 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".view.MainActivity">
 
-    <!-- ScrollView para contenido -->
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
@@ -22,68 +21,13 @@
             android:orientation="vertical"
             android:paddingBottom="80dp">
 
-            <!-- Header con hora y status bar -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:paddingHorizontal="24dp"
-                android:paddingVertical="12dp"
-                android:importantForAccessibility="no">
-
-                <TextView
-                    android:id="@+id/tvTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/time"
-                    android:textColor="#000000"
-                    android:textSize="14sp"
-                    android:fontFamily="sans-serif"
-                    android:importantForAccessibility="no"/>
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1"
-                    android:importantForAccessibility="no"/>
-
-                <!-- Iconos de status -->
-                <ImageView
-                    android:id="@+id/ivSignal"
-                    android:layout_width="20dp"
-                    android:layout_height="14dp"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/ic_signal"
-                    android:contentDescription="@string/signal_icon"
-                    android:importantForAccessibility="no"/>
-
-                <ImageView
-                    android:id="@+id/ivWifi"
-                    android:layout_width="20dp"
-                    android:layout_height="14dp"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/ic_wifi"
-                    android:contentDescription="@string/wifi_icon"
-                    android:importantForAccessibility="no"/>
-
-                <ImageView
-                    android:id="@+id/ivBattery"
-                    android:layout_width="24dp"
-                    android:layout_height="14dp"
-                    android:src="@drawable/ic_battery"
-                    android:contentDescription="@string/battery_icon"
-                    android:importantForAccessibility="no"/>
-            </LinearLayout>
-
-            <!-- Botón Cerrar Sesión y Avatar -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingHorizontal="24dp"
-                android:paddingTop="8dp"
+                android:paddingTop="16dp"
                 android:paddingBottom="16dp"
                 android:baselineAligned="false">
 
@@ -109,7 +53,6 @@
                     android:layout_height="1dp"
                     android:layout_weight="1"/>
 
-                <!-- Avatar Usuario -->
                 <ImageView
                     android:id="@+id/ivUserAvatar"
                     android:layout_width="56dp"
@@ -121,7 +64,6 @@
                     android:focusable="true"/>
             </LinearLayout>
 
-            <!-- Título Agenda Semanal -->
             <TextView
                 android:id="@+id/tvTitulo"
                 android:layout_width="match_parent"
@@ -133,7 +75,6 @@
                 android:gravity="center"
                 android:paddingVertical="16dp"/>
 
-            <!-- Mes -->
             <TextView
                 android:id="@+id/tvMes"
                 android:layout_width="match_parent"
@@ -145,7 +86,6 @@
                 android:gravity="center"
                 android:paddingBottom="24dp"/>
 
-            <!-- Días de la semana -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -158,7 +98,6 @@
                 android:layout_marginBottom="24dp"
                 android:baselineAligned="false">
 
-                <!-- Lunes - Destacado -->
                 <TextView
                     android:id="@+id/btnLunes"
                     android:layout_width="0dp"
@@ -174,7 +113,6 @@
                     android:focusable="true"
                     android:layout_marginHorizontal="2dp"/>
 
-                <!-- Martes -->
                 <TextView
                     android:id="@+id/btnMartes"
                     android:layout_width="0dp"
@@ -188,7 +126,6 @@
                     android:focusable="true"
                     android:layout_marginHorizontal="2dp"/>
 
-                <!-- Miércoles -->
                 <TextView
                     android:id="@+id/btnMiercoles"
                     android:layout_width="0dp"
@@ -202,7 +139,6 @@
                     android:focusable="true"
                     android:layout_marginHorizontal="2dp"/>
 
-                <!-- Jueves -->
                 <TextView
                     android:id="@+id/btnJueves"
                     android:layout_width="0dp"
@@ -216,7 +152,6 @@
                     android:focusable="true"
                     android:layout_marginHorizontal="2dp"/>
 
-                <!-- Viernes -->
                 <TextView
                     android:id="@+id/btnViernes"
                     android:layout_width="0dp"
@@ -230,7 +165,6 @@
                     android:focusable="true"
                     android:layout_marginHorizontal="2dp"/>
 
-                <!-- Sábado -->
                 <TextView
                     android:id="@+id/btnSabado"
                     android:layout_width="0dp"
@@ -244,7 +178,6 @@
                     android:focusable="true"
                     android:layout_marginHorizontal="2dp"/>
 
-                <!-- Domingo -->
                 <TextView
                     android:id="@+id/btnDomingo"
                     android:layout_width="0dp"
@@ -259,7 +192,7 @@
                     android:layout_marginHorizontal="2dp"/>
             </LinearLayout>
 
-            <!-- Lista de Eventos -->
+
             <LinearLayout
                 android:id="@+id/llEventos"
                 android:layout_width="match_parent"
@@ -268,134 +201,10 @@
                 android:paddingHorizontal="24dp"
                 android:baselineAligned="false">
 
-                <!-- Evento 1 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingVertical="12dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:minHeight="72dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:baselineAligned="false">
-
-                    <!-- Badge R/1 -->
-                    <FrameLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="16dp">
-
-                        <ImageView
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:src="@drawable/bg_badge_green"
-                            android:contentDescription="@string/event_badge"
-                            android:importantForAccessibility="no"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="@string/evento1_badge"
-                            android:textColor="#FFFFFF"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:importantForAccessibility="no"/>
-                    </FrameLayout>
-
-                    <!-- Detalles del evento -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/evento1_fecha"
-                            android:textColor="#1D1B20"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:paddingBottom="4dp"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/evento1_desc"
-                            android:textColor="#49454F"
-                            android:textSize="13sp"/>
-                    </LinearLayout>
-                </LinearLayout>
-
-                <!-- Evento 2 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingVertical="12dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:minHeight="72dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:baselineAligned="false">
-
-                    <!-- Badge M/1 -->
-                    <FrameLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="16dp">
-
-                        <ImageView
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:src="@drawable/bg_badge_green"
-                            android:contentDescription="@string/event_badge"
-                            android:importantForAccessibility="no"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="@string/evento2_badge"
-                            android:textColor="#FFFFFF"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:importantForAccessibility="no"/>
-                    </FrameLayout>
-
-                    <!-- Detalles del evento -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/evento2_fecha"
-                            android:textColor="#1D1B20"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:paddingBottom="4dp"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/evento2_desc"
-                            android:textColor="#49454F"
-                            android:textSize="13sp"/>
-                    </LinearLayout>
-                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
 
-    <!-- Bottom Navigation Bar -->
     <LinearLayout
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
@@ -404,7 +213,6 @@
         android:background="#A2F576"
         android:elevation="8dp">
 
-        <!-- FAB Button (Flotante) -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -424,7 +232,6 @@
                 android:contentDescription="@string/home_button"/>
         </FrameLayout>
 
-        <!-- Opciones del bottom nav -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -434,7 +241,6 @@
             android:paddingHorizontal="24dp"
             android:baselineAligned="false">
 
-            <!-- Perfil -->
             <LinearLayout
                 android:id="@+id/btnPerfil"
                 android:layout_width="0dp"
@@ -456,7 +262,6 @@
                     android:textSize="12sp"/>
             </LinearLayout>
 
-            <!-- Inicio (espacio central) -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -473,7 +278,6 @@
                     android:paddingTop="24dp"/>
             </LinearLayout>
 
-            <!-- Crear Actividad -->
             <LinearLayout
                 android:id="@+id/btnCrearActividad"
                 android:layout_width="0dp"
@@ -490,13 +294,12 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/crear_actividad"
+                    android:text="@string/crearActividad"
                     android:textColor="#49454F"
                     android:textSize="12sp"/>
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Indicador de gestos -->
         <View
             android:layout_width="108dp"
             android:layout_height="4dp"
