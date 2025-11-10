@@ -66,4 +66,22 @@
     <string name="notif_1_texto">- Tienes una nueva cita agendada.</string>
     <string name="notif_2_texto">- Recordatorio: cita médica mañana a las 10:00.</string>
 
+    <!-- Textos de CrearActActivity -->
+    <string name="crear_act_titulo">Crea una nueva actividad</string>
+    <string name="crear_act_label_nombre">Nombre</string>
+    <string name="crear_act_hint_nombre">Sesión de Yoga</string>
+    <string name="crear_act_label_descripcion">Descripción</string>
+    <string name="crear_act_hint_descripcion">Una breve descripción de la actividad...</string>
+    <string name="crear_act_label_tipo">Tipo</string>
+    <string name="crear_act_hint_tipo">Selecciona un tipo</string>
+    <string name="crear_act_label_fecha">Fecha</string>
+    <string name="crear_act_btn_fecha">Seleccionar fecha</string>
+    <string name="crear_act_label_hora">Hora</string>
+    <string name="crear_act_btn_hora">Seleccionar hora</string>
+    <string name="crear_act_label_lugar">Lugar</string>
+    <string name="crear_act_hint_lugar">Selecciona un lugar</string>
+    <string name="crear_act_label_cupos">Cupos</string>
+    <string name="crear_act_hint_cupos">20</string>
+    <string name="crear_act_btn_crear">Crear Actividad</string>
+
 </resources>
