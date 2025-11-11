@@ -3,7 +3,10 @@ package prog.android.centroalr.view;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import prog.android.centroalr.R;
 
 public class PerfilActivity extends AppCompatActivity {
@@ -13,37 +16,58 @@ public class PerfilActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_perfil);
 
-        // Intento por ID conocido, fallback por texto visible
-        bindClickByIdOrText("revw1kwa5pgf", "Información personal",
-                () -> startActivity(new Intent(this, InfUsuarioActivity.class)));
-
-        bindClickByIdOrText("rv6ictxqv14", "Cambiar contraseña",
-                () -> startActivity(new Intent(PerfilActivity.this, ChangePasswordActivity.class)));
-
-        bindClickByIdOrText("rjidxs2v4tj8", "Tus actividades",
-                () -> startActivity(new Intent(this, AgndSemActivity.class)));
-    }
-
-    // ----- helpers -----
-    private int getId(String name) {
-        return getResources().getIdentifier(name, "id", getPackageName());
-    }
-
-    private void bindClickByIdOrText(String idName, String fallbackText, Runnable action) {
-        boolean bound = false;
-        int id = getId(idName);
-        if (id != 0) {
-            View v = findViewById(id);
-            if (v != null) { v.setOnClickListener(x -> action.run()); bound = true; }
+        // === Back (ImageView con id @+id/btnBack) ===
+        View back = findViewById(R.id.btnBack);
+        if (back != null) {
+            back.setOnClickListener(v ->
+                    getOnBackPressedDispatcher().onBackPressed()
+            );
         }
-        if (!bound) bindByText(fallbackText, action);
-    }
 
-    private void bindByText(String text, Runnable action) {
-        final View root = findViewById(android.R.id.content);
-        if (root == null) return;
-        java.util.ArrayList<View> out = new java.util.ArrayList<>();
-        root.findViewsWithText(out, text, View.FIND_VIEWS_WITH_TEXT);
-        for (View v : out) v.setOnClickListener(x -> action.run());
+        // === Navegaciones solicitadas ===
+
+        // 1) Información personal -> InfUsuarioActivity
+        View personalInfo = findViewById(R.id.btnPersonalInfo);
+        if (personalInfo != null) {
+            personalInfo.setOnClickListener(v ->
+                    startActivity(new Intent(PerfilActivity.this, InfUsuarioActivity.class))
+            );
+        }
+
+        // 2) Cambiar contraseña -> ChangePasswordActivity
+        // (Si en tu proyecto se llama distinto, por ejemplo RestContraActivity,
+        // cambia ChangePasswordActivity.class por ese nombre.)
+        View changePass = findViewById(R.id.btnChangePassword);
+        if (changePass != null) {
+            changePass.setOnClickListener(v ->
+                    startActivity(new Intent(PerfilActivity.this, ChangePasswordActivity.class))
+            );
+        }
+
+        // 3) Tus actividades -> AgndSemActivity
+        View yourActivities = findViewById(R.id.btnYourActivities);
+        if (yourActivities != null) {
+            yourActivities.setOnClickListener(v ->
+                    startActivity(new Intent(PerfilActivity.this, AgndSemActivity.class))
+            );
+        }
+
+        // (Opcional) Otros botones del layout para no dejar huecos sin respuesta:
+
+        // Administrar Roles (placeholder)
+        View manageRoles = findViewById(R.id.btnManageRoles);
+        if (manageRoles != null) {
+            manageRoles.setOnClickListener(v ->
+                    Toast.makeText(this, "Administrar Roles: próximamente", Toast.LENGTH_SHORT).show()
+            );
+        }
+
+        // Crear Usuarios (placeholder)
+        View createUsers = findViewById(R.id.btnCreateUsers);
+        if (createUsers != null) {
+            createUsers.setOnClickListener(v ->
+                    Toast.makeText(this, "Crear Usuarios: próximamente", Toast.LENGTH_SHORT).show()
+            );
+        }
     }
 }
