@@ -54,6 +54,7 @@ dependencies {
     // Otros componentes UI
     implementation("androidx.gridlayout:gridlayout:1.0.0")
     implementation("androidx.cardview:cardview:1.0.0")
+    implementation(libs.firebase.firestore)
 
     // Tests
     testImplementation(libs.junit)
