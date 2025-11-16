@@ -4,11 +4,14 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;                    // <-- IMPORTANTE
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
@@ -48,6 +51,12 @@ public class CrearActActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
+        // ==== BACK BUTTON ====
+        View btnBack = findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish()); // volver a la pantalla anterior
+        }
+        // =====================
 
         // Referencias a vistas
         etNombre = findViewById(R.id.etNombre);
@@ -67,7 +76,6 @@ public class CrearActActivity extends AppCompatActivity {
         btnCrear = findViewById(R.id.btnCrearActividad);
 
         // Valores por defecto simples para tipo y lugar
-        // Por ahora asumo que solo tienes el tipo "taller" y el lugar "oficina"
         autoCompleteTipo.setText("Taller", false);
         autoCompleteLugar.setText("Oficina principal del centro comunitario", false);
 
@@ -77,7 +85,6 @@ public class CrearActActivity extends AppCompatActivity {
 
         btnCrear.setOnClickListener(v -> validarYGuardar());
     }
-
     private void mostrarDatePicker() {
         final Calendar hoy = Calendar.getInstance();
 
@@ -180,8 +187,11 @@ public class CrearActActivity extends AppCompatActivity {
         // Fecha y hora final para guardar
         Timestamp fechaHora = new Timestamp(fechaSeleccionada.getTime());
 
+        // Por ahora tratamos la actividad como puntual:
+        // fechaFin = misma fecha/hora que inicio
+        Timestamp fechaFin = fechaHora;
+
         // Referencias fijas según los documentos que creaste en Firestore
-        // Ajusta los IDs si en tu consola el documento se llama distinto
         DocumentReference tipoRef = db.collection("tiposActividades").document("taller");
         DocumentReference lugarRef = db.collection("lugares").document("oficina");
         DocumentReference proyectoRef = db.collection("proyecto").document("proyecto001");
@@ -198,6 +208,7 @@ public class CrearActActivity extends AppCompatActivity {
         actividad.put("estado", "activa");
         actividad.put("fechaCreacion", FieldValue.serverTimestamp());
         actividad.put("fechaInicio", fechaHora);
+        actividad.put("fechaFin", fechaFin);        // <<< NUEVO
         actividad.put("periodicidad", "puntual");
         actividad.put("tieneArchivos", false);
 
@@ -206,8 +217,9 @@ public class CrearActActivity extends AppCompatActivity {
         actividad.put("proyectoId", proyectoRef);
         actividad.put("socioComunitarioId", socioRef);
         actividad.put("creadaPorUsuarioId", usuarioRef);
-        // De momento guardo un único oferente; si luego manejas varios, cambias a lista
-        actividad.put("oferenteIds", oferenteRef);
+
+        // IMPORTANTE: nombre consistente con lo que lee ListaActividadesActivity
+        actividad.put("oferenteId", oferenteRef);   // antes: "oferenteIds"
 
         db.collection("actividades")
                 .add(actividad)
@@ -220,6 +232,7 @@ public class CrearActActivity extends AppCompatActivity {
                     Toast.makeText(this, "Error al guardar actividad: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
+
 
     private void crearCitaInicial(DocumentReference actividadRef,
                                   DocumentReference usuarioRef,

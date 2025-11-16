@@ -34,7 +34,7 @@
     <string name="domingo">D</string>
 
     <!-- Bottom Navigation -->
-    <string name="perfil">Perfil</string>
+    <string name="lista_actividades">Lista de Actividades</string>
     <string name="inicio">Inicio</string>
     <string name="crearActividad">Crear Actividad</string>
 

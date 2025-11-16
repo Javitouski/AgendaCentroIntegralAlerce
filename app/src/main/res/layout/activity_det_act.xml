@@ -2,10 +2,12 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".view.DetActActivity">
 
     <!-- Status Bar Space -->
     <View
@@ -13,7 +15,7 @@
         android:layout_height="0dp"
         android:minHeight="24dp" />
 
-    <!-- Top Bar con back button -->
+    <!-- Top Bar con back button y título -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -29,12 +31,23 @@
             android:src="@drawable/ic_arrow_back"
             android:contentDescription="Volver" />
 
+        <TextView
+            android:id="@+id/tvToolbarTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="Detalle de actividad"
+            android:textColor="#1D1B20"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
         <Space
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_weight="1" />
     </LinearLayout>
 
+    <!-- Contenido desplazable -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -46,259 +59,301 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="24dp"
+            android:paddingTop="8dp"
             android:paddingBottom="24dp">
 
-            <!-- Título Principal -->
+            <!-- Nombre / título de la actividad -->
             <TextView
-                android:id="@+id/txtTitle"
-                android:layout_width="wrap_content"
+                android:id="@+id/tv_title"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="24dp"
-                android:text="Detalle de la\nactividad"
-                android:textAlignment="center"
-                android:textColor="#18990D"
-                android:textSize="26sp"
-                android:textStyle="bold" />
-
-            <!-- Sección Nombre -->
-            <TextView
-                android:id="@+id/lblName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Nombre"
+                android:text="Nombre de la actividad"
                 android:textColor="#18990D"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:lineSpacingExtra="2dp" />
 
-            <EditText
-                android:id="@+id/etName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/edittext_filled_background"
-                android:hint="Sesión de Yoga"
-                android:inputType="text"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="14dp"
-                android:textColor="#1D1B20"
-                android:textColorHint="#9E9E9E"
-                android:textSize="15sp" />
-
-            <!-- Sección Tipo -->
-            <TextView
-                android:id="@+id/lblType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Tipo"
-                android:textColor="#18990D"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/etType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/edittext_filled_background"
-                android:hint=""
-                android:inputType="text"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="14dp"
-                android:textColor="#1D1B20"
-                android:textColorHint="#9E9E9E"
-                android:textSize="15sp" />
-
-            <!-- Sección Fecha -->
-            <TextView
-                android:id="@+id/lblDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Fecha"
-                android:textColor="#18990D"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
+            <!-- Línea secundaria: tipo y estado -->
             <LinearLayout
-                android:id="@+id/btnDatePicker"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/button_date_time"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="10dp">
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
 
+                <!-- Tipo -->
                 <TextView
-                    android:id="@+id/txtDate"
+                    android:id="@+id/tvTipo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Oct, 13 2025"
+                    android:background="@drawable/button_date_time"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="6dp"
+                    android:text="Taller grupal"
                     android:textColor="#FFFFFF"
-                    android:textSize="14sp"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <Space
+                    android:layout_width="12dp"
+                    android:layout_height="1dp" />
+
+                <!-- Estado -->
+                <TextView
+                    android:id="@+id/tvEstado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/edittext_filled_background"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="6dp"
+                    android:text="Activa"
+                    android:textColor="#1D1B20"
+                    android:textSize="13sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Sección Hora -->
-            <TextView
-                android:id="@+id/lblTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Hora"
-                android:textColor="#18990D"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
+            <!-- Tarjeta: Fecha y hora -->
             <LinearLayout
-                android:id="@+id/btnTimePicker"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/button_date_time"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="10dp">
-
-                <TextView
-                    android:id="@+id/txtTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="13:45 PM"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <!-- Sección Lugar -->
-            <TextView
-                android:id="@+id/lblPlace"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Lugar"
-                android:textColor="#18990D"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/etPlace"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="32dp"
+                android:orientation="vertical"
                 android:background="@drawable/edittext_filled_background"
-                android:hint="Sala Multi-uso"
-                android:inputType="text"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="14dp"
-                android:textColor="#1D1B20"
-                android:textColorHint="#9E9E9E"
-                android:textSize="15sp" />
+                android:layout_marginBottom="12dp">
 
-            <!-- Espaciador -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fecha y hora"
+                    android:textColor="#18990D"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="6dp" />
+
+                <TextView
+                    android:id="@+id/tvFecha"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="13 de octubre de 2025"
+                    android:textColor="#1D1B20"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="2dp" />
+
+                <TextView
+                    android:id="@+id/tvHora"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="13:45 - 15:00"
+                    android:textColor="#1D1B20"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Tarjeta: Lugar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/edittext_filled_background"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="14dp"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Lugar"
+                    android:textColor="#18990D"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="6dp" />
+
+                <TextView
+                    android:id="@+id/tvLugar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Sala Multiuso 2"
+                    android:textColor="#1D1B20"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Tarjeta: Cupo, beneficiarios, días de aviso -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/edittext_filled_background"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="14dp"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Información de cupo"
+                    android:textColor="#18990D"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="6dp" />
+
+                <TextView
+                    android:id="@+id/tvCupo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Cupo total: 20"
+                    android:textColor="#1D1B20"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="2dp" />
+
+                <TextView
+                    android:id="@+id/tvBeneficiarios"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Beneficiarios inscritos: 12"
+                    android:textColor="#1D1B20"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="2dp" />
+
+                <TextView
+                    android:id="@+id/tvDiasAviso"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Días de aviso: 2"
+                    android:textColor="#1D1B20"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Tarjeta: Descripción -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/edittext_filled_background"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="14dp"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Descripción"
+                    android:textColor="#18990D"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="6dp" />
+
+                <TextView
+                    android:id="@+id/tvDescripcion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Espacio grupal orientado a trabajar relajación, respiración y fortalecimiento de vínculos comunitarios."
+                    android:textColor="#1D1B20"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="2dp" />
+            </LinearLayout>
+
             <View
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:minHeight="20dp" />
-
+                android:layout_height="16dp" />
         </LinearLayout>
     </ScrollView>
 
-    <!-- Botones de acción fijos en la parte inferior -->
-    <LinearLayout
+    <!-- Zona inferior con FAB + menú flotante -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
         android:paddingHorizontal="24dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp">
+        android:paddingTop="8dp"
+        android:paddingBottom="16dp">
 
-        <!-- Botón Modificar Actividad -->
+        <!-- Menú de acciones (se despliega sobre el FAB) -->
         <LinearLayout
-            android:id="@+id/btnModifyActivity"
-            android:layout_width="match_parent"
+            android:id="@+id/menuAcciones"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/button_green"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:gravity="center"
+            android:layout_gravity="end|bottom"
             android:orientation="vertical"
-            android:paddingVertical="14dp">
+            android:gravity="end"
+            android:visibility="gone"
+            android:paddingBottom="72dp">
 
-            <TextView
+            <!-- Modificar -->
+            <LinearLayout
+                android:id="@+id/btn_modificar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Modificar Actividad"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/button_green"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp"
+                android:layout_marginBottom="8dp">
 
-        <!-- Botón Reagendar Actividad -->
-        <LinearLayout
-            android:id="@+id/btnRescheduleActivity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/button_green"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:paddingVertical="14dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Modificar actividad"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
-            <TextView
+            <!-- Reagendar -->
+            <LinearLayout
+                android:id="@+id/btn_reagendar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Reagendar Actividad"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/button_green"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp"
+                android:layout_marginBottom="8dp">
 
-        <!-- Botón Cancelar Actividad -->
-        <LinearLayout
-            android:id="@+id/btnCancelActivity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/button_green"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:paddingVertical="14dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reagendar actividad"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
-            <TextView
+            <!-- Cancelar -->
+            <LinearLayout
+                android:id="@+id/btn_cancelar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cancelar Actividad"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/button_green"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cancelar actividad"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- Home Indicator -->
-        <View
-            android:layout_width="120dp"
-            android:layout_height="4dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/home_indicator" />
-    </LinearLayout>
+        <!-- FAB con signo + -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabMore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_marginEnd="0dp"
+            android:layout_marginBottom="0dp"
+            app:srcCompat="@drawable/ic_add"
+            app:tint="@android:color/white"
+            app:backgroundTint="@color/bright_green_button"/>
+
+    </FrameLayout>
 
 </LinearLayout>

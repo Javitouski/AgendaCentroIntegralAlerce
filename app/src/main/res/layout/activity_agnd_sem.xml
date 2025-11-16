@@ -1,25 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    android:orientation="vertical"
-    tools:context=".view.MainActivity">
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    tools:context=".view.AgndSemActivity">
 
     <ScrollView
         android:id="@+id/scrollView"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="80dp">
+            android:paddingBottom="120dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -90,109 +95,136 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="8dp"
-                android:background="@drawable/bg_dias_semana"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="24dp"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp" android:layout_marginBottom="24dp"
                 android:baselineAligned="false">
 
-                <TextView
-                    android:id="@+id/btnLunes"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:text="@string/lunes"
-                    android:textColor="#066D0A"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:gravity="center"
-                    android:background="@drawable/bg_dia_selected"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:layout_marginHorizontal="2dp"/>
+                <ImageButton
+                    android:id="@+id/btnPrevWeek"
+                    android:layout_width="wrap_content"
+                    android:layout_height="46dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Semana Anterior"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_arrow_back_green"
+                    app:tint="#18990D" />
 
-                <TextView
-                    android:id="@+id/btnMartes"
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:text="@string/martes"
-                    android:textColor="#066D0A"
-                    android:textSize="16sp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="horizontal"
                     android:gravity="center"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:layout_marginHorizontal="2dp"/>
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="8dp"
+                    android:background="@drawable/bg_dias_semana"
+                    android:layout_marginHorizontal="8dp" android:baselineAligned="false">
 
-                <TextView
-                    android:id="@+id/btnMiercoles"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:text="@string/miercoles"
-                    android:textColor="#066D0A"
-                    android:textSize="16sp"
-                    android:gravity="center"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:layout_marginHorizontal="2dp"/>
+                    <TextView
+                        android:id="@+id/btnLunes"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="@string/lunes"
+                        android:textColor="#066D0A"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:background="@drawable/bg_dia_selected"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_marginHorizontal="2dp"/>
 
-                <TextView
-                    android:id="@+id/btnJueves"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:text="@string/jueves"
-                    android:textColor="#066D0A"
-                    android:textSize="16sp"
-                    android:gravity="center"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:layout_marginHorizontal="2dp"/>
+                    <TextView
+                        android:id="@+id/btnMartes"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="@string/martes"
+                        android:textColor="#066D0A"
+                        android:textSize="16sp"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_marginHorizontal="2dp"/>
 
-                <TextView
-                    android:id="@+id/btnViernes"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:text="@string/viernes"
-                    android:textColor="#066D0A"
-                    android:textSize="16sp"
-                    android:gravity="center"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:layout_marginHorizontal="2dp"/>
+                    <TextView
+                        android:id="@+id/btnMiercoles"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="@string/miercoles"
+                        android:textColor="#066D0A"
+                        android:textSize="16sp"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_marginHorizontal="2dp"/>
 
-                <TextView
-                    android:id="@+id/btnSabado"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:text="@string/sabado"
-                    android:textColor="#066D0A"
-                    android:textSize="16sp"
-                    android:gravity="center"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:layout_marginHorizontal="2dp"/>
+                    <TextView
+                        android:id="@+id/btnJueves"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="@string/jueves"
+                        android:textColor="#066D0A"
+                        android:textSize="16sp"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_marginHorizontal="2dp"/>
 
-                <TextView
-                    android:id="@+id/btnDomingo"
-                    android:layout_width="0dp"
+                    <TextView
+                        android:id="@+id/btnViernes"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="@string/viernes"
+                        android:textColor="#066D0A"
+                        android:textSize="16sp"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_marginHorizontal="2dp"/>
+
+                    <TextView
+                        android:id="@+id/btnSabado"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="@string/sabado"
+                        android:textColor="#066D0A"
+                        android:textSize="16sp"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_marginHorizontal="2dp"/>
+
+                    <TextView
+                        android:id="@+id/btnDomingo"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="@string/domingo"
+                        android:textColor="#066D0A"
+                        android:textSize="16sp"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_marginHorizontal="2dp"/>
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btnNextWeek"
+                    android:layout_width="wrap_content"
                     android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:text="@string/domingo"
-                    android:textColor="#066D0A"
-                    android:textSize="16sp"
-                    android:gravity="center"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:layout_marginHorizontal="2dp"/>
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Semana Siguiente"
+                    android:rotation="180"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_arrow_forward_green"
+                    app:tint="#18990D" />
+
             </LinearLayout>
-
-
             <LinearLayout
                 android:id="@+id/llEventos"
                 android:layout_width="match_parent"
@@ -200,104 +232,68 @@
                 android:orientation="vertical"
                 android:paddingHorizontal="24dp"
                 android:baselineAligned="false">
-
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
 
     <LinearLayout
         android:id="@+id/bottomNav"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="#A2F576"
-        android:elevation="8dp">
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                android:id="@+id/fabInicio"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="-28dp"
-                android:src="@drawable/ic_home"
-                android:background="@drawable/bg_fab_green"
-                android:padding="12dp"
-                android:elevation="12dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:contentDescription="@string/home_button"/>
-        </FrameLayout>
+        android:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingTop="8dp"
+            android:paddingTop="16dp"
             android:paddingBottom="16dp"
             android:paddingHorizontal="24dp"
             android:baselineAligned="false">
 
-            <LinearLayout
-                android:id="@+id/btnPerfil"
+            <TextView
+                android:id="@+id/btnListaActividades"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
+                android:text="@string/lista_actividades"
+                android:textColor="#625B71"
+                android:textSize="12sp"
                 android:gravity="center"
                 android:clickable="true"
                 android:focusable="true"
-                android:minWidth="48dp"
                 android:minHeight="48dp"
-                android:background="?attr/selectableItemBackground">
+                android:background="?attr/selectableItemBackground"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/perfil"
-                    android:textColor="#625B71"
-                    android:textSize="12sp"/>
-            </LinearLayout>
-
-            <LinearLayout
+            <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:text="@string/inicio"
+                android:textColor="#49454F"
+                android:textSize="12sp"
+                android:gravity="center_horizontal|bottom"
+                android:paddingBottom="4dp"
+                android:minHeight="48dp"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/inicio"
-                    android:textColor="#49454F"
-                    android:textSize="12sp"
-                    android:paddingTop="24dp"/>
-            </LinearLayout>
-
-            <LinearLayout
+            <TextView
                 android:id="@+id/btnCrearActividad"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
+                android:text="@string/crearActividad"
+                android:textColor="#49454F"
+                android:textSize="12sp"
                 android:gravity="center"
                 android:clickable="true"
                 android:focusable="true"
-                android:minWidth="48dp"
                 android:minHeight="48dp"
-                android:background="?attr/selectableItemBackground">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/crearActividad"
-                    android:textColor="#49454F"
-                    android:textSize="12sp"/>
-            </LinearLayout>
+                android:background="?attr/selectableItemBackground"/>
         </LinearLayout>
 
         <View
@@ -308,4 +304,21 @@
             android:layout_marginBottom="8dp"
             android:importantForAccessibility="no"/>
     </LinearLayout>
-</LinearLayout>
+
+    <ImageView
+        android:id="@+id/fabInicio"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:background="@drawable/bg_fab_green"
+        android:src="@drawable/ic_home"
+        android:padding="12dp"
+        android:contentDescription="@string/home_button"
+        android:clickable="true"
+        android:focusable="true"
+        android:elevation="12dp"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="-40dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -41,11 +42,15 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
     private TextView[] dayBtns = new TextView[7]; // LUN..DOM en el header
     private LinearLayout llEventos;  // Contenedor de eventos del día
     private int selectedIndex = 0;   // 0..6
+    private ImageButton btnPrevWeek;
+    private ImageButton btnNextWeek;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_agnd_sem);
+        btnPrevWeek = findViewById(R.id.btnPrevWeek);
+        btnNextWeek = findViewById(R.id.btnNextWeek);
 
         // ====== Logout wiring ======
         authModel = new AuthModel();
@@ -65,9 +70,9 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
         }
 
         // ====== Bottom nav por IDs ======
-        View btnPerfil = findViewById(R.id.btnPerfil);
-        if (btnPerfil != null) btnPerfil.setOnClickListener(v ->
-                startActivity(new Intent(this, PerfilActivity.class)));
+        View btnListaActividades = findViewById(R.id.btnListaActividades);
+        if (btnListaActividades != null) btnListaActividades.setOnClickListener(v ->
+                startActivity(new Intent(this, ListaActividadesActivity.class)));
 
         View fabInicio = findViewById(R.id.fabInicio);
         if (fabInicio != null) fabInicio.setOnClickListener(v ->
@@ -113,8 +118,8 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
         loadDayEvents(selectedDate);
 
         // ====== (Opcional) Fallbacks a texto/ID "dinámico" existentes ======
-        bindClickByIdOrText("rn6aagqs6pq8", "Perfil",
-                () -> startActivity(new Intent(this, PerfilActivity.class)));
+        bindClickByIdOrText("rn6aagqs6pq8", "Lista de Actividades",
+                () -> startActivity(new Intent(this, ListaActividadesActivity.class)));
         bindClickByIdOrText("r3pjyjmbkmo9", "Inicio",
                 () -> startActivity(new Intent(this, AgendMensActivity.class)));
         bindClickByIdOrText("rqwq9k1hp05", "Crear Actividad",
