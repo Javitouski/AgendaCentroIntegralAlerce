@@ -251,8 +251,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             android:paddingHorizontal="24dp"
             android:baselineAligned="false">
 
@@ -262,24 +262,35 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/lista_actividades"
-                android:textColor="#625B71"
-                android:textSize="12sp"
+                android:textColor="#066D0A"
+                android:textSize="13sp"
+                android:textStyle="bold"
                 android:gravity="center"
                 android:clickable="true"
                 android:focusable="true"
                 android:minHeight="48dp"
-                android:background="?attr/selectableItemBackground"/>
+                android:background="?attr/selectableItemBackground"
+                android:drawableTop="@android:drawable/ic_menu_agenda"
+                android:drawableTint="#066D0A"
+                android:drawablePadding="4dp"/>
 
             <TextView
+                android:id="@+id/fabInicio"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/inicio"
-                android:textColor="#49454F"
-                android:textSize="12sp"
-                android:gravity="center_horizontal|bottom"
-                android:paddingBottom="4dp"
-                android:minHeight="48dp"/>
+                android:textColor="#066D0A"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                android:minHeight="48dp"
+                android:background="?attr/selectableItemBackground"
+                android:drawableTop="@drawable/ic_home"
+                android:drawableTint="#066D0A"
+                android:drawablePadding="4dp"/>
 
             <TextView
                 android:id="@+id/btnCrearActividad"
@@ -287,13 +298,18 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/crearActividad"
-                android:textColor="#49454F"
-                android:textSize="12sp"
+                android:textColor="#066D0A"
+                android:textSize="13sp"
+                android:textStyle="bold"
                 android:gravity="center"
                 android:clickable="true"
                 android:focusable="true"
                 android:minHeight="48dp"
-                android:background="?attr/selectableItemBackground"/>
+                android:background="?attr/selectableItemBackground"
+                android:drawableTop="@drawable/ic_add"
+                android:drawableTint="#066D0A"
+                android:drawablePadding="4dp"/>
+
         </LinearLayout>
 
         <View
@@ -304,21 +320,5 @@
             android:layout_marginBottom="8dp"
             android:importantForAccessibility="no"/>
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/fabInicio"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:background="@drawable/bg_fab_green"
-        android:src="@drawable/ic_home"
-        android:padding="12dp"
-        android:contentDescription="@string/home_button"
-        android:clickable="true"
-        android:focusable="true"
-        android:elevation="12dp"
-        app:layout_constraintBottom_toTopOf="@id/bottomNav"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="-40dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

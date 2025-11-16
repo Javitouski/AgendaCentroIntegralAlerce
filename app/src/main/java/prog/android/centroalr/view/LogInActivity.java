@@ -1,5 +1,6 @@
 package prog.android.centroalr.view;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -113,4 +114,27 @@ public class LogInActivity extends AppCompatActivity implements LoginView {
     public void navigateToPasswordRecovery() {
         startActivity(new Intent(this, PasswordRecoveryActivity.class));
     }
+
+    // --- Implementación de los NUEVOS métodos de LoginView ---
+
+    @Override
+    public Context getContext() {
+        // Devuelve el "contexto" de la app para que el Controller encuentre MyApplication
+        return getApplicationContext();
+    }
+
+    @Override
+    public void onLoginSuccessNavigate() {
+        // El Controller nos dice que naveguemos.
+        // Llamamos al método que ya tenías para esto.
+        navigateToMainApp();
+    }
+
+    @Override
+    public void onLoginFailure(String message) {
+        // El Controller nos pasa un mensaje de error.
+        // Llamamos al método que ya tenías para mostrarlo.
+        showLoginError(message);
+    }
 }
+

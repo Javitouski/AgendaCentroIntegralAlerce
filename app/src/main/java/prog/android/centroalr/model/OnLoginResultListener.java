@@ -1,7 +1,10 @@
 package prog.android.centroalr.model;
 
-// Interfaz para notificar el resultado del Login
+import com.google.firebase.auth.FirebaseUser;
+
 public interface OnLoginResultListener {
-    void onLoginSuccess();
-    void onLoginFailure(String error);
+    // ¡CAMBIO CLAVE! Ahora pasamos el FirebaseUser
+    void onLoginSuccess(FirebaseUser user);
+
+    void onLoginFailure(String message);
 }

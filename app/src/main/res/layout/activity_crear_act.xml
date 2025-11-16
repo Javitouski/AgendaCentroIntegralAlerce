@@ -8,7 +8,6 @@
 	android:background="#FFFFFF"
 	tools:context=".view.CrearActActivity">
 
-	<!-- 1. Barra superior (Estilo consistente) -->
 	<LinearLayout
 		android:id="@+id/topBar"
 		android:layout_width="match_parent"
@@ -38,14 +37,12 @@
 			android:textSize="20sp"
 			android:textStyle="bold" />
 
-		<!-- Espacio para centrar el título -->
 		<Space
 			android:layout_width="48dp"
 			android:layout_height="48dp" />
 
 	</LinearLayout>
 
-	<!-- 2. Contenido desplazable -->
 	<ScrollView
 		android:id="@+id/scrollContenido"
 		android:layout_width="0dp"
@@ -62,7 +59,6 @@
 			android:layout_height="wrap_content"
 			android:padding="24dp">
 
-			<!-- Nombre -->
 			<TextView
 				android:id="@+id/labelNombre"
 				style="@style/TextAppearance.AppCompat.Title"
@@ -98,7 +94,6 @@
 			</com.google.android.material.textfield.TextInputLayout>
 
 
-			<!-- Descripción -->
 			<TextView
 				android:id="@+id/labelDescripcion"
 				android:layout_width="wrap_content"
@@ -136,7 +131,6 @@
 			</com.google.android.material.textfield.TextInputLayout>
 
 
-			<!-- Tipo de actividad -->
 			<TextView
 				android:id="@+id/labelTipo"
 				android:layout_width="wrap_content"
@@ -170,7 +164,82 @@
 					android:hint="Selecciona un tipo" />
 			</com.google.android.material.textfield.TextInputLayout>
 
-			<!-- Cupo -->
+
+			<TextView
+				android:id="@+id/labelPeriodicidad"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="24dp"
+				android:text="Periodicidad"
+				android:textColor="#18990D"
+				android:textSize="18sp"
+				android:textStyle="bold"
+				app:layout_constraintTop_toBottomOf="@id/dropdownTipo"
+				app:layout_constraintStart_toStartOf="parent" />
+
+			<RadioGroup
+				android:id="@+id/rgPeriodicidad"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="8dp"
+				android:orientation="horizontal"
+				app:layout_constraintTop_toBottomOf="@id/labelPeriodicidad"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintEnd_toEndOf="parent">
+
+				<RadioButton
+					android:id="@+id/rbPuntual"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="Puntual"
+					android:checked="true"
+					android:textSize="16sp"/>
+
+				<RadioButton
+					android:id="@+id/rbPeriodica"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginStart="24dp"
+					android:text="Periódica"
+					android:textSize="16sp"/>
+			</RadioGroup>
+
+			<LinearLayout
+				android:id="@+id/grupoFechaFin"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:orientation="vertical"
+				android:visibility="gone"
+				tools:visibility="visible"
+				app:layout_constraintTop_toBottomOf="@id/rgPeriodicidad"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintEnd_toEndOf="parent">
+
+				<TextView
+					android:id="@+id/labelFechaFin"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="16dp"
+					android:text="Fecha de Fin"
+					android:textColor="#18990D"
+					android:textSize="18sp"
+					android:textStyle="bold" />
+
+				<com.google.android.material.button.MaterialButton
+					android:id="@+id/btnFechaFin"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="8dp"
+					android:backgroundTint="@color/bright_green_button"
+					android:paddingHorizontal="20dp"
+					android:paddingVertical="14dp"
+					android:text="Seleccionar fecha de fin"
+					android:textAllCaps="false"
+					android:textColor="@color/white"
+					android:textSize="16sp"
+					app:cornerRadius="100dp" />
+			</LinearLayout>
+
 			<TextView
 				android:id="@+id/labelCupo"
 				android:layout_width="wrap_content"
@@ -180,8 +249,8 @@
 				android:textColor="#18990D"
 				android:textSize="18sp"
 				android:textStyle="bold"
-				app:layout_constraintTop_toBottomOf="@id/dropdownTipo"
-				app:layout_constraintStart_toStartOf="parent" />
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/grupoFechaFin" />
 
 			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/inputCupo"
@@ -204,7 +273,6 @@
 					android:inputType="number" />
 			</com.google.android.material.textfield.TextInputLayout>
 
-			<!-- Días de aviso previo -->
 			<TextView
 				android:id="@+id/labelDiasAviso"
 				android:layout_width="wrap_content"
@@ -238,7 +306,6 @@
 					android:inputType="number" />
 			</com.google.android.material.textfield.TextInputLayout>
 
-			<!-- Beneficiarios -->
 			<TextView
 				android:id="@+id/labelBeneficiarios"
 				android:layout_width="wrap_content"
@@ -276,13 +343,12 @@
 			</com.google.android.material.textfield.TextInputLayout>
 
 
-			<!-- Fecha -->
 			<TextView
 				android:id="@+id/labelFecha"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_marginTop="24dp"
-				android:text="Fecha"
+				android:text="Fecha de Inicio"
 				android:textColor="#18990D"
 				android:textSize="18sp"
 				android:textStyle="bold"
@@ -305,13 +371,12 @@
 				app:layout_constraintTop_toBottomOf="@id/labelFecha"
 				app:layout_constraintStart_toStartOf="parent" />
 
-			<!-- Hora -->
 			<TextView
 				android:id="@+id/labelHora"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_marginTop="24dp"
-				android:text="Hora"
+				android:text="Hora de Inicio"
 				android:textColor="#18990D"
 				android:textSize="18sp"
 				android:textStyle="bold"
@@ -334,7 +399,6 @@
 				app:layout_constraintTop_toBottomOf="@id/labelHora"
 				app:layout_constraintStart_toStartOf="parent" />
 
-			<!-- Lugar -->
 			<TextView
 				android:id="@+id/labelLugar"
 				android:layout_width="wrap_content"
@@ -368,7 +432,6 @@
 					android:hint="Selecciona un lugar" />
 			</com.google.android.material.textfield.TextInputLayout>
 
-			<!-- Espacio final -->
 			<View
 				android:id="@+id/spaceBottom"
 				android:layout_width="0dp"
@@ -380,7 +443,6 @@
 		</androidx.constraintlayout.widget.ConstraintLayout>
 	</ScrollView>
 
-	<!-- 3. Barra inferior fija con Botón y Handle -->
 	<LinearLayout
 		android:id="@+id/bottomBar"
 		android:layout_width="match_parent"
@@ -406,7 +468,6 @@
 			android:textSize="16sp"
 			app:cornerRadius="100dp" />
 
-		<!-- Indicador de gestos (para consistencia) -->
 		<View
 			android:layout_width="108dp"
 			android:layout_height="4dp"

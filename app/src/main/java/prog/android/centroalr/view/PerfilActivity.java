@@ -7,14 +7,36 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+// PASO 1: Importar las clases que necesitamos
+import prog.android.centroalr.MyApplication;
 import prog.android.centroalr.R;
+import prog.android.centroalr.model.Usuario;
 
 public class PerfilActivity extends AppCompatActivity {
+
+    // PASO 2: Declarar una variable para nuestro usuario
+    private Usuario usuarioActual;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_perfil);
+
+        // PASO 3: Cargar el perfil de usuario desde MyApplication
+        MyApplication myApp = (MyApplication) getApplicationContext();
+        usuarioActual = myApp.getUsuarioActual();
+
+        // PASO 4: CHEQUEO DE SEGURIDAD
+        // Si por alguna razón el usuario es nulo (ej. Android limpió la memoria),
+        // no dejamos que se quede en esta pantalla. Lo enviamos al Login.
+        if (usuarioActual == null) {
+            Toast.makeText(this, "Error: Sesión no encontrada.", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, LogInActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return; // Importante: detenemos la ejecución del onCreate aquí
+        }
 
         // === Back (ImageView con id @+id/btnBack) ===
         View back = findViewById(R.id.btnBack);
@@ -35,8 +57,6 @@ public class PerfilActivity extends AppCompatActivity {
         }
 
         // 2) Cambiar contraseña -> ChangePasswordActivity
-        // (Si en tu proyecto se llama distinto, por ejemplo RestContraActivity,
-        // cambia ChangePasswordActivity.class por ese nombre.)
         View changePass = findViewById(R.id.btnChangePassword);
         if (changePass != null) {
             changePass.setOnClickListener(v ->
@@ -52,22 +72,39 @@ public class PerfilActivity extends AppCompatActivity {
             );
         }
 
-        // (Opcional) Otros botones del layout para no dejar huecos sin respuesta:
+        // --- PASO 5: LÓGICA DE PERMISOS ---
 
-        // Administrar Roles (placeholder)
+        // Buscamos los botones de administrador
         View manageRoles = findViewById(R.id.btnManageRoles);
-        if (manageRoles != null) {
-            manageRoles.setOnClickListener(v ->
-                    Toast.makeText(this, "Administrar Roles: próximamente", Toast.LENGTH_SHORT).show()
-            );
-        }
-
-        // Crear Usuarios (placeholder)
         View createUsers = findViewById(R.id.btnCreateUsers);
-        if (createUsers != null) {
-            createUsers.setOnClickListener(v ->
-                    Toast.makeText(this, "Crear Usuarios: próximamente", Toast.LENGTH_SHORT).show()
-            );
+
+        // Verificamos el permiso (¡tu modelo Usuario.java ya maneja la lógica de "admin" o mapa de permisos!)
+        if (usuarioActual.tienePermiso("PUEDE_GESTIONAR_MANTENEDORES")) {
+            // El usuario SÍ tiene permiso (es admin)
+
+            if (manageRoles != null) {
+                manageRoles.setVisibility(View.VISIBLE); // Asegurarse de que sea visible
+                manageRoles.setOnClickListener(v ->
+                        Toast.makeText(this, "Administrar Roles: próximamente", Toast.LENGTH_SHORT).show()
+                );
+            }
+
+            if (createUsers != null) {
+                createUsers.setVisibility(View.VISIBLE); // Asegurarse de que sea visible
+                createUsers.setOnClickListener(v ->
+                        startActivity(new Intent(PerfilActivity.this, CrearUsuarioActivity.class))
+                );
+            }
+
+        } else {
+            // El usuario NO tiene permiso
+
+            if (manageRoles != null) {
+                manageRoles.setVisibility(View.GONE); // ¡Ocultamos el botón!
+            }
+            if (createUsers != null) {
+                createUsers.setVisibility(View.GONE); // ¡Ocultamos el botón!
+            }
         }
     }
 }

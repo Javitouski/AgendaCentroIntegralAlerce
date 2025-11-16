@@ -1,5 +1,6 @@
 package prog.android.centroalr.view;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -241,4 +242,27 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
         startActivity(intent);
         finish();
     }
+
+    // --- Implementación de los NUEVOS métodos de LogoutView ---
+
+    @Override
+    public Context getContext() {
+        // Devuelve el "contexto" de la app para que el Controller encuentre MyApplication
+        return getApplicationContext();
+    }
+
+    @Override
+    public void onLogoutSuccess() {
+        // El Controller nos dice que el logout fue exitoso.
+        // Llamamos a los métodos que ya tenías para esto.
+        showLogoutSuccessMessage("Sesión cerrada exitosamente.");
+        navigateToLogin();
+    }
+
+    @Override
+    public void onLogoutFailure(String message) {
+        // El Controller nos pasa un mensaje de error.
+        showLogoutSuccessMessage("Error al cerrar sesión: " + message);
+    }
+
 }

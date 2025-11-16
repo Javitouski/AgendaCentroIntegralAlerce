@@ -1,5 +1,6 @@
 package prog.android.centroalr.view;
 
+import android.content.Context; // Asegúrate de que esta importación esté
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.util.TypedValue;
+import android.widget.Toast; // Asegúrate de que esta importación esté
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,9 +18,12 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+// PASO 1: Importar las clases necesarias
+import prog.android.centroalr.MyApplication;
 import prog.android.centroalr.R;
 import prog.android.centroalr.controller.LogoutController;
 import prog.android.centroalr.model.AuthModel;
+import prog.android.centroalr.model.Usuario; // Importar Usuario
 
 public class AgndSemActivity extends AppCompatActivity implements LogoutView {
 
@@ -26,6 +31,9 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
     private TextView btnCerrarSesion;
     private LogoutController logoutController;
     private AuthModel authModel;
+
+    // PASO 2: Declarar variable para el usuario
+    private Usuario usuarioActual;
 
     // --- Semana / día seleccionado ---
     private final Locale esCL = new Locale("es", "CL");
@@ -45,12 +53,14 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
     private ImageButton btnPrevWeek;
     private ImageButton btnNextWeek;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_agnd_sem);
         btnPrevWeek = findViewById(R.id.btnPrevWeek);
         btnNextWeek = findViewById(R.id.btnNextWeek);
+
 
         // ====== Logout wiring ======
         authModel = new AuthModel();
@@ -59,6 +69,17 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
         btnCerrarSesion = findViewById(R.id.btnCerrarSesion);
         if (btnCerrarSesion != null) {
             btnCerrarSesion.setOnClickListener(v -> logoutController.onLogoutClicked());
+        }
+
+        // ====== PASO 3: Cargar el perfil de usuario ======
+        MyApplication myApp = (MyApplication) getApplicationContext();
+        usuarioActual = myApp.getUsuarioActual();
+
+        // ====== PASO 4: CHEQUEO DE SEGURIDAD ======
+        if (usuarioActual == null) {
+            Toast.makeText(this, "Error: Sesión no encontrada.", Toast.LENGTH_SHORT).show();
+            navigateToLogin(); // Usamos el método que ya tienes
+            return; // Detenemos la ejecución
         }
 
         // ====== Icono usuario -> Perfil ======
@@ -78,9 +99,19 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
         if (fabInicio != null) fabInicio.setOnClickListener(v ->
                 startActivity(new Intent(this, AgendMensActivity.class)));
 
+        // ====== PASO 5: LÓGICA DE PERMISOS PARA "CREAR ACTIVIDAD" ======
         View btnCrearActividad = findViewById(R.id.btnCrearActividad);
-        if (btnCrearActividad != null) btnCrearActividad.setOnClickListener(v ->
-                startActivity(new Intent(this, CrearActActivity.class)));
+        if (btnCrearActividad != null) {
+            if (usuarioActual.tienePermiso("PUEDE_CREAR_ACTIVIDAD")) {
+                // SÍ tiene permiso
+                btnCrearActividad.setVisibility(View.VISIBLE);
+                btnCrearActividad.setOnClickListener(v ->
+                        startActivity(new Intent(this, CrearActActivity.class)));
+            } else {
+                // NO tiene permiso
+                btnCrearActividad.setVisibility(View.GONE); // ¡Ocultamos el botón!
+            }
+        }
 
         // ====== Referencias vista semanal ======
         tvMes = findViewById(R.id.tvMes);
@@ -122,8 +153,17 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
                 () -> startActivity(new Intent(this, ListaActividadesActivity.class)));
         bindClickByIdOrText("r3pjyjmbkmo9", "Inicio",
                 () -> startActivity(new Intent(this, AgendMensActivity.class)));
+
+        // ¡Cuidado aquí! Este fallback también debe ser asegurado,
+        // pero lo principal es el botón de la UI (btnCrearActividad) que ya aseguramos.
+        // Por ahora lo dejamos así.
         bindClickByIdOrText("rqwq9k1hp05", "Crear Actividad",
-                () -> startActivity(new Intent(this, CrearActActivity.class)));
+                () -> {
+                    if(usuarioActual.tienePermiso("PUEDE_CREAR_ACTIVIDAD")) {
+                        startActivity(new Intent(this, CrearActActivity.class));
+                    }
+                    // Si no tiene permiso, no hace nada.
+                });
 
         bindEventById("rtumfhvig6h");
         bindEventById("roa0repy8oae");
@@ -273,5 +313,27 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
+    }
+
+    // --- Implementación de los NUEVOS métodos de LogoutView ---
+
+    @Override
+    public Context getContext() {
+        // Devuelve el "contexto" de la app para que el Controller encuentre MyApplication
+        return getApplicationContext();
+    }
+
+    @Override
+    public void onLogoutSuccess() {
+        // El Controller nos dice que el logout fue exitoso.
+        // Llamamos a los métodos que ya tenías para esto.
+        showLogoutSuccessMessage("Sesión cerrada exitosamente.");
+        navigateToLogin();
+    }
+
+    @Override
+    public void onLogoutFailure(String message) {
+        // El Controller nos pasa un mensaje de error.
+        showLogoutSuccessMessage("Error al cerrar sesión: " + message);
     }
 }

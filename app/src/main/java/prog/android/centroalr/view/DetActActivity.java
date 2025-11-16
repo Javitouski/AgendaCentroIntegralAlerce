@@ -1,423 +1,247 @@
 package prog.android.centroalr.view;
 
-import android.content.Intent;
+import android.content.Intent; // ¡CORREGIDO! Sin 's'
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout; // Importar LinearLayout
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton; // Importar FAB
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+// Importar clases de Permisos
+import prog.android.centroalr.MyApplication;
 import prog.android.centroalr.R;
+import prog.android.centroalr.model.Usuario;
 
 public class DetActActivity extends AppCompatActivity {
 
-    // Menú flotante
-    private View menuAcciones;
-    private FloatingActionButton fabMore;
-    private String estadoActual;
+    private ImageView btnBack;
+    // Referencias a los TextViews del XML nuevo
+    private TextView tvTitle, tvTipo, tvEstado, tvFecha, tvHora, tvLugar, tvCupo, tvBeneficiarios, tvDiasAviso, tvDescripcion;
 
-    // Firestore
+    // Referencias al nuevo Menú Flotante
+    private FloatingActionButton fabMore;
+    private LinearLayout menuAcciones;
+    private View btnModificar, btnReagendar, btnCancelar; // Son los LinearLayouts clickeables
+
     private FirebaseFirestore db;
     private String actividadId;
-    private String actividadNombre;
 
-    // UI detalle
-    private TextView tvTitle;
-    private TextView tvTipo;
-    private TextView tvEstado;
-    private TextView tvFecha;
-    private TextView tvHora;
-    private TextView tvLugar;
-    private TextView tvCupo;
-    private TextView tvBeneficiarios;
-    private TextView tvDiasAviso;
-    private TextView tvDescripcion;
+    // Variable para el usuario
+    private Usuario usuarioActual;
+
+    private static final String TAG = "DetActActivity";
+    private final Locale esCL = new Locale("es", "CL");
+    // Formatos separados para Fecha y Hora (como en tu nuevo XML)
+    private final SimpleDateFormat dateFmt = new SimpleDateFormat("EEEE d 'de' MMMM", esCL);
+    private final SimpleDateFormat timeFmt = new SimpleDateFormat("HH:mm", esCL);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_det_act);
 
-        // Firestore
+        // 1. Cargar el perfil de usuario
+        MyApplication myApp = (MyApplication) getApplicationContext();
+        usuarioActual = myApp.getUsuarioActual();
+
+        // 2. CHEQUEO DE SEGURIDAD
+        if (usuarioActual == null) {
+            Toast.makeText(this, "Error: Sesión no encontrada.", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, LogInActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return; // Detenemos la ejecución
+        }
+
         db = FirebaseFirestore.getInstance();
 
-        // Extras desde la lista
-        actividadId = getIntent().getStringExtra("actividadId");
-        actividadNombre = getIntent().getStringExtra("event_text");
-
-        // ----- Views del menú flotante -----
-        menuAcciones = findViewById(R.id.menuAcciones);
-        fabMore = findViewById(R.id.fabMore);
-
-        // Back (flecha superior)
-        View btnBack = findViewById(R.id.btnBack);
-        if (btnBack != null) {
-            btnBack.setOnClickListener(v -> onBackPressed());
-        }
-
-        // Toggle del menú con el FAB
-        if (fabMore != null && menuAcciones != null) {
-            fabMore.setOnClickListener(v -> toggleMenu());
-        }
-
-        // ---- Enlazar vistas de detalle ----
-        initDetailViews(actividadNombre);
-
-        // ---- Configurar acciones de botones del menú ----
-        bindClickByIdOrText("btn_cancelar", "Cancelar", this::abrirCancelar);
-        bindClickByIdOrText("btn_reagendar", "Reagendar", this::abrirReagendar);
-        bindClickByIdOrText("btn_modificar", "Modificar", this::abrirModificar);
-
-        // Extras por si tus textos usan otras palabras
-        bindClickByIdOrText("btn_anular", "Anular", this::abrirCancelar);
-        bindClickByIdOrText("btn_reprogramar", "Reprogramar", this::abrirReagendar);
-        bindClickByIdOrText("btn_editar", "Editar", this::abrirModificar);
-
-        // ---- Cargar datos reales SOLO si tenemos actividadId ----
-        if (actividadId != null && !actividadId.trim().isEmpty()) {
-            cargarActividad();
+        // Obtener el ID de la actividad
+        if (getIntent() != null && getIntent().hasExtra("actividadId")) {
+            actividadId = getIntent().getStringExtra("actividadId");
         } else {
-            // Modo demo: solo se ve el título provisional si llegó por texto
-            Toast.makeText(this, "No se recibió el ID de la actividad.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error: No se pudo cargar la actividad.", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "actividadId es nulo, no se puede cargar la actividad.");
+            finish();
+            return;
         }
+
+        initViews(); // 3. Inicializar Vistas con IDs correctos
+        initListeners(); // 4. Inicializar Listeners (CON LÓGICA DE PERMISOS)
+
+        cargarDetallesActividad(); // 5. Cargar datos
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Cada vez que vuelvas a esta pantalla, recargamos los datos desde Firestore
-        if (actividadId != null && !actividadId.trim().isEmpty()) {
-            cargarActividad();
-        }
-    }
-
-    // ================== INICIALIZAR UI ==================
-
-    private void initDetailViews(String provisionalTitle) {
-        tvTitle         = findViewById(R.id.tv_title);
-        tvTipo          = findViewById(R.id.tvTipo);
-        tvEstado        = findViewById(R.id.tvEstado);
-        tvFecha         = findViewById(R.id.tvFecha);
-        tvHora          = findViewById(R.id.tvHora);
-        tvLugar         = findViewById(R.id.tvLugar);
-        tvCupo          = findViewById(R.id.tvCupo);
+    private void initViews() {
+        // IDs del nuevo XML
+        btnBack = findViewById(R.id.btnBack);
+        tvTitle = findViewById(R.id.tv_title);
+        tvTipo = findViewById(R.id.tvTipo);
+        tvEstado = findViewById(R.id.tvEstado);
+        tvFecha = findViewById(R.id.tvFecha);
+        tvHora = findViewById(R.id.tvHora);
+        tvLugar = findViewById(R.id.tvLugar);
+        tvCupo = findViewById(R.id.tvCupo);
         tvBeneficiarios = findViewById(R.id.tvBeneficiarios);
-        tvDiasAviso     = findViewById(R.id.tvDiasAviso);
-        tvDescripcion   = findViewById(R.id.tvDescripcion);
+        tvDiasAviso = findViewById(R.id.tvDiasAviso);
+        tvDescripcion = findViewById(R.id.tvDescripcion);
 
-        // Si vino un título desde la lista, lo mostramos mientras carga Firestore
-        if (tvTitle != null && provisionalTitle != null && !provisionalTitle.trim().isEmpty()) {
-            tvTitle.setText(provisionalTitle);
-        }
+        // Menú Flotante
+        fabMore = findViewById(R.id.fabMore);
+        menuAcciones = findViewById(R.id.menuAcciones);
+        btnModificar = findViewById(R.id.btn_modificar);
+        btnReagendar = findViewById(R.id.btn_reagendar);
+        btnCancelar = findViewById(R.id.btn_cancelar);
     }
 
-    // ================== CARGA DESDE FIRESTORE ==================
 
-    private void cargarActividad() {
-        db.collection("actividades")
-                .document(actividadId)
-                .get()
-                .addOnSuccessListener(this::onActividadLoaded)
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Error al cargar la actividad.", Toast.LENGTH_SHORT).show()
-                );
-    }
+    private void initListeners() {
+        btnBack.setOnClickListener(v -> finish());
 
-    private void onActividadLoaded(DocumentSnapshot doc) {
-        if (!doc.exists()) {
-            Toast.makeText(this, "La actividad ya no existe.", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // --- LÓGICA DE PERMISOS PARA EL MENÚ FLOTANTE ---
 
-        // Nombre / título
-        String nombre = doc.getString("nombre");
-        if (nombre != null && !nombre.isEmpty()) {
-            actividadNombre = nombre;  // actualizamos al nombre real
-            if (tvTitle != null) {
-                tvTitle.setText(nombre);
-            }
-        }
+        // 1. Revisar todos los permisos relevantes
+        boolean canModify = usuarioActual.tienePermiso("PUEDE_MODIFICAR_ACTIVIDAD");
+        boolean canReagendar = usuarioActual.tienePermiso("PUEDE_REAGENDAR_ACTIVIDAD");
+        boolean canCancel = usuarioActual.tienePermiso("PUEDE_CANCELAR_ACTIVIDAD");
 
-        // Tipo de actividad (desde tipoActividadId)
-        if (tvTipo != null) {
-            DocumentReference tipoRef = doc.getDocumentReference("tipoActividadId");
-            if (tipoRef != null) {
-                String id = tipoRef.getId();   // p.ej. "taller"
-                String label;
-                switch (id) {
-                    case "taller":
-                        label = "Taller grupal";
-                        break;
-                    default:
-                        label = "Tipo: " + id;
-                        break;
-                }
-                tvTipo.setText(label);
-            } else {
-                tvTipo.setText("Tipo no definido");
-            }
-        }
+        // 2. ¿Tiene permiso para *alguna* acción?
+        boolean hasAnyActionPermission = canModify || canReagendar || canCancel;
 
-        // Estado
-        if (tvEstado != null) {
-            String estado = doc.getString("estado");
-            estadoActual = (estado != null && !estado.trim().isEmpty())
-                    ? estado
-                    : "activa";  // valor por defecto si no viene nada
-            tvEstado.setText(estadoActual);
-        }
-
-        // 🔁 Actualizar texto del botón Cancelar / Reactivar según estado
-        actualizarTextoBotonCancelar();
-
-        // Fecha y hora
-        Timestamp fechaInicio = doc.getTimestamp("fechaInicio");
-        Timestamp fechaFin    = doc.getTimestamp("fechaFin");
-
-        SimpleDateFormat dfFecha = new SimpleDateFormat("d 'de' MMMM 'de' yyyy", new Locale("es", "CL"));
-        SimpleDateFormat dfHora  = new SimpleDateFormat("HH:mm", Locale.getDefault());
-
-        if (fechaInicio != null) {
-            java.util.Date dInicio = fechaInicio.toDate();
-            if (tvFecha != null) {
-                tvFecha.setText(dfFecha.format(dInicio));
-            }
-            if (tvHora != null) {
-                if (fechaFin != null) {
-                    java.util.Date dFin = fechaFin.toDate();
-                    tvHora.setText(dfHora.format(dInicio) + " - " + dfHora.format(dFin));
+        if (hasAnyActionPermission) {
+            // 3. Si tiene permisos, mostrar el FAB principal
+            fabMore.setVisibility(View.VISIBLE);
+            fabMore.setOnClickListener(v -> {
+                // Alternar la visibilidad del menú
+                if (menuAcciones.getVisibility() == View.VISIBLE) {
+                    menuAcciones.setVisibility(View.GONE);
                 } else {
-                    tvHora.setText(dfHora.format(dInicio));
+                    menuAcciones.setVisibility(View.VISIBLE);
                 }
-            }
-        } else {
-            if (tvFecha != null) tvFecha.setText("Fecha no definida");
-            if (tvHora != null)  tvHora.setText("");
-        }
+            });
 
-        // Lugar
-        if (tvLugar != null) {
-            DocumentReference lugarRef = doc.getDocumentReference("lugarId");
-            String textoLugar;
-            if (lugarRef == null) {
-                textoLugar = "Lugar no especificado";
+            // 4. Configurar visibilidad y clicks de CADA botón DENTRO del menú
+
+            // Botón Modificar
+            if (canModify) {
+                btnModificar.setVisibility(View.VISIBLE);
+                btnModificar.setOnClickListener(v -> {
+                    Intent intent = new Intent(DetActActivity.this, ModificarActActivity.class);
+                    intent.putExtra("actividadId", actividadId);
+                    startActivity(intent);
+                });
             } else {
-                String id = lugarRef.getId();
-                switch (id) {
-                    case "oficina":
-                        textoLugar = "Oficina principal del centro comunitario";
-                        break;
-                    case "salaMultiuso1":
-                        textoLugar = "Sala multiuso 1";
-                        break;
-                    case "salaMultiuso2":
-                        textoLugar = "Sala multiuso 2";
-                        break;
-                    default:
-                        String s = id.replace("_", " ").replace("-", " ");
-                        if (s.isEmpty()) {
-                            textoLugar = "Lugar no especificado";
-                        } else {
-                            textoLugar = s.substring(0, 1).toUpperCase() + s.substring(1);
-                        }
-                        break;
-                }
+                btnModificar.setVisibility(View.GONE);
             }
-            tvLugar.setText(textoLugar);
-        }
 
-        // Cupo
-        if (tvCupo != null) {
-            Long cupo = doc.getLong("cupo");
-            tvCupo.setText("Cupo total: " + (cupo != null ? cupo : 0));
-        }
-
-        // Días de aviso previo
-        if (tvDiasAviso != null) {
-            Long diasAviso = doc.getLong("diasAvisoPrevio");
-            tvDiasAviso.setText("Días de aviso: " + (diasAviso != null ? diasAviso : 0));
-        }
-
-        // Beneficiarios (descripcion)
-        if (tvBeneficiarios != null) {
-            String benef = doc.getString("beneficiariosDescripcion");
-            if (benef != null && !benef.trim().isEmpty()) {
-                tvBeneficiarios.setText("Beneficiarios: " + benef);
+            // Botón Reagendar
+            if (canReagendar) {
+                btnReagendar.setVisibility(View.VISIBLE);
+                btnReagendar.setOnClickListener(v -> {
+                    Intent intent = new Intent(DetActActivity.this, ReagActActivity.class);
+                    intent.putExtra("actividadId", actividadId);
+                    startActivity(intent);
+                });
             } else {
-                tvBeneficiarios.setText("Beneficiarios: no especificados");
+                btnReagendar.setVisibility(View.GONE);
             }
-        }
 
-        // Descripción
-        if (tvDescripcion != null) {
-            String desc = doc.getString("descripcion");
-            tvDescripcion.setText(
-                    desc != null && !desc.trim().isEmpty()
-                            ? desc
-                            : "Sin descripción registrada."
-            );
-        }
-    }
+            // Botón Cancelar
+            if (canCancel) {
+                btnCancelar.setVisibility(View.VISIBLE);
+                btnCancelar.setOnClickListener(v -> {
+                    Intent intent = new Intent(DetActActivity.this, CancelActActivity.class);
+                    intent.putExtra("actividadId", actividadId);
+                    startActivity(intent);
+                });
+            } else {
+                btnCancelar.setVisibility(View.GONE);
+            }
 
-    // ================== Mostrar/Ocultar menú flotante ==================
-
-    private void toggleMenu() {
-        if (menuAcciones == null || fabMore == null) return;
-
-        if (menuAcciones.getVisibility() == View.VISIBLE) {
-            // Ocultar menú
-            menuAcciones.setAlpha(1f);
-            menuAcciones.animate()
-                    .alpha(0f)
-                    .setDuration(150)
-                    .withEndAction(() -> menuAcciones.setVisibility(View.GONE))
-                    .start();
-
-            fabMore.animate().rotation(0f).setDuration(150).start();
         } else {
-            // Mostrar menú
-            menuAcciones.setAlpha(0f);
-            menuAcciones.setVisibility(View.VISIBLE);
-            menuAcciones.animate()
-                    .alpha(1f)
-                    .setDuration(150)
-                    .start();
-
-            fabMore.animate().rotation(45f).setDuration(150).start();
+            // 5. Si no tiene NINGÚN permiso, ocultar el FAB principal
+            fabMore.setVisibility(View.GONE);
         }
     }
 
-    // ================== helpers robustos para los botones del menú ==================
+    private void cargarDetallesActividad() {
+        // mostrarLoading(true); // loadingOverlay fue removido
+        DocumentReference docRef = db.collection("actividades").document(actividadId);
 
-    private int getId(String name) {
-        return getResources().getIdentifier(name, "id", getPackageName());
-    }
+        docRef.get().addOnSuccessListener(doc -> {
+            if (doc.exists()) {
+                // --- Mapeo Básico (usando nuevos IDs) ---
+                tvTitle.setText(doc.getString("nombre"));
+                tvEstado.setText(capitalizeFirst(doc.getString("estado")));
+                tvDescripcion.setText(doc.getString("descripcion"));
 
-    private TextView findTextViewByAnyId(String... names) {
-        for (String n : names) {
-            int id = getId(n);
-            if (id != 0) {
-                View v = findViewById(id);
-                if (v instanceof TextView) return (TextView) v;
-            }
-        }
-        return null;
-    }
+                // Mapeo de Cupo (los otros campos no están en la BD de actividad)
+                Long cupo = doc.getLong("cupo");
+                tvCupo.setText(String.format(Locale.ROOT, "Cupo total: %d", cupo != null ? cupo.intValue() : 0));
+                tvBeneficiarios.setText("Beneficiarios inscritos: N/A"); // Dato no disponible
+                tvDiasAviso.setText("Días de aviso: N/A"); // Dato no disponible
 
-    private void bindClickByIdOrText(String idName, String fallbackText, Runnable action) {
-        boolean bound = false;
-        int id = getId(idName);
-        if (id != 0) {
-            View v = findViewById(id);
-            if (v != null) {
-                v.setOnClickListener(x -> action.run());
-                bound = true;
-            }
-        }
-        if (!bound) bindByTextContains(fallbackText, action);
-    }
-
-    /** Busca Button/TextView cuyo texto CONTENGA la frase (case-insensitive) */
-    private void bindByTextContains(String piece, Runnable action) {
-        final View root = findViewById(android.R.id.content);
-        if (root == null) return;
-
-        java.util.ArrayDeque<View> stack = new java.util.ArrayDeque<>();
-        stack.push(root);
-
-        while (!stack.isEmpty()) {
-            View v = stack.pop();
-
-            if (v instanceof android.view.ViewGroup) {
-                android.view.ViewGroup g = (android.view.ViewGroup) v;
-                for (int i = 0; i < g.getChildCount(); i++) stack.push(g.getChildAt(i));
-            }
-
-            if (v instanceof Button || v instanceof TextView) {
-                CharSequence cs = (v instanceof Button)
-                        ? ((Button) v).getText()
-                        : ((TextView) v).getText();
-                if (cs != null && cs.toString().toLowerCase().contains(piece.toLowerCase())) {
-                    v.setOnClickListener(x -> action.run());
+                // Mapeo de Fecha y Hora (separados)
+                Timestamp tsInicio = doc.getTimestamp("fechaInicio");
+                Timestamp tsFin = doc.getTimestamp("fechaFin");
+                if (tsInicio != null) {
+                    tvFecha.setText(capitalizeFirst(dateFmt.format(tsInicio.toDate())));
+                    String horaInicio = timeFmt.format(tsInicio.toDate());
+                    String horaFin = (tsFin != null) ? timeFmt.format(tsFin.toDate()) : "--:--";
+                    tvHora.setText(String.format("%s - %s", horaInicio, horaFin));
                 }
+
+                // --- Mapeo de Referencias ---
+                cargarReferencia(doc.getDocumentReference("lugarId"), "descripcion", tvLugar, "Sin lugar");
+                cargarReferencia(doc.getDocumentReference("tipoActividadId"), "nombre", tvTipo, "Sin tipo");
+
+                // mostrarLoading(false);
+            } else {
+                Log.e(TAG, "No se encontró el documento: " + actividadId);
+                Toast.makeText(this, "Error: Actividad no encontrada.", Toast.LENGTH_SHORT).show();
+                finish();
             }
-        }
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error al cargar actividad: " + actividadId, e);
+            Toast.makeText(this, "Error de red al cargar.", Toast.LENGTH_SHORT).show();
+            finish();
+        });
     }
 
-    // 🔁 Cambiar texto del botón Cancelar / Reactivar según estado
-    private void actualizarTextoBotonCancelar() {
-        String texto = (estadoActual != null &&
-                estadoActual.equalsIgnoreCase("cancelada"))
-                ? "Reactivar actividad"
-                : "Cancelar actividad";
-
-        int id = getId("btn_cancelar");
-        if (id == 0) return;
-
-        View v = findViewById(id);
-        if (v == null) return;
-
-        if (v instanceof TextView) {
-            ((TextView) v).setText(texto);
-        } else if (v instanceof ViewGroup) {
-            ViewGroup g = (ViewGroup) v;
-            for (int i = 0; i < g.getChildCount(); i++) {
-                View child = g.getChildAt(i);
-                if (child instanceof TextView) {
-                    ((TextView) child).setText(texto);
-                    break;
+    /**
+     * Helper para cargar un documento de referencia y poner un campo de texto en un TextView.
+     */
+    private void cargarReferencia(DocumentReference ref, String campo, TextView textView, String fallback) {
+        if (ref != null) {
+            ref.get().addOnSuccessListener(doc -> {
+                if (doc.exists() && doc.contains(campo)) {
+                    textView.setText(doc.getString(campo));
+                } else {
+                    textView.setText(fallback);
                 }
-            }
+            }).addOnFailureListener(e -> {
+                textView.setText(fallback);
+                Log.w(TAG, "No se pudo cargar la referencia: " + ref.getPath(), e);
+            });
+        } else {
+            textView.setText(fallback);
         }
     }
 
-    // ================== Navegación a otras pantallas ==================
-
-    private void abrirCancelar() {
-        if (actividadId == null || actividadId.trim().isEmpty()) {
-            Toast.makeText(this, "No se encontró el ID de la actividad.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Intent i = new Intent(this, CancelActActivity.class);
-        i.putExtra("actividadId", actividadId);
-        i.putExtra("actividadNombre", actividadNombre);
-        i.putExtra("estadoActual", estadoActual != null ? estadoActual : "activa");
-        startActivity(i);
-    }
-
-    private void abrirReagendar() {
-        if (actividadId == null || actividadId.trim().isEmpty()) {
-            Toast.makeText(this, "No se encontró el ID de la actividad.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Intent i = new Intent(this, ReagActActivity.class);
-        i.putExtra("actividadId", actividadId);
-        i.putExtra("actividadNombre", actividadNombre);
-        startActivity(i);
-    }
-
-    private void abrirModificar() {
-        if (actividadId == null || actividadId.trim().isEmpty()) {
-            Toast.makeText(this, "No se encontró el ID de la actividad.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Intent i = new Intent(this, ModificarActActivity.class);
-        i.putExtra("actividadId", actividadId);
-        i.putExtra("actividadNombre", actividadNombre);
-        startActivity(i);
+    private String capitalizeFirst(String s) {
+        if (s == null || s.isEmpty()) return s;
+        return s.substring(0, 1).toUpperCase(esCL) + s.substring(1);
     }
 }

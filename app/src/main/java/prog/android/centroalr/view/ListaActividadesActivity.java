@@ -27,6 +27,10 @@ import prog.android.centroalr.R;
 import prog.android.centroalr.adapter.ActividadesAdapter;
 import prog.android.centroalr.model.Actividad;
 
+// PASO 1: Importar clases necesarias
+import prog.android.centroalr.MyApplication;
+import prog.android.centroalr.model.Usuario;
+
 public class ListaActividadesActivity extends AppCompatActivity {
 
     private ImageView btnBackLista;
@@ -38,6 +42,8 @@ public class ListaActividadesActivity extends AppCompatActivity {
     private TextView tvMensajeVacio;
     private View loadingOverlay;
 
+    // PASO 2: Declarar variable de usuario
+    private Usuario usuarioActual;
 
     private static final String TAG = "ListaActividades";
 
@@ -47,11 +53,25 @@ public class ListaActividadesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lista_actividades);
 
+        // PASO 3: Cargar el perfil de usuario
+        MyApplication myApp = (MyApplication) getApplicationContext();
+        usuarioActual = myApp.getUsuarioActual();
+
+        // PASO 4: CHEQUEO DE SEGURIDAD
+        if (usuarioActual == null) {
+            Toast.makeText(this, "Error: Sesión no encontrada.", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, LogInActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return; // Detenemos la ejecución
+        }
+
         db = FirebaseFirestore.getInstance();
 
         initViews();
         initRecycler();
-        initListeners();
+        initListeners(); // initListeners AHORA usará el usuarioActual
     }
     @Override
     protected void onResume() {
@@ -105,13 +125,21 @@ public class ListaActividadesActivity extends AppCompatActivity {
             }
         });
 
-        fabCrearActividadLista.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ListaActividadesActivity.this, CrearActActivity.class);
-                startActivity(intent);
-            }
-        });
+        // PASO 5: LÓGICA DE PERMISOS PARA BOTÓN FLOTANTE
+        if (usuarioActual.tienePermiso("PUEDE_CREAR_ACTIVIDAD")) {
+            // SÍ tiene permiso
+            fabCrearActividadLista.setVisibility(View.VISIBLE);
+            fabCrearActividadLista.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(ListaActividadesActivity.this, CrearActActivity.class);
+                    startActivity(intent);
+                }
+            });
+        } else {
+            // NO tiene permiso
+            fabCrearActividadLista.setVisibility(View.GONE); // Ocultamos el botón
+        }
     }
 
     private void cargarActividades() {
@@ -188,5 +216,4 @@ public class ListaActividadesActivity extends AppCompatActivity {
 
         adapter.setData(lista);
     }
-
 }

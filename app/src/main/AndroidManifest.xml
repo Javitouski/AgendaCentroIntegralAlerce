@@ -97,5 +97,9 @@
         <activity
             android:name=".view.CrearActActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".view.CrearUsuarioActivity"
+            android:exported="false" />
     </application>
 </manifest>
