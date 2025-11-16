@@ -29,9 +29,7 @@ public class LoginController implements OnLoginResultListener {
     }
 
     public void onForgotPasswordClicked() {
-        // (Tu lógica para "olvidé contraseña" iría aquí)
-        // Por ahora, le decimos a la vista que muestre un error
-        loginView.onLoginFailure("Función 'Olvidé Contraseña' no implementada.");
+        loginView.navigateToPasswordRecovery();
     }
 
     public void checkUserLoggedIn(){

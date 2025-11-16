@@ -28,7 +28,6 @@ public class ChangePasswordActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 👇 Usa tu layout tal cual. Si se llama activity_rest_contra, cambia aquí.
         setContentView(R.layout.activity_rest_contra);
 
         wireViewsSafely();
