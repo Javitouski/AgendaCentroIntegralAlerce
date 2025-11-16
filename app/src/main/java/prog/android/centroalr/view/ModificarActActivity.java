@@ -105,7 +105,7 @@ public class ModificarActActivity extends AppCompatActivity {
     // ================== INICIALIZAR VISTAS ==================
 
     private void initViews() {
-        etNombre        = findEditText(R.id.etNombre, R.id.etName);
+        etNombre        = findEditText(R.id.etNombre, R.id.etNombre);
         etDescripcion   = findEditText(R.id.etDescripcion, 0);
         etBeneficiarios = findEditText(R.id.etBeneficiarios, 0);
         etCupo          = findEditText(R.id.etCupo, 0);

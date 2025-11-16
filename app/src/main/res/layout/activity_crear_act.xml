@@ -70,7 +70,6 @@
 				android:textStyle="bold"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toTopOf="parent" />
-
 			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/inputNombre"
 				style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
@@ -84,7 +83,6 @@
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@id/labelNombre">
-
 				<com.google.android.material.textfield.TextInputEditText
 					android:id="@+id/etNombre"
 					android:layout_width="match_parent"
@@ -92,7 +90,6 @@
 					android:inputType="textCapSentences"
 					android:textColor="#1D1B20" />
 			</com.google.android.material.textfield.TextInputLayout>
-
 
 			<TextView
 				android:id="@+id/labelDescripcion"
@@ -105,7 +102,6 @@
 				android:textStyle="bold"
 				app:layout_constraintTop_toBottomOf="@id/inputNombre"
 				app:layout_constraintStart_toStartOf="parent" />
-
 			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/inputDescripcion"
 				style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
@@ -119,7 +115,6 @@
 				app:layout_constraintTop_toBottomOf="@id/labelDescripcion"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintEnd_toEndOf="parent">
-
 				<com.google.android.material.textfield.TextInputEditText
 					android:id="@+id/etDescripcion"
 					android:layout_width="match_parent"
@@ -129,7 +124,6 @@
 					android:minLines="3"
 					android:textColor="#1D1B20" />
 			</com.google.android.material.textfield.TextInputLayout>
-
 
 			<TextView
 				android:id="@+id/labelTipo"
@@ -142,7 +136,6 @@
 				android:textStyle="bold"
 				app:layout_constraintTop_toBottomOf="@id/inputDescripcion"
 				app:layout_constraintStart_toStartOf="parent" />
-
 			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/dropdownTipo"
 				style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
@@ -155,7 +148,6 @@
 				app:layout_constraintTop_toBottomOf="@id/labelTipo"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintEnd_toEndOf="parent">
-
 				<AutoCompleteTextView
 					android:id="@+id/autoCompleteTipo"
 					android:layout_width="match_parent"
@@ -163,7 +155,6 @@
 					android:inputType="none"
 					android:hint="Selecciona un tipo" />
 			</com.google.android.material.textfield.TextInputLayout>
-
 
 			<TextView
 				android:id="@+id/labelPeriodicidad"
@@ -176,7 +167,6 @@
 				android:textStyle="bold"
 				app:layout_constraintTop_toBottomOf="@id/dropdownTipo"
 				app:layout_constraintStart_toStartOf="parent" />
-
 			<RadioGroup
 				android:id="@+id/rgPeriodicidad"
 				android:layout_width="0dp"
@@ -186,7 +176,6 @@
 				app:layout_constraintTop_toBottomOf="@id/labelPeriodicidad"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintEnd_toEndOf="parent">
-
 				<RadioButton
 					android:id="@+id/rbPuntual"
 					android:layout_width="wrap_content"
@@ -194,7 +183,6 @@
 					android:text="Puntual"
 					android:checked="true"
 					android:textSize="16sp"/>
-
 				<RadioButton
 					android:id="@+id/rbPeriodica"
 					android:layout_width="wrap_content"
@@ -203,7 +191,6 @@
 					android:text="Periódica"
 					android:textSize="16sp"/>
 			</RadioGroup>
-
 			<LinearLayout
 				android:id="@+id/grupoFechaFin"
 				android:layout_width="0dp"
@@ -214,7 +201,6 @@
 				app:layout_constraintTop_toBottomOf="@id/rgPeriodicidad"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintEnd_toEndOf="parent">
-
 				<TextView
 					android:id="@+id/labelFechaFin"
 					android:layout_width="wrap_content"
@@ -224,7 +210,6 @@
 					android:textColor="#18990D"
 					android:textSize="18sp"
 					android:textStyle="bold" />
-
 				<com.google.android.material.button.MaterialButton
 					android:id="@+id/btnFechaFin"
 					android:layout_width="wrap_content"
@@ -239,7 +224,6 @@
 					android:textSize="16sp"
 					app:cornerRadius="100dp" />
 			</LinearLayout>
-
 			<TextView
 				android:id="@+id/labelCupo"
 				android:layout_width="wrap_content"
@@ -251,7 +235,6 @@
 				android:textStyle="bold"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@id/grupoFechaFin" />
-
 			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/inputCupo"
 				style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
@@ -265,7 +248,6 @@
 				app:layout_constraintTop_toBottomOf="@id/labelCupo"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintEnd_toEndOf="parent">
-
 				<com.google.android.material.textfield.TextInputEditText
 					android:id="@+id/etCupo"
 					android:layout_width="match_parent"
@@ -284,7 +266,6 @@
 				android:textStyle="bold"
 				app:layout_constraintTop_toBottomOf="@id/inputCupo"
 				app:layout_constraintStart_toStartOf="parent" />
-
 			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/inputDiasAviso"
 				style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
@@ -298,7 +279,6 @@
 				app:layout_constraintTop_toBottomOf="@id/labelDiasAviso"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintEnd_toEndOf="parent">
-
 				<com.google.android.material.textfield.TextInputEditText
 					android:id="@+id/etDiasAviso"
 					android:layout_width="match_parent"
@@ -317,7 +297,6 @@
 				android:textStyle="bold"
 				app:layout_constraintTop_toBottomOf="@id/inputDiasAviso"
 				app:layout_constraintStart_toStartOf="parent" />
-
 			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/inputBeneficiarios"
 				style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
@@ -331,7 +310,6 @@
 				app:layout_constraintTop_toBottomOf="@id/labelBeneficiarios"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintEnd_toEndOf="parent">
-
 				<com.google.android.material.textfield.TextInputEditText
 					android:id="@+id/etBeneficiarios"
 					android:layout_width="match_parent"
@@ -341,7 +319,6 @@
 					android:minLines="2"
 					android:textColor="#1D1B20"/>
 			</com.google.android.material.textfield.TextInputLayout>
-
 
 			<TextView
 				android:id="@+id/labelFecha"
@@ -354,7 +331,6 @@
 				android:textStyle="bold"
 				app:layout_constraintTop_toBottomOf="@id/inputBeneficiarios"
 				app:layout_constraintStart_toStartOf="parent" />
-
 			<com.google.android.material.button.MaterialButton
 				android:id="@+id/btnFecha"
 				android:layout_width="wrap_content"
@@ -382,7 +358,6 @@
 				android:textStyle="bold"
 				app:layout_constraintTop_toBottomOf="@id/btnFecha"
 				app:layout_constraintStart_toStartOf="parent" />
-
 			<com.google.android.material.button.MaterialButton
 				android:id="@+id/btnHora"
 				android:layout_width="wrap_content"
@@ -410,7 +385,6 @@
 				android:textStyle="bold"
 				app:layout_constraintTop_toBottomOf="@id/btnHora"
 				app:layout_constraintStart_toStartOf="parent" />
-
 			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/inputLugar"
 				style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
@@ -423,7 +397,6 @@
 				app:layout_constraintTop_toBottomOf="@id/labelLugar"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintEnd_toEndOf="parent">
-
 				<AutoCompleteTextView
 					android:id="@+id/autoCompleteLugar"
 					android:layout_width="match_parent"
@@ -432,11 +405,104 @@
 					android:hint="Selecciona un lugar" />
 			</com.google.android.material.textfield.TextInputLayout>
 
+
+			<TextView
+				android:id="@+id/labelProyecto"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="24dp"
+				android:text="Proyecto"
+				android:textColor="#18990D"
+				android:textSize="18sp"
+				android:textStyle="bold"
+				app:layout_constraintTop_toBottomOf="@id/inputLugar"
+				app:layout_constraintStart_toStartOf="parent" />
+			<com.google.android.material.textfield.TextInputLayout
+				android:id="@+id/inputProyecto"
+				style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="8dp"
+				app:boxBackgroundColor="@color/gray_bg"
+				app:boxStrokeWidth="0dp"
+				app:boxStrokeWidthFocused="0dp"
+				app:layout_constraintTop_toBottomOf="@id/labelProyecto"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintEnd_toEndOf="parent">
+				<AutoCompleteTextView
+					android:id="@+id/autoCompleteProyecto"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:inputType="none"
+					android:hint="Selecciona un proyecto" />
+			</com.google.android.material.textfield.TextInputLayout>
+
+			<TextView
+				android:id="@+id/labelSocio"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="24dp"
+				android:text="Socio Comunitario"
+				android:textColor="#18990D"
+				android:textSize="18sp"
+				android:textStyle="bold"
+				app:layout_constraintTop_toBottomOf="@id/inputProyecto"
+				app:layout_constraintStart_toStartOf="parent" />
+			<com.google.android.material.textfield.TextInputLayout
+				android:id="@+id/inputSocio"
+				style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="8dp"
+				app:boxBackgroundColor="@color/gray_bg"
+				app:boxStrokeWidth="0dp"
+				app:boxStrokeWidthFocused="0dp"
+				app:layout_constraintTop_toBottomOf="@id/labelSocio"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintEnd_toEndOf="parent">
+				<AutoCompleteTextView
+					android:id="@+id/autoCompleteSocio"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:inputType="none"
+					android:hint="Selecciona un socio" />
+			</com.google.android.material.textfield.TextInputLayout>
+
+			<TextView
+				android:id="@+id/labelOferente"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="24dp"
+				android:text="Oferente"
+				android:textColor="#18990D"
+				android:textSize="18sp"
+				android:textStyle="bold"
+				app:layout_constraintTop_toBottomOf="@id/inputSocio"
+				app:layout_constraintStart_toStartOf="parent" />
+			<com.google.android.material.textfield.TextInputLayout
+				android:id="@+id/inputOferente"
+				style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="8dp"
+				app:boxBackgroundColor="@color/gray_bg"
+				app:boxStrokeWidth="0dp"
+				app:boxStrokeWidthFocused="0dp"
+				app:layout_constraintTop_toBottomOf="@id/labelOferente"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintEnd_toEndOf="parent">
+				<AutoCompleteTextView
+					android:id="@+id/autoCompleteOferente"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:inputType="none"
+					android:hint="Selecciona un oferente" />
+			</com.google.android.material.textfield.TextInputLayout>
 			<View
 				android:id="@+id/spaceBottom"
 				android:layout_width="0dp"
 				android:layout_height="16dp"
-				app:layout_constraintTop_toBottomOf="@id/inputLugar"
+				app:layout_constraintTop_toBottomOf="@id/inputOferente"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintEnd_toEndOf="parent" />
 
