@@ -1,78 +1,75 @@
 package prog.android.centroalr.controller;
 
-import android.text.TextUtils;
-import android.util.Patterns;
-
+import android.util.Log;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import prog.android.centroalr.MyApplication;
 import prog.android.centroalr.model.AuthModel;
 import prog.android.centroalr.model.OnLoginResultListener;
+import prog.android.centroalr.model.Usuario;
 import prog.android.centroalr.view.LoginView;
 
 public class LoginController implements OnLoginResultListener {
+    private LoginView loginView;
+    private AuthModel authModel;
+    private FirebaseFirestore db;
 
-    private LoginView view;
-    private AuthModel model;
-
-    public LoginController(LoginView view, AuthModel model) {
-        this.view = view;
-        this.model = model;
+    public LoginController(LoginView loginView, AuthModel authModel) {
+        this.loginView = loginView;
+        this.authModel = authModel;
+        this.db = FirebaseFirestore.getInstance();
     }
 
-    /**
-     * Llamado desde la Activity cuando el usuario está en onStart.
-     */
-    public void checkUserLoggedIn() {
-        if (model.isUserLoggedIn()) {
-            view.navigateToMainApp();
-        }
-    }
+    // --- Métodos que tu Activity llama ---
 
-    /**
-     * Llamado desde la Activity cuando se pulsa "Olvidé contraseña".
-     */
-    public void onForgotPasswordClicked() {
-        view.navigateToPasswordRecovery();
-    }
-
-    /**
-     * Llamado desde la Activity cuando se pulsa "Iniciar Sesión".
-     */
     public void onLoginClicked(String email, String password) {
-        view.clearErrors();
-        boolean hasError = false;
-
-        if (TextUtils.isEmpty(email)) {
-            view.showEmailError("Ingresa tu correo");
-            hasError = true;
-        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            view.showEmailError("Formato de correo inválido");
-            hasError = true;
-        }
-
-        if (TextUtils.isEmpty(password)) {
-            view.showPasswordError("Ingresa tu contraseña");
-            hasError = true;
-        } else if (password.length() < 6) {
-            view.showPasswordError("Mínimo 6 caracteres");
-            hasError = true;
-        }
-
-        if (hasError) return;
-
-        view.showLoading(true);
-        model.login(email, password, this); // 'this' es el OnLoginResultListener
+        loginView.showLoading(true);
+        authModel.login(email, password, this);
     }
 
-    // -- Callbacks del Modelo --
+    public void onForgotPasswordClicked() {
+        // (Tu lógica para "olvidé contraseña" iría aquí)
+        // Por ahora, le decimos a la vista que muestre un error
+        loginView.onLoginFailure("Función 'Olvidé Contraseña' no implementada.");
+    }
+
+    public void checkUserLoggedIn(){
+        // (Tu lógica para chequear si ya hay un usuario logueado)
+        // if (authModel.isUserLoggedIn()) {
+        //     ... (lógica para obtener el user y saltar el login)
+        // }
+    }
+
+    // --- Métodos DEL LISTENER que el AuthModel llama ---
 
     @Override
-    public void onLoginSuccess() {
-        view.showLoading(false);
-        view.navigateToMainApp();
+    public void onLoginSuccess(FirebaseUser user) {
+        loginView.showLoading(false); // <-- AÑADIR ESTA LÍNEA
+        String uid = user.getUid();
+        DocumentReference userRef = db.collection("usuarios").document(uid);
+
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Usuario usuario = documentSnapshot.toObject(Usuario.class);
+                if (usuario != null) {
+                    MyApplication myApp = (MyApplication) loginView.getContext().getApplicationContext();
+                    myApp.setUsuarioActual(usuario);
+                    loginView.onLoginSuccessNavigate();
+                } else {
+                    loginView.onLoginFailure("Error al leer el perfil de usuario.");
+                }
+            } else {
+                loginView.onLoginFailure("Error: Perfil de usuario no encontrado.");
+            }
+        }).addOnFailureListener(e -> {
+            loginView.onLoginFailure("Error de red al cargar el perfil.");
+        });
     }
 
     @Override
-    public void onLoginFailure(String error) {
-        view.showLoading(false);
-        view.showLoginError(error);
+    public void onLoginFailure(String message) {
+        loginView.showLoading(false);
+        loginView.onLoginFailure(message);
     }
 }

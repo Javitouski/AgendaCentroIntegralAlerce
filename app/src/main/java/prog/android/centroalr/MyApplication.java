@@ -7,15 +7,20 @@ import com.google.firebase.appcheck.FirebaseAppCheck;
 import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory;
 import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory;
 
-// 1. Asegúrate de que extienda de Application
+// Importa modelo de Usuario
+import prog.android.centroalr.model.Usuario;
+
 public class MyApplication extends Application {
+
+    // Añade la variable "global" para guardar el perfil
+    // Esta será el "archivador"
+    private Usuario usuarioActual;
 
     @Override
     public void onCreate() {
-
         super.onCreate();
 
-        // 2. SOLO el código de App Check va aquí
+        // Código de App Check
         FirebaseApp.initializeApp(this);
         FirebaseAppCheck appCheck = FirebaseAppCheck.getInstance();
 
@@ -28,6 +33,30 @@ public class MyApplication extends Application {
                     PlayIntegrityAppCheckProviderFactory.getInstance()
             );
         }
+    }
 
+    // Añade los métodos para acceder al "archivador"
+
+    /**
+     * Método para GUARDAR el perfil del usuario en el almacén global.
+     * El LoginController usará esto.
+     */
+    public void setUsuarioActual(Usuario usuario) {
+        this.usuarioActual = usuario;
+    }
+
+    /**
+     * Método para LEER el perfil del usuario desde el almacén global.
+     * Todas las demás pantallas usarán esto para chequear permisos.
+     */
+    public Usuario getUsuarioActual() {
+        return this.usuarioActual;
+    }
+
+    /**
+     * Método para LIMPIAR el perfil al cerrar sesión.
+     */
+    public void clearUsuarioActual() {
+        this.usuarioActual = null;
     }
 }

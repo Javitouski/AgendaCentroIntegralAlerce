@@ -1,31 +1,39 @@
 package prog.android.centroalr.controller;
 
+import prog.android.centroalr.MyApplication;
 import prog.android.centroalr.model.AuthModel;
-import prog.android.centroalr.model.OnLogoutListener;
+// ¡CORREGIDO! Ya no necesitamos OnLogoutListener aquí
 import prog.android.centroalr.view.LogoutView;
 
-public class LogoutController implements OnLogoutListener {
+// ¡CORREGIDO! El Controller ya NO implementa OnLogoutListener
+public class LogoutController {
+    private LogoutView logoutView;
+    private AuthModel authModel;
 
-    private LogoutView view;
-    private AuthModel model;
-
-    public LogoutController(LogoutView view, AuthModel model) {
-        this.view = view;
-        this.model = model;
+    public LogoutController(LogoutView logoutView, AuthModel authModel) {
+        this.logoutView = logoutView;
+        this.authModel = authModel;
     }
 
-    /**
-     * Llamado desde la Activity cuando se pulsa "SALIR".
-     */
+    // --- Método que tu Activity llama ---
+
     public void onLogoutClicked() {
-        model.logout(this);
-    }
+        try {
+            // 1. Limpiamos el perfil global
+            MyApplication myApp = (MyApplication) logoutView.getContext().getApplicationContext();
+            myApp.clearUsuarioActual();
 
-    // -- Callback del Modelo --
+            // 2. Llamamos a tu método logout de AuthModel
+            // (Tu método no usa listener, así que lo sacamos)
+            authModel.logout(); // ¡CORREGIDO! Ahora se llama sin argumentos.
+            // Sería ideal refactorizar AuthModel para que logout() no pida listener.
 
-    @Override
-    public void onLogoutSuccess() {
-        view.showLogoutSuccessMessage("Sesión cerrada correctamente.");
-        view.navigateToLogin();
+            // 3. Informamos a la Vista
+            logoutView.onLogoutSuccess();
+
+        } catch (Exception e) {
+            // Si algo falla (ej. getContext es nulo), lo reportamos
+            logoutView.onLogoutFailure(e.getMessage());
+        }
     }
 }

@@ -4,6 +4,9 @@ package prog.android.centroalr.model;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.FirebaseNetworkException;
+// PASO 1: Importar FirebaseUser
+import com.google.firebase.auth.FirebaseUser;
+
 public class AuthModel {
 
     private FirebaseAuth mAuth;
@@ -27,7 +30,9 @@ public class AuthModel {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        listener.onLoginSuccess();
+                        // PASO 2: Obtener el usuario y pasarlo al listener
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        listener.onLoginSuccess(user);
                     } else {
                         String errorTraducido = getErrorEnEspanol(task.getException());
 
@@ -56,12 +61,14 @@ public class AuthModel {
                     }
                 });
     }
+
     /**
      * Cierra la sesión del usuario actual.
      */
-    public void logout(OnLogoutListener listener) {
+    // PASO 3: Simplificar el método logout.
+    public void logout() {
         mAuth.signOut();
-        listener.onLogoutSuccess();
+        // El listener se elimina, ya no es necesario aquí.
     }
 
     public void resetPassword(String oobCode, String newPassword, OnPasswordResetListener listener) {
@@ -76,7 +83,7 @@ public class AuthModel {
                 });
     }
 
-     // Traduce los códigos de error comunes de FirebaseAuthException y FirebaseNetworkException al español.
+    // Traduce los códigos de error comunes de FirebaseAuthException y FirebaseNetworkException al español.
     private String getErrorEnEspanol(Exception exception) {
 
         // Primero, revisamos si es un error de red
