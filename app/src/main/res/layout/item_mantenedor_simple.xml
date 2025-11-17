@@ -24,12 +24,24 @@
             android:layout_height="wrap_content"
             android:textColor="#1D1B20"
             android:textSize="18sp"
+            android:textStyle="bold"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/btnEditarItem"
             android:layout_marginEnd="16dp"
-            tools:text="Oficina principal" />
+            tools:text="Sala Multiuso" />
+
+        <TextView
+            android:id="@+id/tvCapacidadItem"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="#666666"
+            android:textSize="14sp"
+            app:layout_constraintTop_toBottomOf="@id/tvNombreItem"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnEditarItem"
+            android:layout_marginEnd="16dp"
+            tools:text="Capacidad: 20 personas" />
 
         <ImageButton
             android:id="@+id/btnEditarItem"

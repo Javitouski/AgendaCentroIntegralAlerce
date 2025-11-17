@@ -15,26 +15,16 @@ import java.util.List;
 import prog.android.centroalr.R;
 import prog.android.centroalr.model.SimpleMantenedorItem;
 
-/**
- * Adaptador genérico para las pantallas de Mantenedor (Lugares, Tipos, etc.)
- * Utiliza el layout item_mantenedor_simple.xml
- */
 public class MantenedorAdapter extends RecyclerView.Adapter<MantenedorAdapter.MantenedorViewHolder> {
 
     private List<SimpleMantenedorItem> itemList = new ArrayList<>();
     private final OnItemClickListener listener;
 
-    /**
-     * Interfaz para comunicar clics de Editar y Borrar a la Activity.
-     */
     public interface OnItemClickListener {
         void onEditClick(SimpleMantenedorItem item);
         void onDeleteClick(SimpleMantenedorItem item);
     }
 
-    /**
-     * Constructor que recibe el listener.
-     */
     public MantenedorAdapter(OnItemClickListener listener) {
         this.listener = listener;
     }
@@ -58,35 +48,34 @@ public class MantenedorAdapter extends RecyclerView.Adapter<MantenedorAdapter.Ma
         return itemList.size();
     }
 
-    /**
-     * Método para actualizar la lista de ítems desde la Activity.
-     */
     public void setItems(List<SimpleMantenedorItem> items) {
         this.itemList.clear();
         this.itemList.addAll(items);
-        notifyDataSetChanged(); // Refresca la lista
+        notifyDataSetChanged();
     }
 
-    // ====================================================================
-    //  VIEWHOLDER (El controlador de cada fila)
-    // ====================================================================
     static class MantenedorViewHolder extends RecyclerView.ViewHolder {
-
-        TextView tvNombreItem;
+        TextView tvNombreItem, tvCapacidadItem; // Agregamos la referencia
         ImageButton btnEditarItem, btnBorrarItem;
 
         public MantenedorViewHolder(@NonNull View itemView) {
             super(itemView);
             tvNombreItem = itemView.findViewById(R.id.tvNombreItem);
+            tvCapacidadItem = itemView.findViewById(R.id.tvCapacidadItem); // Encontrar vista
             btnEditarItem = itemView.findViewById(R.id.btnEditarItem);
             btnBorrarItem = itemView.findViewById(R.id.btnBorrarItem);
         }
 
-        /**
-         * Pinta los datos y asigna los listeners de clic.
-         */
         public void bind(final SimpleMantenedorItem item, final OnItemClickListener listener) {
             tvNombreItem.setText(item.getNombre());
+
+            // Lógica de visualización de aforo
+            if (item.getCapacidad() > 0) {
+                tvCapacidadItem.setVisibility(View.VISIBLE);
+                tvCapacidadItem.setText("Aforo máximo: " + item.getCapacidad() + " personas");
+            } else {
+                tvCapacidadItem.setVisibility(View.GONE);
+            }
 
             btnEditarItem.setOnClickListener(v -> listener.onEditClick(item));
             btnBorrarItem.setOnClickListener(v -> listener.onDeleteClick(item));

@@ -9,13 +9,11 @@
     android:orientation="vertical"
     tools:context=".view.DetActActivity">
 
-    <!-- Status Bar Space -->
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:minHeight="24dp" />
 
-    <!-- Top Bar con back button y título -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -47,7 +45,6 @@
             android:layout_weight="1" />
     </LinearLayout>
 
-    <!-- Contenido desplazable -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -62,7 +59,6 @@
             android:paddingTop="8dp"
             android:paddingBottom="24dp">
 
-            <!-- Nombre / título de la actividad -->
             <TextView
                 android:id="@+id/tv_title"
                 android:layout_width="match_parent"
@@ -75,7 +71,6 @@
                 android:textStyle="bold"
                 android:lineSpacingExtra="2dp" />
 
-            <!-- Línea secundaria: tipo y estado -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -83,7 +78,6 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="16dp">
 
-                <!-- Tipo -->
                 <TextView
                     android:id="@+id/tvTipo"
                     android:layout_width="wrap_content"
@@ -91,7 +85,7 @@
                     android:background="@drawable/button_date_time"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="6dp"
-                    android:text="Taller grupal"
+                    android:text="Cargando..."
                     android:textColor="#FFFFFF"
                     android:textSize="13sp"
                     android:textStyle="bold" />
@@ -100,7 +94,6 @@
                     android:layout_width="12dp"
                     android:layout_height="1dp" />
 
-                <!-- Estado -->
                 <TextView
                     android:id="@+id/tvEstado"
                     android:layout_width="wrap_content"
@@ -108,13 +101,12 @@
                     android:background="@drawable/bg_white"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="6dp"
-                    android:text="Activa"
+                    android:text="..."
                     android:textColor="#1D1B20"
                     android:textSize="13sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Tarjeta: Fecha y hora -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -137,7 +129,7 @@
                     android:id="@+id/tvFecha"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="13 de octubre de 2025"
+                    android:text=""
                     android:textColor="#1D1B20"
                     android:textSize="14sp"
                     android:layout_marginBottom="2dp" />
@@ -146,12 +138,11 @@
                     android:id="@+id/tvHora"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="13:45 - 15:00"
+                    android:text=""
                     android:textColor="#1D1B20"
                     android:textSize="14sp" />
             </LinearLayout>
 
-            <!-- Tarjeta: Lugar -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -174,12 +165,11 @@
                     android:id="@+id/tvLugar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Sala Multiuso 2"
+                    android:text="Cargando lugar..."
                     android:textColor="#1D1B20"
                     android:textSize="14sp" />
             </LinearLayout>
 
-            <!-- Tarjeta: Cupo, beneficiarios, días de aviso -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -202,7 +192,7 @@
                     android:id="@+id/tvCupo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Cupo total: 20"
+                    android:text="Cupo total: -"
                     android:textColor="#1D1B20"
                     android:textSize="14sp"
                     android:layout_marginBottom="2dp" />
@@ -211,7 +201,7 @@
                     android:id="@+id/tvBeneficiarios"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Beneficiarios inscritos: 12"
+                    android:text="Beneficiarios inscritos: -"
                     android:textColor="#1D1B20"
                     android:textSize="14sp"
                     android:layout_marginBottom="2dp" />
@@ -220,12 +210,11 @@
                     android:id="@+id/tvDiasAviso"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Días de aviso: 2"
+                    android:text="Días de aviso: -"
                     android:textColor="#1D1B20"
                     android:textSize="14sp" />
             </LinearLayout>
 
-            <!-- Tarjeta: Descripción -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -248,7 +237,7 @@
                     android:id="@+id/tvDescripcion"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Espacio grupal orientado a trabajar relajación, respiración y fortalecimiento de vínculos comunitarios."
+                    android:text=""
                     android:textColor="#1D1B20"
                     android:textSize="14sp"
                     android:lineSpacingExtra="2dp" />
@@ -260,7 +249,6 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Zona inferior con FAB + menú flotante -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -268,7 +256,6 @@
         android:paddingTop="8dp"
         android:paddingBottom="16dp">
 
-        <!-- Menú de acciones (se despliega sobre el FAB) -->
         <LinearLayout
             android:id="@+id/menuAcciones"
             android:layout_width="wrap_content"
@@ -279,7 +266,6 @@
             android:visibility="gone"
             android:paddingBottom="72dp">
 
-            <!-- Modificar -->
             <LinearLayout
                 android:id="@+id/btn_modificar"
                 android:layout_width="wrap_content"
@@ -300,7 +286,6 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Reagendar -->
             <LinearLayout
                 android:id="@+id/btn_reagendar"
                 android:layout_width="wrap_content"
@@ -321,7 +306,6 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Cancelar -->
             <LinearLayout
                 android:id="@+id/btn_cancelar"
                 android:layout_width="wrap_content"
@@ -333,6 +317,7 @@
                 android:paddingVertical="10dp">
 
                 <TextView
+                    android:id="@+id/tv_btn_cancelar_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Cancelar actividad"
@@ -342,7 +327,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- FAB con signo + -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabMore"
             android:layout_width="wrap_content"

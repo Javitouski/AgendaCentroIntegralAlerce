@@ -1,30 +1,27 @@
 package prog.android.centroalr.model;
 
-/**
- * Clase de modelo simple para usar en los adaptadores de mantenedores.
- * Solo guarda el ID del documento de Firestore y el nombre a mostrar.
- */
 public class SimpleMantenedorItem {
     private String id;
     private String nombre;
+    private int capacidad; // Nuevo campo
 
-    // Constructor vacío necesario para algunas conversiones
-    public SimpleMantenedorItem() {}
-
+    // Constructor simple (para Tipos, Proyectos, etc.)
     public SimpleMantenedorItem(String id, String nombre) {
         this.id = id;
         this.nombre = nombre;
+        this.capacidad = 0;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
+    // Constructor completo (para Lugares)
+    public SimpleMantenedorItem(String id, String nombre, int capacidad) {
+        this.id = id;
         this.nombre = nombre;
+        this.capacidad = capacidad;
     }
+
+    public String getId() { return id; }
+    public String getNombre() { return nombre; }
+
+    public int getCapacidad() { return capacidad; }
+    public void setCapacidad(int capacidad) { this.capacidad = capacidad; }
 }

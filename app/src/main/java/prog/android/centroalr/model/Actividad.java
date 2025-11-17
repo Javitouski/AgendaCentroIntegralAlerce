@@ -2,6 +2,7 @@ package prog.android.centroalr.model;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.ServerTimestamp; // Importar si usas anotaciones, sino el Timestamp normal está bien
 
 public class Actividad {
 
@@ -17,9 +18,15 @@ public class Actividad {
     private String beneficiariosDescripcion;
     private int diasAvisoPrevio;
     private Timestamp fechaCreacion;
-    private String periodicidad;
-    private boolean tieneArchivos;
 
+    // Campos de Periodicidad
+    private String periodicidad; // "puntual" o "periodica"
+    private String frecuencia;   // "DIARIA", "SEMANAL", "MENSUAL" <--- NUEVO CAMPO
+
+    private boolean tieneArchivos;
+    private Timestamp ultimaActualizacion; // Agregado para evitar advertencias en logs
+
+    // Referencias
     private DocumentReference lugarId;
     private DocumentReference tipoActividadId;
     private DocumentReference proyectoId;
@@ -41,6 +48,7 @@ public class Actividad {
                      int diasAvisoPrevio,
                      Timestamp fechaCreacion,
                      String periodicidad,
+                     String frecuencia, // <--- Agregado al constructor
                      boolean tieneArchivos,
                      DocumentReference lugarId,
                      DocumentReference tipoActividadId,
@@ -59,6 +67,7 @@ public class Actividad {
         this.diasAvisoPrevio = diasAvisoPrevio;
         this.fechaCreacion = fechaCreacion;
         this.periodicidad = periodicidad;
+        this.frecuencia = frecuencia; // <--- Asignación
         this.tieneArchivos = tieneArchivos;
         this.lugarId = lugarId;
         this.tipoActividadId = tipoActividadId;
@@ -68,149 +77,66 @@ public class Actividad {
         this.creadaPorUsuarioId = creadaPorUsuarioId;
     }
 
-    // Getters y setters
+    // --- Getters y Setters ---
 
-    public String getId() {
-        return id;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public String getNombre() {
-        return nombre;
-    }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+    public Timestamp getFechaInicio() { return fechaInicio; }
+    public void setFechaInicio(Timestamp fechaInicio) { this.fechaInicio = fechaInicio; }
 
-    public String getDescripcion() {
-        return descripcion;
-    }
+    public Timestamp getFechaFin() { return fechaFin; }
+    public void setFechaFin(Timestamp fechaFin) { this.fechaFin = fechaFin; }
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
+    public int getCupo() { return cupo; }
+    public void setCupo(int cupo) { this.cupo = cupo; }
 
-    public Timestamp getFechaInicio() {
-        return fechaInicio;
-    }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 
-    public void setFechaInicio(Timestamp fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
+    public String getBeneficiariosDescripcion() { return beneficiariosDescripcion; }
+    public void setBeneficiariosDescripcion(String beneficiariosDescripcion) { this.beneficiariosDescripcion = beneficiariosDescripcion; }
 
-    public Timestamp getFechaFin() {
-        return fechaFin;
-    }
+    public int getDiasAvisoPrevio() { return diasAvisoPrevio; }
+    public void setDiasAvisoPrevio(int diasAvisoPrevio) { this.diasAvisoPrevio = diasAvisoPrevio; }
 
-    public void setFechaFin(Timestamp fechaFin) {
-        this.fechaFin = fechaFin;
-    }
+    public Timestamp getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(Timestamp fechaCreacion) { this.fechaCreacion = fechaCreacion; }
 
-    public int getCupo() {
-        return cupo;
-    }
+    public String getPeriodicidad() { return periodicidad; }
+    public void setPeriodicidad(String periodicidad) { this.periodicidad = periodicidad; }
 
-    public void setCupo(int cupo) {
-        this.cupo = cupo;
-    }
+    // Getter y Setter para el nuevo campo FRECUENCIA
+    public String getFrecuencia() { return frecuencia; }
+    public void setFrecuencia(String frecuencia) { this.frecuencia = frecuencia; }
 
-    public String getEstado() {
-        return estado;
-    }
+    public boolean isTieneArchivos() { return tieneArchivos; }
+    public void setTieneArchivos(boolean tieneArchivos) { this.tieneArchivos = tieneArchivos; }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
+    public Timestamp getUltimaActualizacion() { return ultimaActualizacion; }
+    public void setUltimaActualizacion(Timestamp ultimaActualizacion) { this.ultimaActualizacion = ultimaActualizacion; }
 
-    public String getBeneficiariosDescripcion() {
-        return beneficiariosDescripcion;
-    }
+    public DocumentReference getLugarId() { return lugarId; }
+    public void setLugarId(DocumentReference lugarId) { this.lugarId = lugarId; }
 
-    public void setBeneficiariosDescripcion(String beneficiariosDescripcion) {
-        this.beneficiariosDescripcion = beneficiariosDescripcion;
-    }
+    public DocumentReference getTipoActividadId() { return tipoActividadId; }
+    public void setTipoActividadId(DocumentReference tipoActividadId) { this.tipoActividadId = tipoActividadId; }
 
-    public int getDiasAvisoPrevio() {
-        return diasAvisoPrevio;
-    }
+    public DocumentReference getProyectoId() { return proyectoId; }
+    public void setProyectoId(DocumentReference proyectoId) { this.proyectoId = proyectoId; }
 
-    public void setDiasAvisoPrevio(int diasAvisoPrevio) {
-        this.diasAvisoPrevio = diasAvisoPrevio;
-    }
+    public DocumentReference getSocioComunitarioId() { return socioComunitarioId; }
+    public void setSocioComunitarioId(DocumentReference socioComunitarioId) { this.socioComunitarioId = socioComunitarioId; }
 
-    public Timestamp getFechaCreacion() {
-        return fechaCreacion;
-    }
+    public DocumentReference getOferenteId() { return oferenteId; }
+    public void setOferenteId(DocumentReference oferenteId) { this.oferenteId = oferenteId; }
 
-    public void setFechaCreacion(Timestamp fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
-    }
-
-    public String getPeriodicidad() {
-        return periodicidad;
-    }
-
-    public void setPeriodicidad(String periodicidad) {
-        this.periodicidad = periodicidad;
-    }
-
-    public boolean isTieneArchivos() {
-        return tieneArchivos;
-    }
-
-    public void setTieneArchivos(boolean tieneArchivos) {
-        this.tieneArchivos = tieneArchivos;
-    }
-
-    public DocumentReference getLugarId() {
-        return lugarId;
-    }
-
-    public void setLugarId(DocumentReference lugarId) {
-        this.lugarId = lugarId;
-    }
-
-    public DocumentReference getTipoActividadId() {
-        return tipoActividadId;
-    }
-
-    public void setTipoActividadId(DocumentReference tipoActividadId) {
-        this.tipoActividadId = tipoActividadId;
-    }
-
-    public DocumentReference getProyectoId() {
-        return proyectoId;
-    }
-
-    public void setProyectoId(DocumentReference proyectoId) {
-        this.proyectoId = proyectoId;
-    }
-
-    public DocumentReference getSocioComunitarioId() {
-        return socioComunitarioId;
-    }
-
-    public void setSocioComunitarioId(DocumentReference socioComunitarioId) {
-        this.socioComunitarioId = socioComunitarioId;
-    }
-
-    public DocumentReference getOferenteId() {
-        return oferenteId;
-    }
-
-    public void setOferenteId(DocumentReference oferenteId) {
-        this.oferenteId = oferenteId;
-    }
-
-    public DocumentReference getCreadaPorUsuarioId() {
-        return creadaPorUsuarioId;
-    }
-
-    public void setCreadaPorUsuarioId(DocumentReference creadaPorUsuarioId) {
-        this.creadaPorUsuarioId = creadaPorUsuarioId;
-    }
+    public DocumentReference getCreadaPorUsuarioId() { return creadaPorUsuarioId; }
+    public void setCreadaPorUsuarioId(DocumentReference creadaPorUsuarioId) { this.creadaPorUsuarioId = creadaPorUsuarioId; }
 }

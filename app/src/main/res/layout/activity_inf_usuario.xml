@@ -138,27 +138,6 @@
                     android:background="#49454F"
                     android:layout_marginBottom="24dp"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Rut"
-                    android:textColor="#18990D"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-                <EditText
-                    android:id="@+id/etRut"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="12.345.678-9"
-                    android:textColor="#1D1B20"
-                    android:background="@android:color/transparent"
-                    android:paddingVertical="12dp"
-                    android:inputType="text" />
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="#49454F"
-                    android:layout_marginBottom="24dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"

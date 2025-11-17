@@ -1,7 +1,5 @@
 package prog.android.centroalr.view;
 
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -10,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout; // Necesario para el layout del dialog
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,23 +32,18 @@ import prog.android.centroalr.R;
 import prog.android.centroalr.adapter.MantenedorAdapter;
 import prog.android.centroalr.model.SimpleMantenedorItem;
 
-/**
- * Activity CRUD para gestionar la colección "lugares" en Firestore.
- */
 public class MantenedorLugaresActivity extends AppCompatActivity implements MantenedorAdapter.OnItemClickListener {
 
     private static final String TAG = "MantenedorLugares";
-    private final String COLECCION = "lugares"; // Colección de Firestore
-    private final String CAMPO_NOMBRE = "descripcion"; // Campo a mostrar/editar
+    private final String COLECCION = "lugares";
+    private final String CAMPO_NOMBRE = "descripcion";
 
-    // Vistas
     private RecyclerView recyclerMantenedor;
     private ProgressBar progressBar;
     private TextView tvMensajeVacio;
     private ImageButton btnBack;
     private FloatingActionButton fabAgregar;
 
-    // Firebase y Adaptador
     private FirebaseFirestore db;
     private MantenedorAdapter adapter;
 
@@ -60,20 +54,15 @@ public class MantenedorLugaresActivity extends AppCompatActivity implements Mant
 
         db = FirebaseFirestore.getInstance();
 
-        // Encontrar Vistas
         btnBack = findViewById(R.id.btnBack);
         recyclerMantenedor = findViewById(R.id.recyclerMantenedor);
         progressBar = findViewById(R.id.progressBar);
         tvMensajeVacio = findViewById(R.id.tvMensajeVacio);
         fabAgregar = findViewById(R.id.fabAgregar);
 
-        // Configurar botón de volver
         btnBack.setOnClickListener(v -> finish());
-
-        // Configurar botón de añadir
         fabAgregar.setOnClickListener(v -> mostrarDialogoEditarCrear(null));
 
-        // Configurar la lista
         setupRecyclerView();
     }
 
@@ -84,7 +73,7 @@ public class MantenedorLugaresActivity extends AppCompatActivity implements Mant
     }
 
     private void setupRecyclerView() {
-        adapter = new MantenedorAdapter(this); // "this" es el listener
+        adapter = new MantenedorAdapter(this);
         recyclerMantenedor.setLayoutManager(new LinearLayoutManager(this));
         recyclerMantenedor.setAdapter(adapter);
     }
@@ -105,8 +94,12 @@ public class MantenedorLugaresActivity extends AppCompatActivity implements Mant
                     } else {
                         for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                             String nombre = doc.getString(CAMPO_NOMBRE);
+                            // LEER CAPACIDAD
+                            Long cap = doc.getLong("capacidad");
+                            int capacidad = (cap != null) ? cap.intValue() : 0;
+
                             if (nombre != null) {
-                                lista.add(new SimpleMantenedorItem(doc.getId(), nombre));
+                                lista.add(new SimpleMantenedorItem(doc.getId(), nombre, capacidad));
                             }
                         }
                         adapter.setItems(lista);
@@ -131,72 +124,93 @@ public class MantenedorLugaresActivity extends AppCompatActivity implements Mant
         }
     }
 
-    /**
-     * Muestra un pop-up (AlertDialog) para crear un nuevo ítem o editar uno existente.
-     * @param item El ítem a editar, o null si es para crear uno nuevo.
-     */
+    // --- DIÁLOGO PERSONALIZADO CON 2 CAMPOS (NOMBRE Y CAPACIDAD) ---
     private void mostrarDialogoEditarCrear(SimpleMantenedorItem item) {
         boolean esCrear = (item == null);
         String titulo = esCrear ? "Crear Nuevo Lugar" : "Editar Lugar";
         String nombreActual = esCrear ? "" : item.getNombre();
+        String capacidadActual = (esCrear || item.getCapacidad() == 0) ? "" : String.valueOf(item.getCapacidad());
 
-        // Crear un EditText para el pop-up
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-        input.setText(nombreActual);
+        // Contenedor vertical
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
 
-        // Añadir padding al EditText
-        FrameLayout container = new FrameLayout(this);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        params.leftMargin = getResources().getDimensionPixelSize(R.dimen.dialog_margin);
-        params.rightMargin = getResources().getDimensionPixelSize(R.dimen.dialog_margin);
-        input.setLayoutParams(params);
-        container.addView(input);
+        // Margenes
+        int padding = getResources().getDimensionPixelSize(R.dimen.dialog_margin); // Asegúrate de tener este dimen o usa 50
+        // Si no tienes el dimen, usa un valor fijo en px, ej: 50
+        layout.setPadding(50, 40, 50, 10);
 
-        // Crear el AlertDialog
+        // Input Nombre
+        final EditText inputNombre = new EditText(this);
+        inputNombre.setHint("Nombre del lugar (Ej: Oficina 1)");
+        inputNombre.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        inputNombre.setText(nombreActual);
+        layout.addView(inputNombre);
+
+        // Input Capacidad
+        final EditText inputCapacidad = new EditText(this);
+        inputCapacidad.setHint("Aforo máximo (personas)");
+        inputCapacidad.setInputType(InputType.TYPE_CLASS_NUMBER);
+        inputCapacidad.setText(capacidadActual);
+        layout.addView(inputCapacidad);
+
         new AlertDialog.Builder(this)
                 .setTitle(titulo)
-                .setView(container)
+                .setView(layout)
                 .setPositiveButton("Guardar", (dialog, which) -> {
-                    String nuevoNombre = input.getText().toString().trim();
+                    String nuevoNombre = inputNombre.getText().toString().trim();
+                    String nuevaCapacidadStr = inputCapacidad.getText().toString().trim();
+
                     if (nuevoNombre.isEmpty()) {
-                        Toast.makeText(this, "El nombre no puede estar vacío.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "El nombre es obligatorio.", Toast.LENGTH_SHORT).show();
                         return;
                     }
+
+                    int nuevaCapacidad = 0;
+                    if (!nuevaCapacidadStr.isEmpty()) {
+                        try {
+                            nuevaCapacidad = Integer.parseInt(nuevaCapacidadStr);
+                        } catch (NumberFormatException e) {
+                            Toast.makeText(this, "Capacidad inválida", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+
                     if (esCrear) {
-                        guardarNuevoItem(nuevoNombre);
+                        guardarNuevoItem(nuevoNombre, nuevaCapacidad);
                     } else {
-                        actualizarItem(item, nuevoNombre);
+                        actualizarItem(item, nuevoNombre, nuevaCapacidad);
                     }
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
     }
 
-    private void guardarNuevoItem(String nombre) {
+    private void guardarNuevoItem(String nombre, int capacidad) {
         Map<String, Object> data = new HashMap<>();
         data.put(CAMPO_NOMBRE, nombre);
-        // Puedes añadir otros campos por defecto aquí si es necesario
+        data.put("capacidad", capacidad); // Guardamos el entero
 
         db.collection(COLECCION).add(data)
                 .addOnSuccessListener(docRef -> {
                     Toast.makeText(this, "Lugar creado.", Toast.LENGTH_SHORT).show();
-                    cargarItems(); // Recargar la lista
+                    cargarItems();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Error al crear: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
-    private void actualizarItem(SimpleMantenedorItem item, String nuevoNombre) {
+    private void actualizarItem(SimpleMantenedorItem item, String nuevoNombre, int nuevaCapacidad) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(CAMPO_NOMBRE, nuevoNombre);
+        updates.put("capacidad", nuevaCapacidad);
+
         db.collection(COLECCION).document(item.getId())
-                .update(CAMPO_NOMBRE, nuevoNombre)
+                .update(updates)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Lugar actualizado.", Toast.LENGTH_SHORT).show();
-                    cargarItems(); // Recargar la lista
+                    cargarItems();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Error al actualizar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -204,15 +218,14 @@ public class MantenedorLugaresActivity extends AppCompatActivity implements Mant
     }
 
     private void borrarItem(SimpleMantenedorItem item) {
-        // Pop-up de confirmación
         new AlertDialog.Builder(this)
                 .setTitle("Confirmar Borrado")
-                .setMessage("¿Estás seguro de que quieres borrar '" + item.getNombre() + "'?\n\n(Esta acción no se puede deshacer)")
+                .setMessage("¿Estás seguro de que quieres borrar '" + item.getNombre() + "'?")
                 .setPositiveButton("Borrar", (dialog, which) -> {
                     db.collection(COLECCION).document(item.getId()).delete()
                             .addOnSuccessListener(aVoid -> {
                                 Toast.makeText(this, "Lugar borrado.", Toast.LENGTH_SHORT).show();
-                                cargarItems(); // Recargar la lista
+                                cargarItems();
                             })
                             .addOnFailureListener(e -> {
                                 Toast.makeText(this, "Error al borrar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -222,9 +235,6 @@ public class MantenedorLugaresActivity extends AppCompatActivity implements Mant
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
-
-
-    // --- Callbacks del Adaptador ---
 
     @Override
     public void onEditClick(SimpleMantenedorItem item) {
