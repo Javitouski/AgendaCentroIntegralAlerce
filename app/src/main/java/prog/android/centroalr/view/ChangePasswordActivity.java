@@ -1,16 +1,19 @@
 package prog.android.centroalr.view;
 
 import android.os.Bundle;
-import android.text.InputType;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -19,192 +22,80 @@ import prog.android.centroalr.R;
 
 public class ChangePasswordActivity extends AppCompatActivity {
 
-    private EditText etCurrent;
-    private EditText etNew;
-    private Button btnSubmit;
-    private ProgressBar progress;
+    private EditText etContrasenaActual;
+    private EditText etContrasenaNueva;
+    private EditText etContrasenaNuevaRepetida;
+    private Button btnCrearContrasena;
+    private ImageButton btnBack;
+
+    private FirebaseAuth auth;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_rest_contra); // Tu XML moderno
 
-        setContentView(R.layout.activity_rest_contra);
+        auth = FirebaseAuth.getInstance();
 
-        wireViewsSafely();
-        if (btnSubmit != null) {
-            btnSubmit.setOnClickListener(v -> onChangePassword());
-        }
+        etContrasenaActual = findViewById(R.id.etContrasenaActual);
+        etContrasenaNueva = findViewById(R.id.etContrasenaNueva);
+        etContrasenaNuevaRepetida = findViewById(R.id.etContrasenaNuevaRepetida);
+        btnCrearContrasena = findViewById(R.id.btnCrearContrasena);
+        btnBack = findViewById(R.id.btnBack);
+
+        btnBack.setOnClickListener(v -> onBackPressed());
+
+        btnCrearContrasena.setOnClickListener(v -> cambiarContrasena());
     }
 
-    // ----------------- UI wiring robusto (IDs conocidos + fallback por hint/texto) -----------------
+    private void cambiarContrasena() {
+        final String actual = etContrasenaActual.getText().toString().trim();
+        final String nueva = etContrasenaNueva.getText().toString().trim();
+        final String nuevaRep = etContrasenaNuevaRepetida.getText().toString().trim();
 
-    private void wireViewsSafely() {
-        // 1) Intento por IDs típicos (ajusta/añade si conoces los tuyos)
-        etCurrent = findEditTextByAnyId("et_current", "current_password", "password_actual", "et_password_actual", "input_current");
-        etNew     = findEditTextByAnyId("et_new", "new_password", "password_nueva", "et_password_nueva", "input_new");
-        btnSubmit = findButtonByAnyId  ("btn_change", "btn_update", "btn_cambiar", "btn_actualizar", "button_change");
-        progress  = findProgressByAnyId("progress", "progressBar", "pb", "loading");
-
-        // 2) Fallback si no hay IDs: por hint/texto en español
-        if (etCurrent == null || etNew == null) {
-            fallbackScanFieldsByHint();
-        }
-        if (btnSubmit == null) {
-            btnSubmit = findButtonByTextContains("Cambiar", "Actualizar", "Guardar");
-        }
-
-        // 3) Garantiza tipo password si el layout no lo puso
-        if (etCurrent != null && (etCurrent.getInputType() & InputType.TYPE_TEXT_VARIATION_PASSWORD) == 0) {
-            etCurrent.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        }
-        if (etNew != null && (etNew.getInputType() & InputType.TYPE_TEXT_VARIATION_PASSWORD) == 0) {
-            etNew.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        }
-    }
-
-    private EditText findEditTextByAnyId(String... names) {
-        for (String n : names) {
-            int id = getId(n);
-            if (id != 0) {
-                View v = findViewById(id);
-                if (v instanceof EditText) return (EditText) v;
-            }
-        }
-        return null;
-    }
-
-    private Button findButtonByAnyId(String... names) {
-        for (String n : names) {
-            int id = getId(n);
-            if (id != 0) {
-                View v = findViewById(id);
-                if (v instanceof Button) return (Button) v;
-            }
-        }
-        return null;
-    }
-
-    private ProgressBar findProgressByAnyId(String... names) {
-        for (String n : names) {
-            int id = getId(n);
-            if (id != 0) {
-                View v = findViewById(id);
-                if (v instanceof ProgressBar) return (ProgressBar) v;
-            }
-        }
-        return null;
-    }
-
-    private Button findButtonByTextContains(String... pieces) {
-        View root = findViewById(android.R.id.content);
-        if (root == null) return null;
-        java.util.ArrayDeque<View> st = new java.util.ArrayDeque<>();
-        st.push(root);
-        while (!st.isEmpty()) {
-            View v = st.pop();
-            if (v instanceof android.view.ViewGroup) {
-                android.view.ViewGroup g = (android.view.ViewGroup) v;
-                for (int i = 0; i < g.getChildCount(); i++) st.push(g.getChildAt(i));
-            }
-            if (v instanceof Button) {
-                CharSequence cs = ((Button) v).getText();
-                if (cs != null) {
-                    String s = cs.toString().toLowerCase();
-                    for (String p : pieces) {
-                        if (s.contains(p.toLowerCase())) return (Button) v;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private void fallbackScanFieldsByHint() {
-        View root = findViewById(android.R.id.content);
-        if (root == null) return;
-        java.util.ArrayDeque<View> st = new java.util.ArrayDeque<>();
-        st.push(root);
-
-        EditText guessCurrent = null, guessNew = null;
-
-        while (!st.isEmpty()) {
-            View v = st.pop();
-            if (v instanceof android.view.ViewGroup) {
-                android.view.ViewGroup g = (android.view.ViewGroup) v;
-                for (int i = 0; i < g.getChildCount(); i++) st.push(g.getChildAt(i));
-            }
-            if (v instanceof EditText) {
-                EditText e = (EditText) v;
-                CharSequence hint = e.getHint();
-                String h = hint != null ? hint.toString().toLowerCase() : "";
-                if (h.contains("actual") || h.contains("old") || h.contains("anterior")) {
-                    guessCurrent = e;
-                } else if (h.contains("nueva") || h.contains("new")) {
-                    guessNew = e;
-                }
-            }
-        }
-        if (etCurrent == null) etCurrent = guessCurrent;
-        if (etNew == null) etNew = guessNew;
-    }
-
-    private int getId(String name) {
-        return getResources().getIdentifier(name, "id", getPackageName());
-    }
-
-    // ----------------- Lógica de cambio en sesión -----------------
-
-    private void onChangePassword() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
-            toast("Debes iniciar sesión para cambiar la contraseña.");
-            return;
-        }
-        String current = etCurrent != null ? etCurrent.getText().toString().trim() : "";
-        String newer   = etNew     != null ? etNew.getText().toString().trim()     : "";
-
-        if (current.isEmpty() || newer.isEmpty()) {
-            toast("Completa ambos campos.");
-            return;
-        }
-        if (newer.length() < 6) {
-            toast("La nueva contraseña debe tener al menos 6 caracteres.");
+        if (TextUtils.isEmpty(actual) || TextUtils.isEmpty(nueva) || TextUtils.isEmpty(nuevaRep)) {
+            Toast.makeText(this, "Complete todos los campos", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        setLoading(true);
-
-        if (user.getEmail() == null) {
-            setLoading(false);
-            toast("La cuenta no tiene email. Usa 'Olvidé mi contraseña'.");
+        if (!nueva.equals(nuevaRep)) {
+            Toast.makeText(this, "Las contraseñas nuevas no coinciden", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        user.reauthenticate(EmailAuthProvider.getCredential(user.getEmail(), current))
-                .addOnSuccessListener(unused ->
-                        user.updatePassword(newer)
-                                .addOnSuccessListener(u -> {
-                                    setLoading(false);
-                                    toast("Contraseña actualizada.");
-                                    finish();
-                                })
-                                .addOnFailureListener(e -> {
-                                    setLoading(false);
-                                    toast("Error al actualizar: " + e.getMessage());
-                                })
-                )
-                .addOnFailureListener(e -> {
-                    setLoading(false);
-                    toast("Reautenticación fallida: " + e.getMessage());
-                });
+        if (!esPasswordValida(nueva)) {
+            Toast.makeText(this, "La nueva contraseña no cumple los requisitos", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        FirebaseUser user = auth.getCurrentUser();
+
+        if (user == null || user.getEmail() == null) {
+            Toast.makeText(this, "No se pudo obtener el usuario actual", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), actual);
+
+        user.reauthenticate(credential)
+                .addOnSuccessListener(unused -> user.updatePassword(nueva)
+                        .addOnSuccessListener(unused1 -> {
+                            Toast.makeText(ChangePasswordActivity.this,
+                                    "Contraseña actualizada correctamente",
+                                    Toast.LENGTH_LONG).show();
+                            finish();
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(ChangePasswordActivity.this,
+                                        "Error al actualizar: " + e.getLocalizedMessage(),
+                                        Toast.LENGTH_LONG).show()))
+                .addOnFailureListener(e -> Toast.makeText(ChangePasswordActivity.this,
+                        "Contraseña actual incorrecta",
+                        Toast.LENGTH_LONG).show());
     }
 
-    private void setLoading(boolean on) {
-        if (progress != null) progress.setVisibility(on ? View.VISIBLE : View.GONE);
-        if (btnSubmit != null) btnSubmit.setEnabled(!on);
-        if (etCurrent != null) etCurrent.setEnabled(!on);
-        if (etNew != null) etNew.setEnabled(!on);
+    private boolean esPasswordValida(String pass) {
+        String regex = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[\\$%#\\+\\-]).{6,}$";
+        return pass.matches(regex);
     }
-
-    private void toast(String m) { Toast.makeText(this, m, Toast.LENGTH_LONG).show(); }
 }
