@@ -1,29 +1,45 @@
 package prog.android.centroalr.view;
 
-import android.content.Context; // Asegúrate de que esta importación esté
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.util.TypedValue;
-import android.widget.Toast; // Asegúrate de que esta importación esté
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-// PASO 1: Importar las clases necesarias
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import prog.android.centroalr.MyApplication;
 import prog.android.centroalr.R;
 import prog.android.centroalr.controller.LogoutController;
+import prog.android.centroalr.model.Actividad;
 import prog.android.centroalr.model.AuthModel;
-import prog.android.centroalr.model.Usuario; // Importar Usuario
+import prog.android.centroalr.model.Usuario;
 
 public class AgndSemActivity extends AppCompatActivity implements LogoutView {
 
@@ -32,7 +48,7 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
     private LogoutController logoutController;
     private AuthModel authModel;
 
-    // PASO 2: Declarar variable para el usuario
+    // Usuario actual
     private Usuario usuarioActual;
 
     // --- Semana / día seleccionado ---
@@ -43,24 +59,30 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
             DateTimeFormatter.ofPattern("d/M/yyyy", esCL);
 
     private LocalDate weekStart;     // Lunes de la semana actual
-    private LocalDate selectedDate;  // Día actualmente seleccionado (dentro de esa semana)
+    private LocalDate selectedDate;  // Día actualmente seleccionado
+    private int selectedIndex = 0;   // 0..6
 
     // UI
-    private TextView tvMes;          // Título superior (mes/fecha)
-    private TextView[] dayBtns = new TextView[7]; // LUN..DOM en el header
-    private LinearLayout llEventos;  // Contenedor de eventos del día
-    private int selectedIndex = 0;   // 0..6
+    private TextView tvMes;
+    private TextView[] dayBtns = new TextView[7];
+    private LinearLayout llEventos;
     private ImageButton btnPrevWeek;
     private ImageButton btnNextWeek;
 
+    // --- Firebase / datos ---
+    private FirebaseFirestore db;
+    // Mapa: día -> lista de actividades de ese día
+    private final Map<LocalDate, List<Actividad>> eventosSemana = new HashMap<>();
+    private final SimpleDateFormat fechaListaFormat =
+            new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_agnd_sem);
+
         btnPrevWeek = findViewById(R.id.btnPrevWeek);
         btnNextWeek = findViewById(R.id.btnNextWeek);
-
 
         // ====== Logout wiring ======
         authModel = new AuthModel();
@@ -71,16 +93,18 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
             btnCerrarSesion.setOnClickListener(v -> logoutController.onLogoutClicked());
         }
 
-        // ====== PASO 3: Cargar el perfil de usuario ======
+        // ====== Usuario actual desde MyApplication ======
         MyApplication myApp = (MyApplication) getApplicationContext();
         usuarioActual = myApp.getUsuarioActual();
 
-        // ====== PASO 4: CHEQUEO DE SEGURIDAD ======
         if (usuarioActual == null) {
             Toast.makeText(this, "Error: Sesión no encontrada.", Toast.LENGTH_SHORT).show();
-            navigateToLogin(); // Usamos el método que ya tienes
-            return; // Detenemos la ejecución
+            navigateToLogin();
+            return;
         }
+
+        // ====== Firebase ======
+        db = FirebaseFirestore.getInstance();
 
         // ====== Icono usuario -> Perfil ======
         ImageView ivUser = findViewById(R.id.ivUserAvatar);
@@ -90,26 +114,28 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
             );
         }
 
-        // ====== Bottom nav por IDs ======
+        // ====== Bottom nav ======
         View btnListaActividades = findViewById(R.id.btnListaActividades);
-        if (btnListaActividades != null) btnListaActividades.setOnClickListener(v ->
-                startActivity(new Intent(this, ListaActividadesActivity.class)));
+        if (btnListaActividades != null) {
+            btnListaActividades.setOnClickListener(v ->
+                    startActivity(new Intent(this, ListaActividadesActivity.class)));
+        }
 
         View fabInicio = findViewById(R.id.fabInicio);
-        if (fabInicio != null) fabInicio.setOnClickListener(v ->
-                startActivity(new Intent(this, AgendMensActivity.class)));
+        if (fabInicio != null) {
+            fabInicio.setOnClickListener(v ->
+                    startActivity(new Intent(this, AgendMensActivity.class)));
+        }
 
-        // ====== PASO 5: LÓGICA DE PERMISOS PARA "CREAR ACTIVIDAD" ======
+        // ====== Botón Crear Actividad según permisos ======
         View btnCrearActividad = findViewById(R.id.btnCrearActividad);
         if (btnCrearActividad != null) {
             if (usuarioActual.tienePermiso("PUEDE_CREAR_ACTIVIDAD")) {
-                // SÍ tiene permiso
                 btnCrearActividad.setVisibility(View.VISIBLE);
                 btnCrearActividad.setOnClickListener(v ->
                         startActivity(new Intent(this, CrearActActivity.class)));
             } else {
-                // NO tiene permiso
-                btnCrearActividad.setVisibility(View.GONE); // ¡Ocultamos el botón!
+                btnCrearActividad.setVisibility(View.GONE);
             }
         }
 
@@ -125,18 +151,19 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
         dayBtns[5] = findViewById(R.id.btnSabado);
         dayBtns[6] = findViewById(R.id.btnDomingo);
 
-        // Cálculo de semana base (desde extra o hoy)
+        // ====== Semana base (desde Intent o hoy) ======
         LocalDate base = LocalDate.now();
         if (getIntent() != null && getIntent().hasExtra("selected_date")) {
             try {
                 base = LocalDate.parse(getIntent().getStringExtra("selected_date"));
             } catch (Exception ignore) {}
         }
-        weekStart = startOfWeek(base);    // lunes
+
+        weekStart = startOfWeek(base);  // lunes
         selectedDate = base;
         selectedIndex = selectedDate.getDayOfWeek().getValue() - 1; // L=1..D=7 -> 0..6
 
-        // Clickers de días
+        // Clickers de los 7 días
         for (int i = 0; i < 7; i++) {
             final int idx = i;
             if (dayBtns[i] != null) {
@@ -144,30 +171,50 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
             }
         }
 
-        // Render inicial
+        // Navegación de semanas
+        if (btnPrevWeek != null) {
+            btnPrevWeek.setOnClickListener(v -> {
+                weekStart = weekStart.minusWeeks(1);
+                selectedDate = weekStart;
+                selectedIndex = 0;
+                applySelectionUi();
+                loadWeekEvents();
+            });
+        }
+
+        if (btnNextWeek != null) {
+            btnNextWeek.setOnClickListener(v -> {
+                weekStart = weekStart.plusWeeks(1);
+                selectedDate = weekStart;
+                selectedIndex = 0;
+                applySelectionUi();
+                loadWeekEvents();
+            });
+        }
+
+        // Render inicial (mientras no llegan datos)
         applySelectionUi();
         loadDayEvents(selectedDate);
 
-        // ====== (Opcional) Fallbacks a texto/ID "dinámico" existentes ======
+        // ====== Fallbacks de texto/ID del diseño original ======
         bindClickByIdOrText("rn6aagqs6pq8", "Lista de Actividades",
                 () -> startActivity(new Intent(this, ListaActividadesActivity.class)));
         bindClickByIdOrText("r3pjyjmbkmo9", "Inicio",
                 () -> startActivity(new Intent(this, AgendMensActivity.class)));
 
-        // ¡Cuidado aquí! Este fallback también debe ser asegurado,
-        // pero lo principal es el botón de la UI (btnCrearActividad) que ya aseguramos.
-        // Por ahora lo dejamos así.
         bindClickByIdOrText("rqwq9k1hp05", "Crear Actividad",
                 () -> {
-                    if(usuarioActual.tienePermiso("PUEDE_CREAR_ACTIVIDAD")) {
+                    if (usuarioActual.tienePermiso("PUEDE_CREAR_ACTIVIDAD")) {
                         startActivity(new Intent(this, CrearActActivity.class));
                     }
-                    // Si no tiene permiso, no hace nada.
                 });
 
         bindEventById("rtumfhvig6h");
         bindEventById("roa0repy8oae");
         attachEventClickers();
+
+        // Cargar las actividades reales de la semana
+        loadWeekEvents();
     }
 
     // ================== LÓGICA DE SEMANA ==================
@@ -184,43 +231,210 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
         loadDayEvents(selectedDate);
     }
 
-    /** Actualiza estilos de botones de días y el título con la fecha seleccionada. */
+    // ================== CARGA DESDE FIRESTORE ==================
+
+    /**
+     * Carga todas las actividades cuya fechaInicio cae dentro de la semana
+     * [weekStart, weekStart + 7) y las guarda en eventosSemana.
+     */
+    private void loadWeekEvents() {
+        if (db == null) return;
+
+        eventosSemana.clear();
+
+        LocalDate monday = weekStart;
+        LocalDate nextMonday = weekStart.plusDays(7);
+
+        ZoneId zone = ZoneId.systemDefault();
+        Date mondayDate = Date.from(monday.atStartOfDay(zone).toInstant());
+        Date nextMondayDate = Date.from(nextMonday.atStartOfDay(zone).toInstant());
+
+        Timestamp mondayTs = new Timestamp(mondayDate);
+        Timestamp nextMondayTs = new Timestamp(nextMondayDate);
+
+        db.collection("actividades")                                // colección
+                .whereGreaterThanOrEqualTo("fechaInicio", mondayTs) // campo de fecha
+                .whereLessThan("fechaInicio", nextMondayTs)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        Actividad act = doc.toObject(Actividad.class);
+                        if (act == null || act.getFechaInicio() == null) continue;
+
+                        // Guardamos el ID del documento de Firestore en la Actividad
+                        act.setId(doc.getId());
+
+                        LocalDate diaActividad = act.getFechaInicio().toDate()
+                                .toInstant()
+                                .atZone(zone)
+                                .toLocalDate();
+
+                        List<Actividad> list = eventosSemana.get(diaActividad);
+                        if (list == null) {
+                            list = new ArrayList<>();
+                            eventosSemana.put(diaActividad, list);
+                        }
+                        list.add(act);
+                    }
+
+                    // Refrescamos UI con los datos reales
+                    applySelectionUi();          // puntos verdes
+                    loadDayEvents(selectedDate); // actividades del día seleccionado
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this,
+                            "Error al cargar actividades de la semana",
+                            Toast.LENGTH_SHORT).show();
+                    eventosSemana.clear();
+                    applySelectionUi();
+                    loadDayEvents(selectedDate);
+                });
+    }
+
+    // ================== UI DE DÍAS Y EVENTOS ==================
+
+    /** Actualiza título, estilo de los días y marca con un punto verde los días con actividades. */
     private void applySelectionUi() {
-        // Título con fecha (capitalizando primera letra)
-        if (tvMes != null) {
+        // Título con fecha seleccionada
+        if (tvMes != null && selectedDate != null) {
             String t = selectedDate.format(titleFmt);
             tvMes.setText(capitalizeFirst(t));
         }
 
-        // Resaltar día seleccionado
         for (int i = 0; i < 7; i++) {
             TextView tv = dayBtns[i];
             if (tv == null) continue;
 
+            // Texto base del día según strings.xml
+            String baseLabel;
+            switch (i) {
+                case 0: baseLabel = getString(R.string.lunes); break;
+                case 1: baseLabel = getString(R.string.martes); break;
+                case 2: baseLabel = getString(R.string.miercoles); break;
+                case 3: baseLabel = getString(R.string.jueves); break;
+                case 4: baseLabel = getString(R.string.viernes); break;
+                case 5: baseLabel = getString(R.string.sabado); break;
+                case 6:
+                default: baseLabel = getString(R.string.domingo); break;
+            }
+
+            // ¿Hay actividades ese día?
+            LocalDate dia = weekStart.plusDays(i);
+            List<Actividad> list = eventosSemana.get(dia);
+            boolean hasEvents = (list != null && !list.isEmpty());
+
+            if (hasEvents) {
+                // Añadimos un "•" verde al final del texto
+                String text = baseLabel + " •";
+                SpannableString span = new SpannableString(text);
+                int dotIndex = text.length() - 1;
+                span.setSpan(
+                        new ForegroundColorSpan(Color.parseColor("#18990D")),
+                        dotIndex,
+                        dotIndex + 1,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                );
+                tv.setText(span);
+            } else {
+                tv.setText(baseLabel);
+            }
+
+            // Resaltar día seleccionado
             if (i == selectedIndex) {
-                // Seleccionado: mismo fondo que en tu XML (bg_dia_selected)
                 tv.setBackgroundResource(R.drawable.bg_dia_selected);
                 tv.setTextColor(Color.parseColor("#066D0A"));
             } else {
-                // No seleccionado: transparente
                 tv.setBackground(null);
                 tv.setTextColor(Color.parseColor("#066D0A"));
             }
         }
     }
 
-    /** Carga (o maqueta) los eventos del día en llEventos. */
+    /**
+     * Muestra en llEventos el listado de actividades del día indicado.
+     * - Si no hay: "No hay actividades para X".
+     * - Si hay: "Actividades para X" + tarjetas usando item_actividad.
+     */
     private void loadDayEvents(LocalDate date) {
-        if (llEventos == null) return;
+        if (llEventos == null || date == null) return;
+
         llEventos.removeAllViews();
 
-        // TODO Integra tu fuente real (BD/Firestore/REST). Dejo placeholder "sin actividades".
-        TextView empty = new TextView(this);
-        empty.setText("No hay actividades para " + date.format(shortFmt));
-        empty.setTextColor(Color.parseColor("#066D0A"));
-        empty.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-        empty.setPadding(dp(12), dp(8), dp(12), dp(16));
-        llEventos.addView(empty);
+        List<Actividad> lista = eventosSemana.get(date);
+        boolean hayActividades = (lista != null && !lista.isEmpty());
+
+        // Cabecera de texto
+        TextView header = new TextView(this);
+        String titulo = (hayActividades ? "Actividades para " : "No hay actividades para ")
+                + date.format(shortFmt);
+        header.setText(titulo);
+        header.setTextColor(Color.parseColor("#066D0A"));
+        header.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        header.setPadding(dp(12), dp(8), dp(12), dp(16));
+        llEventos.addView(header);
+
+        if (!hayActividades) {
+            return;
+        }
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+
+        for (Actividad act : lista) {
+            View card = inflater.inflate(R.layout.item_actividad, llEventos, false);
+
+            TextView tvNombre = card.findViewById(R.id.tvNombreActividad);
+            TextView tvFechas = card.findViewById(R.id.tvFechas);
+            TextView tvLugar = card.findViewById(R.id.tvLugar);
+            TextView tvEstado = card.findViewById(R.id.tvEstado);
+            TextView tvInicial = card.findViewById(R.id.tvInicialActividad);
+
+            // Nombre + inicial
+            String nombre = act.getNombre();
+            if (nombre != null && !nombre.trim().isEmpty()) {
+                tvNombre.setText(nombre);
+                tvInicial.setText(nombre.trim().substring(0, 1).toUpperCase());
+            } else {
+                tvNombre.setText("Sin nombre");
+                tvInicial.setText("?");
+            }
+
+            // Fechas (misma lógica que en ActividadesAdapter)
+            String textoFechas;
+            if (act.getFechaInicio() != null && act.getFechaFin() != null) {
+                String inicio = fechaListaFormat.format(act.getFechaInicio().toDate());
+                String fin = fechaListaFormat.format(act.getFechaFin().toDate());
+                textoFechas = inicio + " - " + fin;
+            } else if (act.getFechaInicio() != null) {
+                textoFechas = fechaListaFormat.format(act.getFechaInicio().toDate());
+            } else {
+                textoFechas = "Fecha no definida";
+            }
+            tvFechas.setText(textoFechas);
+
+            // Lugar legible
+            tvLugar.setText(nombreLugarLegible(act));
+
+            // Estado
+            String estado = (act.getEstado() != null && !act.getEstado().isEmpty())
+                    ? act.getEstado()
+                    : "SIN ESTADO";
+            tvEstado.setText(estado);
+
+            // Click a detalle: aquí mandamos actividadId a DetActActivity
+            card.setOnClickListener(v -> {
+                if (act.getId() != null) {
+                    Intent i = new Intent(this, DetActActivity.class);
+                    i.putExtra("actividadId", act.getId());
+                    startActivity(i);
+                } else {
+                    Toast.makeText(this,
+                            "No se pudo obtener el ID de la actividad.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            llEventos.addView(card);
+        }
     }
 
     // ================== HELPERS ==================
@@ -234,6 +448,28 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
         return Math.round(getResources().getDisplayMetrics().density * value);
     }
 
+    /** Mismo método que en ActividadesAdapter para mostrar el lugar legible. */
+    private String nombreLugarLegible(Actividad actividad) {
+        if (actividad.getLugarId() == null) {
+            return "Lugar no especificado";
+        }
+
+        String id = actividad.getLugarId().getId(); // p.ej. "oficina", "salaMultiuso1", etc.
+
+        switch (id) {
+            case "oficina":
+                return "Oficina principal del centro comunitario";
+            case "salaMultiuso1":
+                return "Sala multiuso 1";
+            case "salaMultiuso2":
+                return "Sala multiuso 2";
+            default:
+                String s = id.replace("_", " ").replace("-", " ");
+                if (s.isEmpty()) return "Lugar no especificado";
+                return s.substring(0, 1).toUpperCase() + s.substring(1);
+        }
+    }
+
     private int getId(String name) {
         return getResources().getIdentifier(name, "id", getPackageName());
     }
@@ -243,7 +479,10 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
         int id = getId(idName);
         if (id != 0) {
             View v = findViewById(id);
-            if (v != null) { v.setOnClickListener(x -> action.run()); bound = true; }
+            if (v != null) {
+                v.setOnClickListener(x -> action.run());
+                bound = true;
+            }
         }
         if (!bound) bindByText(fallbackText, action);
     }
@@ -251,7 +490,7 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
     private void bindByText(String text, Runnable action) {
         final View root = findViewById(android.R.id.content);
         if (root == null) return;
-        java.util.ArrayList<View> out = new java.util.ArrayList<>();
+        ArrayList<View> out = new ArrayList<>();
         root.findViewsWithText(out, text, View.FIND_VIEWS_WITH_TEXT);
         for (View v : out) v.setOnClickListener(x -> action.run());
     }
@@ -274,7 +513,7 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
         final View root = findViewById(android.R.id.content);
         if (root == null) return;
 
-        java.util.ArrayDeque<View> stack = new java.util.ArrayDeque<>();
+        ArrayDeque<View> stack = new ArrayDeque<>();
         stack.push(root);
 
         while (!stack.isEmpty()) {
@@ -302,9 +541,10 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
     }
 
     // ====== LogoutView ======
+
     @Override
     public void showLogoutSuccessMessage(String message) {
-        android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -315,25 +555,19 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
         finish();
     }
 
-    // --- Implementación de los NUEVOS métodos de LogoutView ---
-
     @Override
     public Context getContext() {
-        // Devuelve el "contexto" de la app para que el Controller encuentre MyApplication
         return getApplicationContext();
     }
 
     @Override
     public void onLogoutSuccess() {
-        // El Controller nos dice que el logout fue exitoso.
-        // Llamamos a los métodos que ya tenías para esto.
         showLogoutSuccessMessage("Sesión cerrada exitosamente.");
         navigateToLogin();
     }
 
     @Override
     public void onLogoutFailure(String message) {
-        // El Controller nos pasa un mensaje de error.
         showLogoutSuccessMessage("Error al cerrar sesión: " + message);
     }
 }
