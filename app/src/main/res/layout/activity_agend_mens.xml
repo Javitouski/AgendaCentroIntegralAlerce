@@ -135,6 +135,7 @@
                             android:src="@drawable/ic_arrow_forward_green" />
 
                     </RelativeLayout>
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -158,6 +159,7 @@
                         app:rowCount="6"
                         app:columnCount="7">
 
+                        <!-- 42 celdas, pero las ignoraremos en código porque recreamos todo con TextView dinámicos -->
                         <LinearLayout style="@style/CalendarCell" app:layout_columnWeight="1">
                             <TextView android:id="@+id/day_0"  style="@style/CalendarDay"/>
                         </LinearLayout>
@@ -292,6 +294,16 @@
                     </androidx.gridlayout.widget.GridLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
+            <!-- CONTENEDOR NUEVO PARA LAS ACTIVIDADES DEL DÍA SELECCIONADO -->
+            <LinearLayout
+                android:id="@+id/llEventosMensuales"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp" />
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

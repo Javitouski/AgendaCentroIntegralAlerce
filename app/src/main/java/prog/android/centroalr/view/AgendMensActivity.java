@@ -5,24 +5,39 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.gridlayout.widget.GridLayout;
 
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import prog.android.centroalr.R;
 import prog.android.centroalr.controller.LogoutController;
+import prog.android.centroalr.model.Actividad;
 import prog.android.centroalr.model.AuthModel;
 
 public class AgendMensActivity extends AppCompatActivity implements LogoutView {
@@ -34,13 +49,26 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
 
     // Calendario
     private YearMonth shownMonth;
+    private LocalDate selectedDate; // día actualmente seleccionado
+
     private TextView monthTitle;
     private View prevBtn, nextBtn;
     private GridLayout grid;
+    private LinearLayout llEventosMensuales;
+
+    // Firebase
+    private FirebaseFirestore db;
+    private final Map<LocalDate, List<Actividad>> eventosMes = new HashMap<>();
+    private final ZoneId zone = ZoneId.systemDefault();
 
     private final Locale esCL = new Locale("es", "CL");
     private final DateTimeFormatter monthFmt =
             DateTimeFormatter.ofPattern("MMMM yyyy", esCL);
+    private final DateTimeFormatter headerDayFmt =
+            DateTimeFormatter.ofPattern("d/M/yyyy", esCL);
+
+    private final java.text.SimpleDateFormat fechaListaFormat =
+            new java.text.SimpleDateFormat("dd-MM-yyyy", java.util.Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +81,15 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
         btnLogout = findViewById(R.id.btn_logout);
         if (btnLogout != null) btnLogout.setOnClickListener(v -> controller.onLogoutClicked());
 
-        // --- Header / flechas ---
+        // --- Firebase ---
+        db = FirebaseFirestore.getInstance();
+
+        // --- Header / flechas / grid / eventos ---
         monthTitle = findViewById(R.id.monthYearTextView);
         prevBtn = findViewById(R.id.btn_prev_month);
         nextBtn = findViewById(R.id.btn_next_month);
+        grid = findViewById(R.id.calendar_grid);
+        llEventosMensuales = findViewById(R.id.llEventosMensuales);
 
         // --- ir a perfil ---
         View profile = findViewById(R.id.profile_icon);
@@ -65,8 +98,26 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
                     startActivity(new Intent(AgendMensActivity.this, PerfilActivity.class)));
         }
 
-        if (prevBtn != null) prevBtn.setOnClickListener(v -> { shownMonth = shownMonth.minusMonths(1); updateAndRender(); });
-        if (nextBtn != null) nextBtn.setOnClickListener(v -> { shownMonth = shownMonth.plusMonths(1);  updateAndRender(); });
+        // --- ir a notificaciones ---
+        View btnNotifications = findViewById(R.id.btn_notifications);
+        if (btnNotifications != null) {
+            btnNotifications.setOnClickListener(v ->
+                    startActivity(new Intent(AgendMensActivity.this, NotificationsActivity.class)));
+        }
+
+        // Navegación con flechas
+        if (prevBtn != null) {
+            prevBtn.setOnClickListener(v -> {
+                shownMonth = shownMonth.minusMonths(1);
+                updateAndRender();
+            });
+        }
+        if (nextBtn != null) {
+            nextBtn.setOnClickListener(v -> {
+                shownMonth = shownMonth.plusMonths(1);
+                updateAndRender();
+            });
+        }
 
         // Doble tap en el título => volver a mes actual
         if (monthTitle != null) {
@@ -74,20 +125,17 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
                 long last = 0;
                 @Override public void onClick(View v) {
                     long t = System.currentTimeMillis();
-                    if (t - last < 350) { shownMonth = YearMonth.now(); updateAndRender(); }
+                    if (t - last < 350) {
+                        selectedDate = LocalDate.now();
+                        shownMonth = YearMonth.from(selectedDate);
+                        updateAndRender();
+                    }
                     last = t;
                 }
             });
         }
-        // --- ir a notificaciones ---
 
-        View btnNotifications = findViewById(R.id.btn_notifications);
-        if (btnNotifications != null) {
-            btnNotifications.setOnClickListener(v ->
-                    startActivity(new Intent(AgendMensActivity.this, NotificationsActivity.class)));
-        }
-
-        // Tap en el texto “Agenda Mensual” => abrir semanal
+        // Tap en “Agenda Mensual” => abrir semanal (sin fecha específica)
         bindClickByText("Agenda Mensual", () -> {
             startActivity(new Intent(AgendMensActivity.this, AgndSemActivity.class));
         });
@@ -95,13 +143,13 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
         // Swipe izquierda/derecha para navegar meses
         enableSwipeNavigation();
 
-        grid = findViewById(R.id.calendar_grid);
-
-        // Mes actual
-        shownMonth = YearMonth.now();
+        // Inicial: hoy
+        selectedDate = LocalDate.now();
+        shownMonth = YearMonth.from(selectedDate);
         updateAndRender();
     }
 
+    /** Actualiza el título y dispara la carga de actividades del mes. */
     private void updateAndRender() {
         // Título mes en español (primera letra mayúscula)
         if (monthTitle != null) {
@@ -111,22 +159,88 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
             }
             monthTitle.setText(title);
         }
-        renderMonth(shownMonth);
+        loadMonthEvents(shownMonth);
+    }
+
+    /** Carga las actividades del mes mostrado usando fechaInicio en Firestore. */
+    private void loadMonthEvents(YearMonth ym) {
+        if (db == null) {
+            if (selectedDate == null || !YearMonth.from(selectedDate).equals(ym)) {
+                selectedDate = ym.atDay(1);
+            }
+            renderMonth(ym);
+            renderDayEvents(selectedDate);
+            return;
+        }
+
+        eventosMes.clear();
+
+        LocalDate start = ym.atDay(1);
+        LocalDate end = ym.plusMonths(1).atDay(1); // exclusivo
+
+        Timestamp startTs = new Timestamp(java.util.Date.from(start.atStartOfDay(zone).toInstant()));
+        Timestamp endTs   = new Timestamp(java.util.Date.from(end.atStartOfDay(zone).toInstant()));
+
+        db.collection("actividades")
+                .whereGreaterThanOrEqualTo("fechaInicio", startTs)
+                .whereLessThan("fechaInicio", endTs)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        Actividad act = doc.toObject(Actividad.class);
+                        if (act == null || act.getFechaInicio() == null) continue;
+
+                        // Guardar id del documento
+                        act.setId(doc.getId());
+
+                        LocalDate diaActividad = act.getFechaInicio().toDate()
+                                .toInstant()
+                                .atZone(zone)
+                                .toLocalDate();
+
+                        List<Actividad> list = eventosMes.get(diaActividad);
+                        if (list == null) {
+                            list = new ArrayList<>();
+                            eventosMes.put(diaActividad, list);
+                        }
+                        list.add(act);
+                    }
+
+                    if (!ym.equals(shownMonth)) return; // usuario cambió de mes rápido
+
+                    if (selectedDate == null || !YearMonth.from(selectedDate).equals(ym)) {
+                        selectedDate = ym.atDay(1);
+                    }
+                    renderMonth(shownMonth);
+                    renderDayEvents(selectedDate);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this,
+                            "Error al cargar actividades del mes",
+                            Toast.LENGTH_SHORT).show();
+                    eventosMes.clear();
+
+                    if (!ym.equals(shownMonth)) return;
+
+                    if (selectedDate == null || !YearMonth.from(selectedDate).equals(ym)) {
+                        selectedDate = ym.atDay(1);
+                    }
+                    renderMonth(shownMonth);
+                    renderDayEvents(selectedDate);
+                });
     }
 
     /**
      * Renderiza el mes creando las 42 celdas desde cero.
-     * No dependemos de TextViews preexistentes, así evitamos problemas de estilos/IDs.
+     * Marca con un punto verde los días con actividades y permite seleccionar un día.
      */
     private void renderMonth(YearMonth ym) {
         if (grid == null) return;
 
-        // Limpiamos TODO y configuramos 6x7
         grid.removeAllViews();
         grid.setRowCount(6);
         grid.setColumnCount(7);
 
-        // Cálculo de celdas
         final int firstDow = ym.atDay(1).getDayOfWeek().getValue(); // L=1..D=7
         final int offset   = (firstDow + 6) % 7;                    // Lunes->0
         final int daysIn   = ym.lengthOfMonth();
@@ -136,23 +250,25 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
 
         final LocalDate today = LocalDate.now();
 
-        // Tamaños/márgenes
         int cellMinHeight = dp(44);
         int cellMargin = dp(4);
+
+        // Aseguramos que la fecha seleccionada esté en el mes mostrado
+        if (selectedDate == null || !YearMonth.from(selectedDate).equals(ym)) {
+            selectedDate = ym.atDay(1);
+        }
 
         for (int i = 0; i < 42; i++) {
             int row = i / 7;
             int col = i % 7;
 
-            // Contenedor para facilitar futuro: tags/eventos/etc.
             GridLayout.LayoutParams lp = new GridLayout.LayoutParams(
                     GridLayout.spec(row, 1f), GridLayout.spec(col, 1f)
             );
-            lp.width = 0;                  // weight hace que ocupe 1/7 del ancho
+            lp.width = 0;
             lp.height = GridLayout.LayoutParams.WRAP_CONTENT;
             lp.setMargins(cellMargin, cellMargin, cellMargin, cellMargin);
 
-            // Crea el TextView del número
             TextView tv = new TextView(this);
             tv.setLayoutParams(lp);
             tv.setMinHeight(cellMinHeight);
@@ -161,7 +277,6 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
             tv.setTextColor(Color.BLACK);
             tv.setTypeface(Typeface.DEFAULT);
 
-            // Determina número y si pertenece al mes actual
             int dayNumber;
             boolean inCurrent;
             if (i < offset) {
@@ -175,23 +290,124 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
                 inCurrent = false;
             }
 
-            tv.setText(String.valueOf(dayNumber));
-            tv.setAlpha(inCurrent ? 1f : 0.45f);
-
             LocalDate cellDate = (inCurrent ? ym : (i < offset ? prev : ym.plusMonths(1)))
                     .atDay(dayNumber);
+
+            List<Actividad> actividadesDelDia = eventosMes.get(cellDate);
+            boolean hasEvents = (actividadesDelDia != null && !actividadesDelDia.isEmpty());
+
+            String baseText = String.valueOf(dayNumber);
+            if (hasEvents) {
+                String text = baseText + " •";
+                SpannableString span = new SpannableString(text);
+                int dotIndex = text.length() - 1;
+                span.setSpan(
+                        new ForegroundColorSpan(Color.parseColor("#18990D")),
+                        dotIndex,
+                        dotIndex + 1,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                );
+                tv.setText(span);
+            } else {
+                tv.setText(baseText);
+            }
+
+            tv.setAlpha(inCurrent ? 1f : 0.45f);
+
             if (cellDate.equals(today)) {
                 tv.setTypeface(Typeface.DEFAULT_BOLD);
             }
 
-            // (Opcional) click del día para abrir semanal con esa fecha
-            // tv.setOnClickListener(v -> {
-            //     Intent it = new Intent(this, AgndSemActivity.class);
-            //     it.putExtra("selected_date", cellDate.toString());
-            //     startActivity(it);
-            // });
+            // Resaltar día seleccionado
+            if (cellDate.equals(selectedDate)) {
+                tv.setBackgroundResource(R.drawable.bg_dia_selected);
+                tv.setTextColor(Color.parseColor("#066D0A"));
+            }
+
+            // Click del día => cambiar seleccionado y mostrar actividades abajo
+            tv.setOnClickListener(v -> {
+                selectedDate = cellDate;
+                renderMonth(shownMonth);
+                renderDayEvents(selectedDate);
+            });
 
             grid.addView(tv);
+        }
+    }
+
+    /** Muestra en la parte inferior las actividades del día seleccionado. */
+    private void renderDayEvents(LocalDate date) {
+        if (llEventosMensuales == null || date == null) return;
+
+        llEventosMensuales.removeAllViews();
+
+        List<Actividad> lista = eventosMes.get(date);
+        boolean hayActividades = (lista != null && !lista.isEmpty());
+
+        // Cabecera
+        TextView header = new TextView(this);
+        String titulo = (hayActividades ? "Actividades para " : "No hay actividades para ")
+                + date.format(headerDayFmt);
+        header.setText(titulo);
+        header.setTextColor(Color.parseColor("#066D0A"));
+        header.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        header.setPadding(dp(12), dp(8), dp(12), dp(16));
+        llEventosMensuales.addView(header);
+
+        if (!hayActividades) return;
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+
+        for (Actividad act : lista) {
+            View card = inflater.inflate(R.layout.item_actividad, llEventosMensuales, false);
+
+            TextView tvNombre = card.findViewById(R.id.tvNombreActividad);
+            TextView tvFechas = card.findViewById(R.id.tvFechas);
+            TextView tvLugar = card.findViewById(R.id.tvLugar);
+            TextView tvEstado = card.findViewById(R.id.tvEstado);
+            TextView tvInicial = card.findViewById(R.id.tvInicialActividad);
+
+            String nombre = act.getNombre();
+            if (nombre != null && !nombre.trim().isEmpty()) {
+                tvNombre.setText(nombre);
+                tvInicial.setText(nombre.trim().substring(0, 1).toUpperCase());
+            } else {
+                tvNombre.setText("Sin nombre");
+                tvInicial.setText("?");
+            }
+
+            String textoFechas;
+            if (act.getFechaInicio() != null && act.getFechaFin() != null) {
+                String inicio = fechaListaFormat.format(act.getFechaInicio().toDate());
+                String fin = fechaListaFormat.format(act.getFechaFin().toDate());
+                textoFechas = inicio + " - " + fin;
+            } else if (act.getFechaInicio() != null) {
+                textoFechas = fechaListaFormat.format(act.getFechaInicio().toDate());
+            } else {
+                textoFechas = "Fecha no definida";
+            }
+            tvFechas.setText(textoFechas);
+
+            tvLugar.setText(nombreLugarLegible(act));
+
+            String estado = (act.getEstado() != null && !act.getEstado().isEmpty())
+                    ? act.getEstado()
+                    : "SIN ESTADO";
+            tvEstado.setText(estado);
+
+            card.setOnClickListener(v -> {
+                if (act.getId() != null) {
+                    Intent i = new Intent(this, DetActActivity.class);
+                    i.putExtra("actividadId", act.getId());
+                    startActivity(i);
+                } else {
+                    Toast.makeText(this,
+                            "No se pudo obtener el ID de la actividad.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            llEventosMensuales.addView(card);
         }
     }
 
@@ -222,7 +438,7 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
     private void bindClickByText(String text, Runnable action) {
         View root = findViewById(android.R.id.content);
         if (root == null) return;
-        java.util.ArrayList<View> found = new java.util.ArrayList<>();
+        ArrayList<View> found = new ArrayList<>();
         root.findViewsWithText(found, text, View.FIND_VIEWS_WITH_TEXT);
         for (View v : found) v.setOnClickListener(x -> action.run());
     }
@@ -231,37 +447,55 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
         return Math.round(getResources().getDisplayMetrics().density * value);
     }
 
+    /** Igual que en la semanal: hace el lugar más legible. */
+    private String nombreLugarLegible(Actividad actividad) {
+        if (actividad.getLugarId() == null) {
+            return "Lugar no especificado";
+        }
+
+        String id = actividad.getLugarId().getId(); // p.ej. "oficina", "salaMultiuso1", etc.
+
+        switch (id) {
+            case "oficina":
+                return "Oficina principal del centro comunitario";
+            case "salaMultiuso1":
+                return "Sala multiuso 1";
+            case "salaMultiuso2":
+                return "Sala multiuso 2";
+            default:
+                String s = id.replace("_", " ").replace("-", " ");
+                if (s.isEmpty()) return "Lugar no especificado";
+                return s.substring(0, 1).toUpperCase() + s.substring(1);
+        }
+    }
+
     // ==== LogoutView ====
-    @Override public void showLogoutSuccessMessage(String message) {
+    @Override
+    public void showLogoutSuccessMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-    @Override public void navigateToLogin() {
+    @Override
+    public void navigateToLogin() {
         Intent intent = new Intent(AgendMensActivity.this, LogInActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
     }
 
-    // --- Implementación de los NUEVOS métodos de LogoutView ---
-
     @Override
     public Context getContext() {
-        // Devuelve el "contexto" de la app para que el Controller encuentre MyApplication
         return getApplicationContext();
     }
 
     @Override
     public void onLogoutSuccess() {
-        // El Controller nos dice que el logout fue exitoso.
-        // Llamamos a los métodos que ya tenías para esto.
         showLogoutSuccessMessage("Sesión cerrada exitosamente.");
         navigateToLogin();
     }
 
     @Override
     public void onLogoutFailure(String message) {
-        // El Controller nos pasa un mensaje de error.
         showLogoutSuccessMessage("Error al cerrar sesión: " + message);
     }
 
