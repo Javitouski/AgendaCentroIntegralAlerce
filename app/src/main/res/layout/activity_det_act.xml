@@ -105,7 +105,7 @@
                     android:id="@+id/tvEstado"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/edittext_filled_background"
+                    android:background="@drawable/bg_white"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="6dp"
                     android:text="Activa"
@@ -119,7 +119,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/edittext_filled_background"
+                android:background="@drawable/bg_white"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="14dp"
                 android:layout_marginBottom="12dp">
@@ -156,7 +156,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/edittext_filled_background"
+                android:background="@drawable/bg_white"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="14dp"
                 android:layout_marginBottom="12dp">
@@ -184,7 +184,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/edittext_filled_background"
+                android:background="@drawable/bg_white"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="14dp"
                 android:layout_marginBottom="12dp">
@@ -230,7 +230,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/edittext_filled_background"
+                android:background="@drawable/bg_white"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="14dp"
                 android:layout_marginBottom="12dp">

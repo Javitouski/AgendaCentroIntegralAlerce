@@ -39,7 +39,7 @@
 	<style name="CalendarDay.WithEvent">
 		<item name="android:layout_width">36dp</item>
 		<item name="android:layout_height">36dp</item>
-		<item name="android:background">@drawable/calendar_date_selected_bg</item>
+		<item name="android:background">@drawable/bg_circle_green</item>
 		<item name="android:gravity">center</item>
 		<item name="android:textColor">@android:color/white</item>
 		<item name="android:textSize">14sp</item>

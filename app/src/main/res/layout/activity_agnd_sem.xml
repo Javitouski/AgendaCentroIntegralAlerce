@@ -62,7 +62,7 @@
                     android:id="@+id/ivUserAvatar"
                     android:layout_width="56dp"
                     android:layout_height="56dp"
-                    android:src="@drawable/ic_user_avatar"
+                    android:src="@drawable/ic_person"
                     android:background="@drawable/bg_circle_green"
                     android:contentDescription="@string/user_avatar"
                     android:clickable="true"
@@ -106,7 +106,7 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Semana Anterior"
                     android:scaleType="center"
-                    android:src="@drawable/ic_arrow_back_green"
+                    android:src="@drawable/ic_arrow_back"
                     app:tint="#18990D" />
 
                 <LinearLayout
@@ -221,8 +221,8 @@
                     android:contentDescription="Semana Siguiente"
                     android:rotation="180"
                     android:scaleType="center"
-                    android:src="@drawable/ic_arrow_forward_green"
-                    app:tint="#18990D" />
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="@color/green" />
 
             </LinearLayout>
             <LinearLayout
