@@ -7,6 +7,10 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.util.concurrent.TimeUnit;
+
+import prog.android.centroalr.notificaciones.NotifScheduler; // 🔔
+import prog.android.centroalr.notificaciones.NotifHelper;    // 🔔
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -85,7 +89,7 @@ public class ReagActActivity extends AppCompatActivity {
             btnBack.setOnClickListener(v -> finish());
         }
 
-        // Mostrar nombre en título y selección
+        // Mostrar nombre
         if (actividadNombre != null && !actividadNombre.isEmpty()) {
             if (txtTitle != null) {
                 txtTitle.setText("Reagendar actividad\n" + actividadNombre);
@@ -95,20 +99,17 @@ public class ReagActActivity extends AppCompatActivity {
             }
         }
 
-        // Listeners para fecha y hora
+        // Pickers
         if (btnDatePicker != null) {
             btnDatePicker.setOnClickListener(v -> mostrarDatePicker());
         }
-
         if (btnTimePicker != null) {
             btnTimePicker.setOnClickListener(v -> mostrarTimePicker());
         }
-
         if (btnCreateActivity != null) {
             btnCreateActivity.setOnClickListener(v -> guardarReagendamiento());
         }
 
-        // Cargar datos actuales para pre-rellenar fecha/hora
         cargarActividadActual();
     }
 
@@ -130,7 +131,6 @@ public class ReagActActivity extends AppCompatActivity {
             return;
         }
 
-        // Si desde Firestore viene un nombre "real", lo usamos
         String nombreReal = doc.getString("nombre");
         if (nombreReal != null && !nombreReal.trim().isEmpty()) {
             actividadNombre = nombreReal;
@@ -221,7 +221,6 @@ public class ReagActActivity extends AppCompatActivity {
             return;
         }
 
-        // Si el usuario no cambió nada, usamos la fecha actual
         Timestamp nuevaFecha = (nuevaFechaHora != null)
                 ? new Timestamp(nuevaFechaHora.getTime())
                 : fechaInicioActual;
@@ -230,10 +229,8 @@ public class ReagActActivity extends AppCompatActivity {
                 ? etReason.getText().toString().trim()
                 : "";
 
-        // Deshabilitar botón mientras guardamos
         if (btnCreateActivity != null) btnCreateActivity.setEnabled(false);
 
-        // 1) Actualizamos la actividad (fechaInicio y ultimaActualizacion)
         actividadRef.update(
                         "fechaInicio", nuevaFecha,
                         "ultimaActualizacion", FieldValue.serverTimestamp()
@@ -246,28 +243,58 @@ public class ReagActActivity extends AppCompatActivity {
     }
 
     /**
-     * Actualiza la primera cita asociada a esta actividad (si existe).
+     * Actualiza la primera cita asociada y programa notificación.
      */
     private void actualizarCita(Timestamp nuevaFecha, String motivo) {
+
         db.collection("citas")
                 .whereEqualTo("actividadId", actividadRef)
                 .limit(1)
                 .get()
                 .addOnSuccessListener((QuerySnapshot qs) -> {
+
                     if (qs.isEmpty()) {
-                        // No hay cita, pero la actividad sí se actualizó
                         Toast.makeText(this, "Actividad reagendada (sin cita asociada).", Toast.LENGTH_SHORT).show();
                         finish();
                         return;
                     }
 
                     DocumentSnapshot citaDoc = qs.getDocuments().get(0);
+
                     citaDoc.getReference().update(
                                     "fecha", nuevaFecha,
                                     "ultimaActualizacion", FieldValue.serverTimestamp(),
                                     "motivoCambio", motivo
                             )
                             .addOnSuccessListener(aVoid -> {
+
+                                // ===========================
+                                // 🔔 PROGRAMAR NOTIFICACIÓN
+                                // ===========================
+                                actividadRef.get().addOnSuccessListener(snapshot -> {
+
+                                    if (!snapshot.exists()) return;
+
+                                    // Leer nombre y días de aviso desde Firestore
+                                    String nombre = snapshot.getString("nombre");
+                                    Long diasAviso = snapshot.getLong("diasAvisoPrevio");
+                                    if (diasAviso == null) diasAviso = 1L;
+
+                                    long fechaCitaMillis = nuevaFecha.toDate().getTime();
+                                    long tiempoAviso = fechaCitaMillis - TimeUnit.DAYS.toMillis(diasAviso);
+
+                                    if (tiempoAviso > System.currentTimeMillis()) {
+                                        NotifScheduler.programar(
+                                                this,
+                                                tiempoAviso,
+                                                "Actividad reagendada: " + nombre,
+                                                "Tu actividad fue reagendada. Nueva fecha próxima."
+                                        );
+                                    }
+
+                                });
+                                // ===========================
+
                                 Toast.makeText(this, "Actividad reagendada correctamente.", Toast.LENGTH_SHORT).show();
                                 finish();
                             })
