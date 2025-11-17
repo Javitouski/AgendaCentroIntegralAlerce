@@ -18,16 +18,27 @@
         android:usesCleartextTraffic="false"
         tools:targetApi="31">
 
+        <!-- 🔔 RECEIVER PARA NOTIFICACIONES (agregado correctamente) -->
+        <receiver
+            android:name=".notificaciones.NotifReceiver"
+            android:exported="true" />
+
         <!-- Launcher -->
         <activity
             android:name=".view.LogInActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustPan"><intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+            android:windowSoftInputMode="adjustPan">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
         </activity>
+
+        <!-- Bandeja interna de notificaciones -->
         <activity android:name=".view.NotificationsActivity"/>
+
         <!-- Pantallas internas -->
         <activity
             android:name=".view.AgendMensActivity"
@@ -43,6 +54,7 @@
             android:name=".view.MainActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
+
         <activity
             android:name=".view.ListaActividadesActivity"
             android:exported="false"
@@ -69,8 +81,10 @@
                     android:host="centroalr.firebaseapp.com"
                     android:pathPrefix="/__/auth/action"
                     tools:ignore="IntentFilterUniqueDataAttributes" />
+
             </intent-filter>
         </activity>
+
         <activity
             android:name=".view.AgndSemActivity"
             android:exported="false" />
@@ -86,13 +100,23 @@
         <activity
             android:name=".view.DetActActivity"
             android:exported="false" />
+
         <activity
             android:name=".view.ChangePasswordActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".view.CancelActActivity" android:exported="false" />
-        <activity android:name=".view.ReagActActivity" android:exported="false" />
-        <activity android:name=".view.ModificarActActivity" android:exported="false" />
+
+        <activity
+            android:name=".view.CancelActActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".view.ReagActActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".view.ModificarActActivity"
+            android:exported="false" />
 
         <activity
             android:name=".view.CrearActActivity"
@@ -101,29 +125,39 @@
         <activity
             android:name=".view.CrearUsuarioActivity"
             android:exported="false" />
+
         <activity
             android:name=".view.GestionUsuariosActivity"
             android:exported="false" />
+
         <activity
             android:name=".view.EditarPermisosActivity"
             android:exported="false" />
+
         <activity
             android:name=".view.MantenedoresHubActivity"
             android:exported="false" />
+
         <activity
             android:name=".view.MantenedorLugaresActivity"
             android:exported="false" />
+
         <activity
             android:name=".view.MantenedorTiposActivity"
             android:exported="false" />
+
         <activity
             android:name=".view.MantenedorProyectosActivity"
             android:exported="false" />
+
         <activity
             android:name=".view.MantenedorSociosActivity"
             android:exported="false" />
+
         <activity
             android:name=".view.MantenedorOferentesActivity"
             android:exported="false" />
+
     </application>
+
 </manifest>
