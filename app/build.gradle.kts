@@ -35,6 +35,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.core:core-splashscreen:1.0.1")
     // Firebase App Check y BoM
     implementation("com.google.firebase:firebase-appcheck-debug:17.1.2")
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
