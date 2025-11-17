@@ -43,14 +43,16 @@ public class LoginController implements OnLoginResultListener {
 
     @Override
     public void onLoginSuccess(FirebaseUser user) {
-        loginView.showLoading(false); // <-- AÑADIR ESTA LÍNEA
-        String uid = user.getUid();
+        loginView.showLoading(false);
+        String uid = user.getUid(); // Este UID siempre es correcto (viene de Auth)
         DocumentReference userRef = db.collection("usuarios").document(uid);
 
         userRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 Usuario usuario = documentSnapshot.toObject(Usuario.class);
                 if (usuario != null) {
+                    usuario.setUid(uid);
+
                     MyApplication myApp = (MyApplication) loginView.getContext().getApplicationContext();
                     myApp.setUsuarioActual(usuario);
                     loginView.onLoginSuccessNavigate();
