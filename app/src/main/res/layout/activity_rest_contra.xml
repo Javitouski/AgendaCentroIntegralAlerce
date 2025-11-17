@@ -1,179 +1,210 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="#FFFFFF">
 
-    <!-- Contenido scrollable -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Volver"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="#000000"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:paddingHorizontal="24dp">
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@id/bottomIndicator"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingBottom="32dp">
 
-            <!-- Flecha atrás -->
-            <ImageButton
-                android:id="@+id/btnBack"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginTop="24dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_arrow_back"
-                app:tint="#000000"
-                android:contentDescription="Volver" />
-
-            <!-- Título verde centrado -->
             <TextView
                 android:id="@+id/txtTitulo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginBottom="32dp"
-                android:text="Para reestablecer tu contraseña, primero debes ingresar la contraseña actual."
-                android:textColor="#18990D"
-                android:textSize="22sp"
-                android:textStyle="bold"
                 android:gravity="center"
-                android:textAlignment="center" />
+                android:text="Cambiar contraseña"
+                android:textColor="#18990D"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
-            <!-- Campo: contraseña actual -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ingrese su contraseña actual"
+                android:text="Para reestablecer tu contraseña, primero debes ingresar la contraseña actual."
                 android:textColor="#49454F"
-                android:textSize="12sp"
-                android:layout_marginBottom="4dp" />
+                android:textSize="14sp"
+                android:gravity="center"
+                android:layout_marginBottom="32dp"/>
 
-            <EditText
-                android:id="@+id/etContrasenaActual"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="#F2ECF4"
-                android:paddingHorizontal="16dp"
-                android:inputType="textPassword"
-                android:textColor="#1D1B20"
-                android:textColorHint="#49454F"
-                android:layout_marginBottom="24dp" />
-
-            <!-- Campo: contraseña nueva -->
-            <TextView
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputLayoutActual"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Contraseña nueva"
-                android:textColor="#49454F"
-                android:textSize="12sp"
-                android:layout_marginBottom="4dp" />
+                android:layout_marginBottom="16dp"
+                android:hint="Contraseña actual"
+                app:boxBackgroundColor="#F2ECF4"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:endIconMode="password_toggle"
+                app:startIconDrawable="@drawable/ic_lock"
+                app:startIconTint="#49454F">
 
-            <EditText
-                android:id="@+id/etContrasenaNueva"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="#F2ECF4"
-                android:paddingHorizontal="16dp"
-                android:inputType="textPassword"
-                android:textColor="#1D1B20"
-                android:textColorHint="#49454F"
-                android:layout_marginBottom="24dp" />
-
-            <!-- Campo: repetir contraseña nueva -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Repita la nueva contraseña"
-                android:textColor="#49454F"
-                android:textSize="12sp"
-                android:layout_marginBottom="4dp" />
-
-            <EditText
-                android:id="@+id/etContrasenaNuevaRepetida"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="#F2ECF4"
-                android:paddingHorizontal="16dp"
-                android:inputType="textPassword"
-                android:textColor="#1D1B20"
-                android:textColorHint="#49454F"
-                android:layout_marginBottom="32dp" />
-
-            <!-- Tarjeta de aviso -->
-            <LinearLayout
-                android:id="@+id/layoutAviso"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="#FEF7FF"
-                android:padding="16dp"
-                android:layout_marginBottom="40dp">
-
-                <!-- Cuadrado morado -->
-                <View
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:background="#6750A4"
-                    android:layout_marginEnd="16dp" />
-
-                <!-- Contenido -->
-                <LinearLayout
-                    android:layout_width="0dp"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etContrasenaActual"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:inputType="textPassword"
+                    android:textColor="#1D1B20" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-                    <TextView
-                        android:id="@+id/txtAvisoTitulo"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Aviso"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="#1D1B20"
-                        android:layout_marginBottom="4dp" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputLayoutNueva"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:hint="Contraseña nueva"
+                app:boxBackgroundColor="#F2ECF4"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:endIconMode="password_toggle"
+                app:startIconDrawable="@drawable/ic_lock"
+                app:startIconTint="#49454F">
 
-                    <TextView
-                        android:id="@+id/txtAvisoDetalle"
-                        android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etContrasenaNueva"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:textColor="#1D1B20" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputLayoutRepetir"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:hint="Repita la nueva contraseña"
+                app:boxBackgroundColor="#F2ECF4"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:endIconMode="password_toggle"
+                app:startIconDrawable="@drawable/ic_lock"
+                app:startIconTint="#49454F">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etContrasenaNuevaRepetida"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:textColor="#1D1B20" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                app:cardBackgroundColor="#FEF7FF"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#E6E0E9"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_dialog_info"
+                        app:tint="#6750A4"
+                        android:layout_marginEnd="16dp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="La nueva contraseña debe contener:\n\n1. Una letra mayúscula\n2. Un número\n3. Una letra minúscula\n4. Algún símbolo ($,%,#,+,-)"
-                        android:textSize="14sp"
-                        android:textColor="#49454F" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Requisitos de seguridad"
+                            android:textColor="#1D1B20"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="• Una letra mayúscula\n• Una letra minúscula\n• Un número\n• Un símbolo ($,%,#,+,-)"
+                            android:textColor="#49454F"
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="4dp" />
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            <!-- Botón verde -->
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCrearContrasena"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginHorizontal="40dp"
-                android:layout_marginBottom="40dp"
-                android:background="@drawable/bg_boton_verde_redondo"
-                android:text="Crear contraseña nueva"
-                android:textAllCaps="false"
+                android:layout_height="56dp"
+                android:text="Cambiar contraseña"
+                android:backgroundTint="#18990D"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textAllCaps="false"
+                app:cornerRadius="28dp" />
+
         </LinearLayout>
     </ScrollView>
 
-    <!-- Barrita inferior (Home indicator) -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="32dp"
-        android:gravity="center">
+    <View
+        android:id="@+id/bottomIndicator"
+        android:layout_width="108dp"
+        android:layout_height="4dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_handle_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-        <View
-            android:layout_width="108dp"
-            android:layout_height="4dp"
-            android:background="@drawable/bg_handle_bar" />
-    </LinearLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
