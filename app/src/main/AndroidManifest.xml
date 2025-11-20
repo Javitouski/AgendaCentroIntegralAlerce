@@ -105,6 +105,8 @@
             android:name=".view.ChangePasswordActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.AdjuntarArchivosActivity" />
+
 
         <activity
             android:name=".view.CancelActActivity"
