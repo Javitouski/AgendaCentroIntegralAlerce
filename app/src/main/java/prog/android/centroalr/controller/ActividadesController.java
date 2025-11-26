@@ -84,7 +84,7 @@ public class ActividadesController {
                     String errorReal = e.getMessage();
 
                     if (errorReal != null && errorReal.contains("FAILED_PRECONDITION")) {
-                        mensajeAmigable = "Error de configuración: Falta crear el índice en Firebase. Revisa el Logcat.";
+                        mensajeAmigable = "Error de configuración: Falta crear el índice en Firebase.";
                     } else if (errorReal != null && errorReal.contains("PERMISSION_DENIED")) {
                         mensajeAmigable = "No tienes permisos para ver esta información.";
                     } else if (errorReal != null && errorReal.contains("UNAVAILABLE")) {

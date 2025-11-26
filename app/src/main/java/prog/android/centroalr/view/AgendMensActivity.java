@@ -36,10 +36,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import prog.android.centroalr.MyApplication; // IMPORTANTE
 import prog.android.centroalr.R;
 import prog.android.centroalr.controller.LogoutController;
 import prog.android.centroalr.model.Actividad;
 import prog.android.centroalr.model.AuthModel;
+import prog.android.centroalr.model.Usuario; // IMPORTANTE
 
 public class AgendMensActivity extends AppCompatActivity implements LogoutView {
 
@@ -48,9 +50,12 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
     private LogoutController controller;
     private AuthModel model;
 
+    // Usuario Actual (NUEVO)
+    private Usuario usuarioActual;
+
     // Calendario
     private YearMonth shownMonth;
-    private LocalDate selectedDate; // día actualmente seleccionado
+    private LocalDate selectedDate;
 
     private TextView monthTitle;
     private View prevBtn, nextBtn;
@@ -66,13 +71,40 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
     private final DateTimeFormatter monthFmt = DateTimeFormatter.ofPattern("MMMM yyyy", esCL);
     private final DateTimeFormatter headerDayFmt = DateTimeFormatter.ofPattern("d/M/yyyy", esCL);
 
-    // Formato de hora
     private final java.text.SimpleDateFormat timeFormat = new java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_agend_mens);
+
+        // 1. OBTENER USUARIO ACTUAL
+        MyApplication myApp = (MyApplication) getApplicationContext();
+        usuarioActual = myApp.getUsuarioActual();
+        if (usuarioActual == null) {
+            startActivity(new Intent(this, LogInActivity.class));
+            finish();
+            return;
+        }
+
+        // 2. CONFIGURAMOS LOS BOTONES
+        View btnLista = findViewById(R.id.btnListaActividades);
+        if (btnLista != null) {
+            btnLista.setOnClickListener(v ->
+                    startActivity(new Intent(this, ListaActividadesActivity.class)));
+        }
+
+        View btnCrear = findViewById(R.id.btnCrearActividad);
+        if (btnCrear != null) {
+            // Aquí usuarioActual ya no es null, funcionará bien
+            if (usuarioActual.tienePermiso("PUEDE_CREAR_ACTIVIDAD")) {
+                btnCrear.setVisibility(View.VISIBLE);
+                btnCrear.setOnClickListener(v ->
+                        startActivity(new Intent(this, CrearActActivity.class)));
+            } else {
+                btnCrear.setVisibility(View.INVISIBLE);
+            }
+        }
 
         // --- Logout ---
         model = new AuthModel();
@@ -136,7 +168,6 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
 
         enableSwipeNavigation();
 
-        // Inicial
         selectedDate = LocalDate.now();
         shownMonth = YearMonth.from(selectedDate);
         updateAndRender();
@@ -159,7 +190,6 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
         loadMonthEvents(shownMonth);
     }
 
-    // === AQUÍ ESTÁ LA CORRECCIÓN ===
     private void loadMonthEvents(YearMonth ym) {
         if (db == null) {
             if (selectedDate == null || !YearMonth.from(selectedDate).equals(ym)) {
@@ -170,23 +200,18 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
             return;
         }
 
-
         LocalDate start = ym.atDay(1);
         LocalDate end = ym.plusMonths(1).atDay(1);
 
         Timestamp startTs = new Timestamp(java.util.Date.from(start.atStartOfDay(zone).toInstant()));
         Timestamp endTs   = new Timestamp(java.util.Date.from(end.atStartOfDay(zone).toInstant()));
 
-        // Leemos 'citas'
-        db.collection("actividades")
+        db.collection("actividades") // YA CORREGIDO
                 .whereGreaterThanOrEqualTo("fechaInicio", startTs)
                 .whereLessThan("fechaInicio", endTs)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
-
-                    // LIMPIAR AQUÍ: Solo cuando tenemos los datos nuevos en la mano
                     eventosMes.clear();
-
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         Actividad act = doc.toObject(Actividad.class);
                         if (act == null || act.getFechaInicio() == null) continue;
@@ -216,12 +241,13 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Error al cargar agenda", Toast.LENGTH_SHORT).show();
-                    eventosMes.clear(); // En error limpiamos para no mostrar datos viejos
+                    eventosMes.clear();
                     renderMonth(shownMonth);
                     renderDayEvents(selectedDate);
                 });
     }
 
+    // === MÉTODO MODIFICADO PARA COLORES ===
     private void renderMonth(YearMonth ym) {
         if (grid == null) return;
 
@@ -232,10 +258,8 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
         final int firstDow = ym.atDay(1).getDayOfWeek().getValue();
         final int offset   = (firstDow + 6) % 7;
         final int daysIn   = ym.lengthOfMonth();
-
         final YearMonth prev = ym.minusMonths(1);
         final int prevLen    = prev.lengthOfMonth();
-
         final LocalDate today = LocalDate.now();
 
         int cellMinHeight = dp(44);
@@ -288,8 +312,32 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
                 String text = baseText + " •";
                 SpannableString span = new SpannableString(text);
                 int dotIndex = text.length() - 1;
+
+                // --- LÓGICA DE COLORES ---
+                int dotColor;
+                // 1. Si NO tiene permiso de crear, ve todo verde (simple)
+                if (!usuarioActual.tienePermiso("PUEDE_CREAR_ACTIVIDAD")) {
+                    dotColor = Color.parseColor("#18990D"); // Verde
+                } else {
+                    // 2. Si TIENE permiso, diferenciamos
+                    boolean hayMias = false;
+                    // Recorremos para ver si alguna es mía
+                    for (Actividad a : actividadesDelDia) {
+                        if (a.getCreadaPorUsuarioId() != null &&
+                                a.getCreadaPorUsuarioId().getId().equals(usuarioActual.getUid())) {
+                            hayMias = true;
+                            break;
+                        }
+                    }
+                    if (hayMias) {
+                        dotColor = Color.parseColor("#18990D"); // Verde (Tengo al menos una actividad)
+                    } else {
+                        dotColor = Color.parseColor("#0044CC"); // Azul Fuerte (Solo hay de otros)
+                    }
+                }
+
                 span.setSpan(
-                        new ForegroundColorSpan(Color.parseColor("#18990D")),
+                        new ForegroundColorSpan(dotColor),
                         dotIndex,
                         dotIndex + 1,
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -359,7 +407,6 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
                 tvInicial.setText("?");
             }
 
-            // HORA
             String textoFechas;
             if (act.getFechaInicio() != null) {
                 String inicio = timeFormat.format(act.getFechaInicio().toDate());
@@ -370,7 +417,6 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
             }
             tvFechas.setText(textoFechas);
 
-            // LUGAR DINÁMICO
             cargarNombreLugar(act, tvLugar);
 
             String estado = (act.getEstado() != null && !act.getEstado().isEmpty())
@@ -390,7 +436,6 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
         }
     }
 
-    // Helper para cargar nombre lugar
     private void cargarNombreLugar(Actividad act, TextView tvTarget) {
         DocumentReference ref = act.getLugarId();
         if (ref == null) {
