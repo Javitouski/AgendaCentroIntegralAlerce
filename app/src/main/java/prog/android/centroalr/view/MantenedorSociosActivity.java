@@ -13,7 +13,9 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -85,6 +87,18 @@ public class MantenedorSociosActivity extends AppCompatActivity implements Mante
 
         // Configurar la lista
         setupRecyclerView();
+        View mainContainer = findViewById(R.id.mainContainer);
+        if (mainContainer != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(mainContainer, (v, insets) -> {
+                // Obtenemos el tamaño exacto de las barras del sistema (arriba y abajo)
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+
+                // Aplicamos ese tamaño como "relleno" (padding) al contenedor principal
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+
+                return insets;
+            });
+        }
     }
 
     @Override

@@ -10,7 +10,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -73,6 +75,18 @@ public class DetActActivity extends AppCompatActivity implements DetalleView {
         // 4. Cargar Controlador
         controller = new DetalleController(this);
         // NOTA: Ya no cargamos datos aquí, lo haremos en onResume para que se actualice siempre
+        View mainContainer = findViewById(R.id.mainContainer);
+        if (mainContainer != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(mainContainer, (v, insets) -> {
+                // Obtenemos el tamaño exacto de las barras del sistema (arriba y abajo)
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+
+                // Aplicamos ese tamaño como "relleno" (padding) al contenedor principal
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+
+                return insets;
+            });
+        }
     }
 
     // SOLUCIÓN 1: Usar onResume para recargar datos al volver de "Cancelar" o "Editar"
