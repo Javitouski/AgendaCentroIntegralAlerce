@@ -17,7 +17,9 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.gridlayout.widget.GridLayout;
 
@@ -171,6 +173,19 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
         selectedDate = LocalDate.now();
         shownMonth = YearMonth.from(selectedDate);
         updateAndRender();
+
+        View mainContainer = findViewById(R.id.mainContainer);
+        if (mainContainer != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(mainContainer, (v, insets) -> {
+                // Obtenemos el tamaño exacto de las barras del sistema (arriba y abajo)
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+
+                // Aplicamos ese tamaño como "relleno" (padding) al contenedor principal
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+
+                return insets;
+            });
+        }
     }
 
     @Override

@@ -15,7 +15,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.Timestamp;
@@ -193,6 +195,19 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
         bindEventById("rtumfhvig6h");
         bindEventById("roa0repy8oae");
         attachEventClickers();
+
+        View mainContainer = findViewById(R.id.mainContainer);
+        if (mainContainer != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(mainContainer, (v, insets) -> {
+                // Obtenemos el tamaño exacto de las barras del sistema (arriba y abajo)
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+
+                // Aplicamos ese tamaño como "relleno" (padding) al contenedor principal
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+
+                return insets;
+            });
+        }
     }
 
     @Override
