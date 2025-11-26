@@ -41,11 +41,9 @@ import prog.android.centroalr.model.Actividad;
 import prog.android.centroalr.model.AuthModel;
 import prog.android.centroalr.model.Usuario;
 
-// IMPORTANTE: Si no te compila, asegúrate de importar DocumentReference aunque no lo uses directamente aquí
 import com.google.firebase.firestore.DocumentReference;
 
 public class AgndSemActivity extends AppCompatActivity implements LogoutView {
-
 
     // --- Logout MVC ---
     private TextView btnCerrarSesion;
@@ -178,9 +176,9 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
         }
 
         applySelectionUi();
-        loadDayEvents(selectedDate);
+        // No hace falta loadWeekEvents aquí porque se llama en onResume
+        // loadDayEvents(selectedDate); // Opcional, pero ya se llama en el callback
 
-        // ... Listeners auxiliares ...
         bindClickByIdOrText("rn6aagqs6pq8", "Lista de Actividades",
                 () -> startActivity(new Intent(this, ListaActividadesActivity.class)));
         bindClickByIdOrText("r3pjyjmbkmo9", "Inicio",
@@ -215,7 +213,6 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
         loadDayEvents(selectedDate);
     }
 
-    // === AQUÍ ESTÁ LA CORRECCIÓN DE DUPLICADOS ===
     private void loadWeekEvents() {
         if (db == null) return;
 
@@ -234,7 +231,6 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
                 .whereLessThan("fechaInicio", nextMondayTs)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
-                    // LIMPIAMOS AQUÍ, justo antes de llenar con datos nuevos
                     eventosSemana.clear();
 
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
@@ -260,15 +256,13 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Error al cargar semana", Toast.LENGTH_SHORT).show();
-                    // En error sí limpiamos por si acaso
                     eventosSemana.clear();
                     applySelectionUi();
                     loadDayEvents(selectedDate);
                 });
     }
 
-    // ... (Resto de métodos applySelectionUi, loadDayEvents, cargarNombreLugar igual que antes) ...
-
+    // === MÉTODO MODIFICADO PARA COLORES ===
     private void applySelectionUi() {
         if (tvMes != null && selectedDate != null) {
             String t = selectedDate.format(titleFmt);
@@ -290,15 +284,38 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
             LocalDate dia = weekStart.plusDays(i);
             List<Actividad> list = eventosSemana.get(dia);
             boolean hasEvents = (list != null && !list.isEmpty());
+
             if (hasEvents) {
                 String text = baseLabel + " •";
                 SpannableString span = new SpannableString(text);
                 int dotIndex = text.length() - 1;
-                span.setSpan(new ForegroundColorSpan(Color.parseColor("#18990D")), dotIndex, dotIndex + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                // --- LÓGICA DE COLORES ---
+                int dotColor;
+                if (!usuarioActual.tienePermiso("PUEDE_CREAR_ACTIVIDAD")) {
+                    dotColor = Color.parseColor("#18990D"); // Verde
+                } else {
+                    boolean hayMias = false;
+                    for (Actividad a : list) {
+                        if (a.getCreadaPorUsuarioId() != null &&
+                                a.getCreadaPorUsuarioId().getId().equals(usuarioActual.getUid())) {
+                            hayMias = true;
+                            break;
+                        }
+                    }
+                    if (hayMias) {
+                        dotColor = Color.parseColor("#18990D"); // Verde (Tengo alguna)
+                    } else {
+                        dotColor = Color.parseColor("#1565C0"); // Gris Oscuro (Solo otros)
+                    }
+                }
+
+                span.setSpan(new ForegroundColorSpan(dotColor), dotIndex, dotIndex + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 tv.setText(span);
             } else {
                 tv.setText(baseLabel);
             }
+
             if (i == selectedIndex) {
                 tv.setBackgroundResource(R.drawable.bg_dia_selected);
                 tv.setTextColor(Color.parseColor("#066D0A"));
