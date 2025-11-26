@@ -18,7 +18,8 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Volver"
         app:tint="@android:color/black"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints" />
 
     <ScrollView
         android:id="@+id/scrollView"
