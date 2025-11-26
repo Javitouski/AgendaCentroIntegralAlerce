@@ -5,7 +5,6 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -42,7 +41,7 @@ public class CrearActActivity extends AppCompatActivity {
     private EditText etNombre, etDescripcion, etBeneficiarios, etCupo, etDiasAviso;
     private AutoCompleteTextView autoCompleteTipo, autoCompleteLugar;
 
-    // Selector de Frecuencia (Asegúrate de tenerlo en el XML)
+    // Selector de Frecuencia
     private AutoCompleteTextView autoCompleteFrecuencia;
 
     private Button btnFecha, btnHora, btnCrear;
@@ -289,12 +288,16 @@ public class CrearActActivity extends AppCompatActivity {
 
         String finalFrecuencia = frecuenciaSeleccionada;
 
+        // GUARDAMOS LA ACTIVIDAD PRINCIPAL (SIEMPRE EN "actividades")
         db.collection("actividades").add(actividad)
                 .addOnSuccessListener(docRef -> {
-                    if (periodicidadStr.equals("puntual")) {
-                        crearCitaUnica(docRef, usuarioRef, lugarRef, fechaInicioTS);
-                    } else {
+                    if (periodicidadStr.equals("periodica")) {
+                        // SI ES PERIÓDICA, CREAMOS LAS REPETICIONES
                         crearCitasPeriodicas(docRef, usuarioRef, lugarRef, fechaInicioSeleccionada, fechaFinSeleccionada, finalFrecuencia);
+                    } else {
+                        // SI ES PUNTUAL, YA ESTÁ LISTO (NO LLAMAMOS A crearCitaUnica PARA NO DUPLICAR)
+                        Toast.makeText(this, "Actividad creada", Toast.LENGTH_SHORT).show();
+                        finish();
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -303,40 +306,13 @@ public class CrearActActivity extends AppCompatActivity {
                 });
     }
 
-    // === CORRECCIÓN CLAVE: GUARDAR DATOS COMPLETOS EN LA CITA ===
+    // === CORRECCIÓN: ELIMINADO crearCitaUnica (ERA REDUNDANTE) ===
 
-    private void crearCitaUnica(DocumentReference actRef, DocumentReference userRef, DocumentReference lugarRef, Timestamp fecha) {
-        Map<String, Object> cita = new HashMap<>();
-        cita.put("actividadId", actRef);
-        cita.put("usuarioId", userRef);
-        cita.put("creadaPorUsuarioId", userRef);
-
-        // COPIAMOS LOS DATOS PARA QUE LA AGENDA LOS VEA
-        cita.put("nombre", texto(etNombre));
-        cita.put("descripcion", texto(etDescripcion));
-        cita.put("lugarId", lugarRef);
-
-        // USAMOS 'fechaInicio' QUE ES LO QUE BUSCA LA AGENDA
-        cita.put("fechaInicio", fecha);
-        cita.put("fechaFin", fecha);
-
-        cita.put("estado", "Confirmado");
-        cita.put("fechaCreacion", FieldValue.serverTimestamp());
-        cita.put("ultimaActualizacion", FieldValue.serverTimestamp());
-
-        db.collection("citas").add(cita).addOnSuccessListener(r -> {
-            Toast.makeText(this, "Actividad creada", Toast.LENGTH_SHORT).show();
-            finish();
-        }).addOnFailureListener(e -> {
-            btnCrear.setEnabled(true);
-            Toast.makeText(this, "Error creando cita: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        });
-    }
-
+    // === CORRECCIÓN: CAMBIADO A "actividades" Y LÓGICA DE BUCLE ===
     private void crearCitasPeriodicas(DocumentReference actRef, DocumentReference userRef, DocumentReference lugarRef, Calendar inicio, Calendar fin, String frecuencia) {
         WriteBatch batch = db.batch();
+
         Calendar iteracion = (Calendar) inicio.clone();
-        int count = 0;
 
         int fieldToAdd = Calendar.DAY_OF_YEAR;
         int amountToAdd = 7;
@@ -344,42 +320,66 @@ public class CrearActActivity extends AppCompatActivity {
         if (frecuencia.equals("DIARIA")) { amountToAdd = 1; }
         else if (frecuencia.equals("MENSUAL")) { fieldToAdd = Calendar.MONTH; amountToAdd = 1; }
 
+        // IMPORTANTÍSIMO: Avanzamos una iteración ANTES de entrar al bucle.
+        // ¿Por qué? Porque la actividad del "día 1" ya se creó en la llamada principal (.add(actividad))
+        // Si no hacemos esto, tendremos dos actividades el primer día.
+        iteracion.add(fieldToAdd, amountToAdd);
+
+        int count = 0;
+
         while (!iteracion.after(fin)) {
-            Map<String, Object> cita = new HashMap<>();
-            cita.put("actividadId", actRef);
-            cita.put("usuarioId", userRef);
-            cita.put("creadaPorUsuarioId", userRef);
-            cita.put("nombre", texto(etNombre));
-            cita.put("descripcion", texto(etDescripcion));
-            cita.put("lugarId", lugarRef);
+            // Usamos la misma estructura de "actividades" para las repeticiones
+            Map<String, Object> repeticion = new HashMap<>();
+
+            // Datos básicos copiados
+            repeticion.put("nombre", texto(etNombre));
+            repeticion.put("descripcion", texto(etDescripcion));
+            repeticion.put("beneficiariosDescripcion", texto(etBeneficiarios));
+            String cupoStr = texto(etCupo);
+            repeticion.put("cupo", !cupoStr.isEmpty() ? Long.parseLong(cupoStr) : 0);
+            String diasStr = texto(etDiasAviso);
+            repeticion.put("diasAvisoPrevio", !diasStr.isEmpty() ? Long.parseLong(diasStr) : 0);
+
+            // Estado y Fechas
+            repeticion.put("estado", "activa");
+            repeticion.put("fechaCreacion", FieldValue.serverTimestamp());
 
             Timestamp tsFecha = new Timestamp(iteracion.getTime());
-            cita.put("fechaInicio", tsFecha);
-            cita.put("fechaFin", tsFecha);
-            cita.put("estado", "Confirmado");
-            cita.put("fechaCreacion", FieldValue.serverTimestamp());
-            cita.put("ultimaActualizacion", FieldValue.serverTimestamp());
+            repeticion.put("fechaInicio", tsFecha);
+            repeticion.put("fechaFin", tsFecha); // En repeticiones, inicio y fin suelen ser el mismo día
 
-            DocumentReference newRef = db.collection("citas").document();
-            batch.set(newRef, cita);
+            repeticion.put("periodicidad", "instancia"); // Marcamos que es una copia/instancia
+            repeticion.put("actividadPadreId", actRef); // Referencia a la original (opcional pero útil)
+
+            // Referencias
+            repeticion.put("tipoActividadId", db.collection("tiposActividades").document(tipoSeleccionadoId));
+            repeticion.put("lugarId", lugarRef);
+            repeticion.put("creadaPorUsuarioId", userRef);
+            if (proyectoSeleccionadoId != null) repeticion.put("proyectoId", db.collection("proyecto").document(proyectoSeleccionadoId));
+            if (socioSeleccionadoId != null) repeticion.put("socioComunitarioId", db.collection("socioComunitario").document(socioSeleccionadoId));
+            if (oferenteSeleccionadoId != null) repeticion.put("oferenteId", db.collection("oferentes").document(oferenteSeleccionadoId));
+
+            // AHORA GUARDAMOS EN "actividades" (NO EN "citas")
+            DocumentReference newRef = db.collection("actividades").document();
+            batch.set(newRef, repeticion);
             count++;
 
             iteracion.add(fieldToAdd, amountToAdd);
         }
 
         if (count > 0) {
-            // AQUÍ ESTABA EL ERROR: Usamos una variable final para el mensaje
             final int finalCount = count;
             batch.commit().addOnSuccessListener(v -> {
-                Toast.makeText(this, "Creadas " + finalCount + " citas periódicas", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Se crearon " + finalCount + " repeticiones", Toast.LENGTH_LONG).show();
                 finish();
             }).addOnFailureListener(e -> {
                 btnCrear.setEnabled(true);
-                Toast.makeText(this, "Error guardando: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Error guardando repeticiones: " + e.getMessage(), Toast.LENGTH_LONG).show();
             });
         } else {
-            btnCrear.setEnabled(true);
-            Toast.makeText(this, "No se crearon citas (Revisa rango de fechas)", Toast.LENGTH_SHORT).show();
+            // Si el rango de fechas era muy corto y no hubo repeticiones, igual cerramos porque la principal se creó
+            Toast.makeText(this, "Actividad creada (sin repeticiones futuras)", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 

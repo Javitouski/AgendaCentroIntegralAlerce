@@ -46,8 +46,6 @@ import com.google.firebase.firestore.DocumentReference;
 
 public class AgndSemActivity extends AppCompatActivity implements LogoutView {
 
-    // ... (Variables y onCreate igual que antes) ...
-    // SOLO COPIA EL MÉTODO loadWeekEvents CORREGIDO DE ABAJO, O TODO EL ARCHIVO SI PREFIERES
 
     // --- Logout MVC ---
     private TextView btnCerrarSesion;
@@ -180,7 +178,6 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
         }
 
         applySelectionUi();
-        // loadWeekEvents() se llamará en onResume, así que no hace falta aquí
         loadDayEvents(selectedDate);
 
         // ... Listeners auxiliares ...
@@ -222,9 +219,6 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
     private void loadWeekEvents() {
         if (db == null) return;
 
-        // NO LIMPIAMOS AQUÍ para evitar parpadeos o condiciones de carrera
-        // eventosSemana.clear(); <-- ESTO SE VA
-
         LocalDate monday = weekStart;
         LocalDate nextMonday = weekStart.plusDays(7);
 
@@ -235,7 +229,7 @@ public class AgndSemActivity extends AppCompatActivity implements LogoutView {
         Timestamp mondayTs = new Timestamp(mondayDate);
         Timestamp nextMondayTs = new Timestamp(nextMondayDate);
 
-        db.collection("citas")
+        db.collection("actividades")
                 .whereGreaterThanOrEqualTo("fechaInicio", mondayTs)
                 .whereLessThan("fechaInicio", nextMondayTs)
                 .get()
