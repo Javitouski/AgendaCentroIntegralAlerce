@@ -170,7 +170,6 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
             return;
         }
 
-        // NO LIMPIAR AQUÍ (eventosMes.clear()) -> ESTO CAUSA DUPLICADOS AL CARGAR RÁPIDO
 
         LocalDate start = ym.atDay(1);
         LocalDate end = ym.plusMonths(1).atDay(1);
@@ -179,7 +178,7 @@ public class AgendMensActivity extends AppCompatActivity implements LogoutView {
         Timestamp endTs   = new Timestamp(java.util.Date.from(end.atStartOfDay(zone).toInstant()));
 
         // Leemos 'citas'
-        db.collection("citas")
+        db.collection("actividades")
                 .whereGreaterThanOrEqualTo("fechaInicio", startTs)
                 .whereLessThan("fechaInicio", endTs)
                 .get()

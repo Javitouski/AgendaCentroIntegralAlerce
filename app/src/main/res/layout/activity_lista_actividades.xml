@@ -11,7 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Top bar -->
         <LinearLayout
             android:id="@+id/topBarLista"
             android:layout_width="0dp"
@@ -45,53 +44,68 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <!-- Espacio simétrico al botón back -->
             <Space
                 android:layout_width="40dp"
                 android:layout_height="40dp" />
 
         </LinearLayout>
 
-        <!-- Lista -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardFiltro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="2dp"
+            app:layout_constraintTop_toBottomOf="@id/topBarLista"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <Spinner
+                android:id="@+id/spinnerFiltroUsuarios"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:spinnerMode="dropdown" />
+
+        </com.google.android.material.card.MaterialCardView>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerActividades"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:paddingHorizontal="8dp"
-            android:paddingTop="4dp"
+            android:paddingTop="8dp"
             android:paddingBottom="80dp"
             android:clipToPadding="false"
-            app:layout_constraintTop_toBottomOf="@id/topBarLista"
+            app:layout_constraintTop_toBottomOf="@id/cardFiltro"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:listitem="@layout/item_actividad" />
 
-        <!-- Mensaje cuando la lista está vacía -->
         <TextView
             android:id="@+id/tvMensajeVacio"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="32dp"
-            android:text="Aquí se mostrará la lista de actividades creadas."
+            android:text="No se encontraron actividades para este filtro."
             android:textAlignment="center"
             android:gravity="center"
             android:textColor="#49454F"
             android:textSize="16sp"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/topBarLista"
+            app:layout_constraintTop_toBottomOf="@id/cardFiltro"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:visibility="visible" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
-
-        <include
-            layout="@layout/loading_dialog" />
+        <include layout="@layout/loading_dialog" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- FAB para crear actividad -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabCrearActividadLista"
         android:layout_width="wrap_content"
