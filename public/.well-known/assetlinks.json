@@ -4,7 +4,8 @@
     "namespace": "android_app",
     "package_name": "prog.android.centroalr",
     "sha256_cert_fingerprints": [
-      "80:AC:EE:73:0B:25:C1:C4:F5:13:21:3C:64:86:D7:93:B5:52:D7:CD:22:71:C5:F6:72:91:66:CA:96:B9:19:B2"
+      "80:AC:EE:73:0B:25:C1:C4:F5:13:21:3C:64:86:D7:93:B5:52:D7:CD:22:71:C5:F6:72:91:66:CA:96:B9:19:B2",
+      "D8:B6:95:2C:B8:31:30:CF:12:90:E1:FE:5E:0E:7F:D6:B9:6F:6D:C8:EB:61:EA:4B:B6:9B:FD:55:36:DA:05:BA"
     ]
   }
 }]
