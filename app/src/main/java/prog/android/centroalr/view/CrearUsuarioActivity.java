@@ -57,6 +57,7 @@ public class CrearUsuarioActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         autoCompleteRol = findViewById(R.id.autoCompleteRol);
         btnCrearUsuario = findViewById(R.id.btnCrearUsuario);
+        loadingOverlay = findViewById(R.id.loadingOverlay);
 
         // Configurar el botón de volver
         View btnBack = findViewById(R.id.btnBack);
@@ -131,7 +132,7 @@ public class CrearUsuarioActivity extends AppCompatActivity {
         }
 
         // 3. Deshabilitar botón y mostrar carga
-        btnCrearUsuario.setEnabled(false);
+        mostrarCarga(true);
 
         // --- INICIO DEL PROCESO DE 2 PASOS ---
 
@@ -195,7 +196,16 @@ public class CrearUsuarioActivity extends AppCompatActivity {
 
     // Helper para manejar fallos
     private void falloAlCrear(String mensaje) {
-        btnCrearUsuario.setEnabled(true);
+        mostrarCarga(false);
         Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show();
+    }
+
+    private void mostrarCarga(boolean mostrar) {
+        if (loadingOverlay != null) {
+            loadingOverlay.setVisibility(mostrar ? View.VISIBLE : View.GONE);
+        }
+        if (btnCrearUsuario != null) {
+            btnCrearUsuario.setEnabled(!mostrar);
+        }
     }
 }

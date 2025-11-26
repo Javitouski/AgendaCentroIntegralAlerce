@@ -42,15 +42,13 @@ public class CrearActActivity extends AppCompatActivity {
     // Vistas
     private EditText etNombre, etDescripcion, etBeneficiarios, etCupo, etDiasAviso;
     private AutoCompleteTextView autoCompleteTipo, autoCompleteLugar;
-
-    // Selector de Frecuencia
     private AutoCompleteTextView autoCompleteFrecuencia;
-
     private Button btnFecha, btnHora, btnCrear;
     private RadioGroup rgPeriodicidad;
     private RadioButton rbPuntual, rbPeriodica;
     private LinearLayout grupoFechaFin;
     private Button btnFechaFin;
+    private View loadingOverlay; // Overlay de carga
 
     // Vistas Opcionales
     private AutoCompleteTextView autoCompleteProyecto, autoCompleteSocio, autoCompleteOferente;
@@ -85,7 +83,6 @@ public class CrearActActivity extends AppCompatActivity {
     private List<String> oferentesIds = new ArrayList<>();
     private String oferenteSeleccionadoId;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,28 +116,25 @@ public class CrearActActivity extends AppCompatActivity {
         autoCompleteTipo = findViewById(R.id.autoCompleteTipo);
         autoCompleteLugar = findViewById(R.id.autoCompleteLugar);
 
-        // Periodicidad
         rgPeriodicidad = findViewById(R.id.rgPeriodicidad);
         rbPuntual = findViewById(R.id.rbPuntual);
         rbPeriodica = findViewById(R.id.rbPeriodica);
         grupoFechaFin = findViewById(R.id.grupoFechaFin);
         btnFechaFin = findViewById(R.id.btnFechaFin);
-
-        // Referencia al dropdown de frecuencia
         autoCompleteFrecuencia = findViewById(R.id.autoCompleteFrecuencia);
 
         autoCompleteProyecto = findViewById(R.id.autoCompleteProyecto);
         autoCompleteSocio = findViewById(R.id.autoCompleteSocio);
         autoCompleteOferente = findViewById(R.id.autoCompleteOferente);
 
-        // Cargar Dropdowns
+        loadingOverlay = findViewById(R.id.loadingOverlay); // Inicializar Loading
+
+        // Cargas
         cargarTiposActividad();
         cargarLugares();
         cargarProyectos();
         cargarSocios();
         cargarOferentes();
-
-        // Configurar opciones de frecuencia
         setupFrecuenciaDropdown();
 
         // Listeners
@@ -158,20 +152,19 @@ public class CrearActActivity extends AppCompatActivity {
                 btnFechaFin.setText("Seleccionar fecha de fin");
             }
         });
+
+        // Bordes
         View mainContainer = findViewById(R.id.mainContainer);
         if (mainContainer != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainContainer, (v, insets) -> {
-                // Obtenemos el tamaño exacto de las barras del sistema (arriba y abajo)
                 Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-
-                // Aplicamos ese tamaño como "relleno" (padding) al contenedor principal
                 v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-
                 return insets;
             });
         }
     }
 
+    // ... (Métodos de DatePicker y TimePicker iguales que antes) ...
     private void setupFrecuenciaDropdown() {
         if (autoCompleteFrecuencia != null) {
             String[] frecuencias = new String[]{"Diaria", "Semanal", "Mensual"};
@@ -216,6 +209,8 @@ public class CrearActActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    // --- VALIDACIÓN PRINCIPAL ---
+
     private void validarYGuardar() {
         String nombre = texto(etNombre);
         if (TextUtils.isEmpty(nombre)) { etNombre.setError("Requerido"); return; }
@@ -235,41 +230,115 @@ public class CrearActActivity extends AppCompatActivity {
             Toast.makeText(this, "Faltan campos obligatorios", Toast.LENGTH_SHORT).show(); return;
         }
 
-        // Validación Aforo
+        // Aforo
         int capacidadMaxima = 0;
         if (capacidadPorLugar.containsKey(lugarSeleccionadoId)) capacidadMaxima = capacidadPorLugar.get(lugarSeleccionadoId);
         if (capacidadMaxima > 0 && cupo > capacidadMaxima) {
             etCupo.setError("Excede capacidad (" + capacidadMaxima + ")"); return;
         }
 
-        // Lógica Periodicidad
+        // Fechas
+        Timestamp fechaInicioTS = new Timestamp(fechaInicioSeleccionada.getTime());
+
+        // Calcular Fecha FIN de la actividad puntual (por defecto 1 hora si no se define otra cosa)
+        long unaHora = 3600000;
+        Timestamp fechaFinActividadTS = new Timestamp(new java.util.Date(fechaInicioSeleccionada.getTimeInMillis() + unaHora));
+
+        // === AQUÍ EMPIEZA LA VALIDACIÓN DE CHOQUES ===
+        mostrarCarga(true); // Bloqueamos pantalla
+
+        // Llamamos a la función que consulta Firebase antes de guardar
+        validarDisponibilidad(lugarSeleccionadoId, fechaInicioTS, fechaFinActividadTS, () -> {
+            // Si llegamos aquí, NO hay conflicto. Procedemos a guardar.
+            procederAGuardar(nombre, cupo, diasAviso, fechaInicioTS, fechaFinActividadTS);
+        });
+    }
+
+    // --- NUEVO MÉTODO: VALIDACIÓN EN FIRESTORE ---
+    private interface OnDisponibilidadListener {
+        void onDisponible();
+    }
+
+    private void validarDisponibilidad(String lugarId, Timestamp inicioNuevo, Timestamp finNuevo, OnDisponibilidadListener listener) {
+        DocumentReference lugarRef = db.collection("lugares").document(lugarId);
+
+        // Consultamos actividades en el mismo lugar
+        // Optimización: Filtramos por día para no descargar toda la base de datos
+
+        // Calcular inicio y fin del día para el filtro
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(inicioNuevo.toDate());
+        cal.set(Calendar.HOUR_OF_DAY, 0); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0);
+        Timestamp inicioDia = new Timestamp(cal.getTime());
+
+        cal.set(Calendar.HOUR_OF_DAY, 23); cal.set(Calendar.MINUTE, 59); cal.set(Calendar.SECOND, 59);
+        Timestamp finDia = new Timestamp(cal.getTime());
+
+        db.collection("actividades")
+                .whereEqualTo("lugarId", lugarRef)
+                .whereEqualTo("estado", "activa") // Solo validamos con actividades activas
+                .whereGreaterThanOrEqualTo("fechaInicio", inicioDia)
+                .whereLessThanOrEqualTo("fechaInicio", finDia)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    boolean hayConflicto = false;
+                    long iniN = inicioNuevo.toDate().getTime();
+                    long finN = finNuevo.toDate().getTime();
+
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        Timestamp iniExistente = doc.getTimestamp("fechaInicio");
+                        Timestamp finExistente = doc.getTimestamp("fechaFin");
+
+                        if (iniExistente != null && finExistente != null) {
+                            long iniE = iniExistente.toDate().getTime();
+                            long finE = finExistente.toDate().getTime();
+
+                            // Fórmula de superposición de rangos:
+                            // (StartA < EndB) and (EndA > StartB)
+                            if (iniN < finE && finN > iniE) {
+                                hayConflicto = true;
+                                break; // Encontramos uno, ya no seguimos buscando
+                            }
+                        }
+                    }
+
+                    if (hayConflicto) {
+                        mostrarCarga(false);
+                        Toast.makeText(CrearActActivity.this, "¡Conflicto! Ya existe una actividad en ese lugar y horario.", Toast.LENGTH_LONG).show();
+                    } else {
+                        listener.onDisponible();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    mostrarCarga(false);
+                    Toast.makeText(this, "Error al verificar disponibilidad: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    // --- MÉTODO DE GUARDADO (Lo que antes estaba en validarYGuardar) ---
+    private void procederAGuardar(String nombre, long cupo, long diasAviso, Timestamp fechaInicioTS, Timestamp fechaFinTS) {
+
         String periodicidadStr;
         String frecuenciaSeleccionada = "NINGUNA";
-        Timestamp fechaInicioTS = new Timestamp(fechaInicioSeleccionada.getTime());
-        Timestamp fechaFinTS;
+        Timestamp fechaFinRecurrencia;
 
         if (rbPeriodica.isChecked()) {
             periodicidadStr = "periodica";
-
             if (autoCompleteFrecuencia != null) {
                 frecuenciaSeleccionada = autoCompleteFrecuencia.getText().toString().toUpperCase();
             }
             if (frecuenciaSeleccionada.isEmpty()) frecuenciaSeleccionada = "SEMANAL";
 
             if (fechaFinSeleccionada == null) {
+                mostrarCarga(false);
                 Toast.makeText(this, "Selecciona fecha de fin", Toast.LENGTH_SHORT).show(); return;
             }
-            if (fechaFinSeleccionada.before(fechaInicioSeleccionada)) {
-                Toast.makeText(this, "Fecha fin inválida", Toast.LENGTH_SHORT).show(); return;
-            }
-            fechaFinTS = new Timestamp(fechaFinSeleccionada.getTime());
+            fechaFinRecurrencia = new Timestamp(fechaFinSeleccionada.getTime());
         } else {
             periodicidadStr = "puntual";
-            fechaFinTS = fechaInicioTS;
+            fechaFinRecurrencia = fechaInicioTS;
         }
 
-        // --- PREPARAR DATOS ---
-        btnCrear.setEnabled(false);
         String descripcion = texto(etDescripcion);
         String beneficiarios = texto(etBeneficiarios);
 
@@ -289,7 +358,7 @@ public class CrearActActivity extends AppCompatActivity {
         actividad.put("estado", "activa");
         actividad.put("fechaCreacion", FieldValue.serverTimestamp());
         actividad.put("fechaInicio", fechaInicioTS);
-        actividad.put("fechaFin", fechaFinTS);
+        actividad.put("fechaFin", fechaFinTS); // Fin de la sesión (1 hora)
         actividad.put("periodicidad", periodicidadStr);
         actividad.put("frecuencia", frecuenciaSeleccionada);
         actividad.put("tieneArchivos", false);
@@ -302,50 +371,36 @@ public class CrearActActivity extends AppCompatActivity {
 
         String finalFrecuencia = frecuenciaSeleccionada;
 
-        // GUARDAMOS LA ACTIVIDAD PRINCIPAL (SIEMPRE EN "actividades")
         db.collection("actividades").add(actividad)
                 .addOnSuccessListener(docRef -> {
                     if (periodicidadStr.equals("periodica")) {
-                        // SI ES PERIÓDICA, CREAMOS LAS REPETICIONES
                         crearCitasPeriodicas(docRef, usuarioRef, lugarRef, fechaInicioSeleccionada, fechaFinSeleccionada, finalFrecuencia);
                     } else {
-                        // SI ES PUNTUAL, YA ESTÁ LISTO (NO LLAMAMOS A crearCitaUnica PARA NO DUPLICAR)
+                        mostrarCarga(false);
                         Toast.makeText(this, "Actividad creada", Toast.LENGTH_SHORT).show();
                         finish();
                     }
                 })
                 .addOnFailureListener(e -> {
-                    btnCrear.setEnabled(true);
+                    mostrarCarga(false);
                     Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 
-    // === CORRECCIÓN: ELIMINADO crearCitaUnica (ERA REDUNDANTE) ===
-
-    // === CORRECCIÓN: CAMBIADO A "actividades" Y LÓGICA DE BUCLE ===
     private void crearCitasPeriodicas(DocumentReference actRef, DocumentReference userRef, DocumentReference lugarRef, Calendar inicio, Calendar fin, String frecuencia) {
         WriteBatch batch = db.batch();
-
         Calendar iteracion = (Calendar) inicio.clone();
-
         int fieldToAdd = Calendar.DAY_OF_YEAR;
         int amountToAdd = 7;
 
         if (frecuencia.equals("DIARIA")) { amountToAdd = 1; }
         else if (frecuencia.equals("MENSUAL")) { fieldToAdd = Calendar.MONTH; amountToAdd = 1; }
 
-        // IMPORTANTÍSIMO: Avanzamos una iteración ANTES de entrar al bucle.
-        // ¿Por qué? Porque la actividad del "día 1" ya se creó en la llamada principal (.add(actividad))
-        // Si no hacemos esto, tendremos dos actividades el primer día.
-        iteracion.add(fieldToAdd, amountToAdd);
+        iteracion.add(fieldToAdd, amountToAdd); // Empezar desde la siguiente
 
         int count = 0;
-
         while (!iteracion.after(fin)) {
-            // Usamos la misma estructura de "actividades" para las repeticiones
             Map<String, Object> repeticion = new HashMap<>();
-
-            // Datos básicos copiados
             repeticion.put("nombre", texto(etNombre));
             repeticion.put("descripcion", texto(etDescripcion));
             repeticion.put("beneficiariosDescripcion", texto(etBeneficiarios));
@@ -353,19 +408,18 @@ public class CrearActActivity extends AppCompatActivity {
             repeticion.put("cupo", !cupoStr.isEmpty() ? Long.parseLong(cupoStr) : 0);
             String diasStr = texto(etDiasAviso);
             repeticion.put("diasAvisoPrevio", !diasStr.isEmpty() ? Long.parseLong(diasStr) : 0);
-
-            // Estado y Fechas
             repeticion.put("estado", "activa");
             repeticion.put("fechaCreacion", FieldValue.serverTimestamp());
 
-            Timestamp tsFecha = new Timestamp(iteracion.getTime());
-            repeticion.put("fechaInicio", tsFecha);
-            repeticion.put("fechaFin", tsFecha); // En repeticiones, inicio y fin suelen ser el mismo día
+            Timestamp tsInicio = new Timestamp(iteracion.getTime());
+            // Fin de la repetición (1 hora después)
+            long unaHora = 3600000;
+            Timestamp tsFin = new Timestamp(new java.util.Date(iteracion.getTimeInMillis() + unaHora));
 
-            repeticion.put("periodicidad", "instancia"); // Marcamos que es una copia/instancia
-            repeticion.put("actividadPadreId", actRef); // Referencia a la original (opcional pero útil)
-
-            // Referencias
+            repeticion.put("fechaInicio", tsInicio);
+            repeticion.put("fechaFin", tsFin);
+            repeticion.put("periodicidad", "instancia");
+            repeticion.put("actividadPadreId", actRef);
             repeticion.put("tipoActividadId", db.collection("tiposActividades").document(tipoSeleccionadoId));
             repeticion.put("lugarId", lugarRef);
             repeticion.put("creadaPorUsuarioId", userRef);
@@ -373,31 +427,30 @@ public class CrearActActivity extends AppCompatActivity {
             if (socioSeleccionadoId != null) repeticion.put("socioComunitarioId", db.collection("socioComunitario").document(socioSeleccionadoId));
             if (oferenteSeleccionadoId != null) repeticion.put("oferenteId", db.collection("oferentes").document(oferenteSeleccionadoId));
 
-            // AHORA GUARDAMOS EN "actividades" (NO EN "citas")
             DocumentReference newRef = db.collection("actividades").document();
             batch.set(newRef, repeticion);
             count++;
-
             iteracion.add(fieldToAdd, amountToAdd);
         }
 
         if (count > 0) {
             final int finalCount = count;
             batch.commit().addOnSuccessListener(v -> {
+                mostrarCarga(false);
                 Toast.makeText(this, "Se crearon " + finalCount + " repeticiones", Toast.LENGTH_LONG).show();
                 finish();
             }).addOnFailureListener(e -> {
-                btnCrear.setEnabled(true);
+                mostrarCarga(false);
                 Toast.makeText(this, "Error guardando repeticiones: " + e.getMessage(), Toast.LENGTH_LONG).show();
             });
         } else {
-            // Si el rango de fechas era muy corto y no hubo repeticiones, igual cerramos porque la principal se creó
-            Toast.makeText(this, "Actividad creada (sin repeticiones futuras)", Toast.LENGTH_SHORT).show();
+            mostrarCarga(false);
+            Toast.makeText(this, "Actividad creada", Toast.LENGTH_SHORT).show();
             finish();
         }
     }
 
-    // --- Cargas ---
+    // --- CARGAS ---
     private void cargarLugares() {
         db.collection("lugares").get().addOnSuccessListener(qs -> {
             lugaresNombres.clear(); lugaresIds.clear(); capacidadPorLugar.clear();
@@ -412,7 +465,6 @@ public class CrearActActivity extends AppCompatActivity {
             autoCompleteLugar.setOnItemClickListener((p, v, pos, id) -> lugarSeleccionadoId = lugaresIds.get(pos));
         });
     }
-
     private void cargarTiposActividad() {
         db.collection("tiposActividades").get().addOnSuccessListener(qs -> {
             tiposNombres.clear(); tiposIds.clear();
@@ -459,4 +511,13 @@ public class CrearActActivity extends AppCompatActivity {
     }
 
     private String texto(EditText et) { return et != null ? et.getText().toString().trim() : ""; }
+
+    private void mostrarCarga(boolean mostrar) {
+        if (loadingOverlay != null) {
+            loadingOverlay.setVisibility(mostrar ? View.VISIBLE : View.GONE);
+        }
+        if (btnCrear != null) {
+            btnCrear.setEnabled(!mostrar);
+        }
+    }
 }

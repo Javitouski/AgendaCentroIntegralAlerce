@@ -7,14 +7,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.util.concurrent.TimeUnit;
+
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import prog.android.centroalr.notificaciones.NotifScheduler; // 🔔
-import prog.android.centroalr.notificaciones.NotifHelper;    // 🔔
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
@@ -26,8 +23,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import prog.android.centroalr.R;
+import prog.android.centroalr.notificaciones.NotifScheduler;
 
 public class ReagActActivity extends AppCompatActivity {
 
@@ -48,22 +47,24 @@ public class ReagActActivity extends AppCompatActivity {
     private View btnCreateActivity;
     private View btnBack;
     private EditText etReason;
+    private View loadingOverlay;
 
-    // Fecha/hora nueva (o actual si no se cambia)
+    // Datos
     private Calendar nuevaFechaHora;
-    private Timestamp fechaInicioActual;   // por si no se cambia nada
+    private Timestamp fechaInicioActual;
 
-    private final SimpleDateFormat dfFecha =
-            new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-    private final SimpleDateFormat dfHora =
-            new SimpleDateFormat("HH:mm", Locale.getDefault());
+    // 1. VARIABLES NECESARIAS PARA VALIDAR
+    private long duracionActividadMillis = 3600000; // 1 hora por defecto
+    private String currentLugarId; // Necesitamos saber el lugar para chequear conflictos
+
+    private final SimpleDateFormat dfFecha = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    private final SimpleDateFormat dfHora = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reag_act);
 
-        // Extras
         actividadId = getIntent().getStringExtra("actividadId");
         actividadNombre = getIntent().getStringExtra("actividadNombre");
 
@@ -86,77 +87,69 @@ public class ReagActActivity extends AppCompatActivity {
         btnCreateActivity = findViewById(R.id.btnCreateActivity);
         btnBack = findViewById(R.id.btnBack);
         etReason = findViewById(R.id.etReason);
+        loadingOverlay = findViewById(R.id.loadingOverlay);
 
-        if (btnBack != null) {
-            btnBack.setOnClickListener(v -> finish());
-        }
+        if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
-        // Mostrar nombre
         if (actividadNombre != null && !actividadNombre.isEmpty()) {
-            if (txtTitle != null) {
-                txtTitle.setText("Reagendar actividad\n" + actividadNombre);
-            }
-            if (txtSelectedActivity != null) {
-                txtSelectedActivity.setText(actividadNombre);
-            }
+            if (txtTitle != null) txtTitle.setText("Reagendar actividad\n" + actividadNombre);
+            if (txtSelectedActivity != null) txtSelectedActivity.setText(actividadNombre);
         }
 
-        // Pickers
-        if (btnDatePicker != null) {
-            btnDatePicker.setOnClickListener(v -> mostrarDatePicker());
-        }
-        if (btnTimePicker != null) {
-            btnTimePicker.setOnClickListener(v -> mostrarTimePicker());
-        }
-        if (btnCreateActivity != null) {
-            btnCreateActivity.setOnClickListener(v -> guardarReagendamiento());
-        }
+        if (btnDatePicker != null) btnDatePicker.setOnClickListener(v -> mostrarDatePicker());
+        if (btnTimePicker != null) btnTimePicker.setOnClickListener(v -> mostrarTimePicker());
+
+        // Al guardar, ahora iniciamos el flujo de validación
+        if (btnCreateActivity != null) btnCreateActivity.setOnClickListener(v -> iniciarProcesoReagendamiento());
 
         cargarActividadActual();
+
         View mainContainer = findViewById(R.id.mainContainer);
         if (mainContainer != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainContainer, (v, insets) -> {
-                // Obtenemos el tamaño exacto de las barras del sistema (arriba y abajo)
                 Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-
-                // Aplicamos ese tamaño como "relleno" (padding) al contenedor principal
                 v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-
                 return insets;
             });
         }
     }
 
-    // ================== CARGA DE ACTIVIDAD ==================
-
     private void cargarActividadActual() {
+        mostrarCarga(true);
         actividadRef.get()
                 .addOnSuccessListener(this::onActividadLoaded)
                 .addOnFailureListener(e -> {
+                    mostrarCarga(false);
                     Toast.makeText(this, "Error al cargar la actividad.", Toast.LENGTH_SHORT).show();
                     finish();
                 });
     }
 
     private void onActividadLoaded(DocumentSnapshot doc) {
+        mostrarCarga(false);
         if (!doc.exists()) {
             Toast.makeText(this, "La actividad ya no existe.", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
+        // ... (Nombre y Textos igual que antes) ...
         String nombreReal = doc.getString("nombre");
         if (nombreReal != null && !nombreReal.trim().isEmpty()) {
             actividadNombre = nombreReal;
-            if (txtTitle != null) {
-                txtTitle.setText("Reagendar actividad\n" + actividadNombre);
-            }
-            if (txtSelectedActivity != null) {
-                txtSelectedActivity.setText(actividadNombre);
-            }
+            if (txtTitle != null) txtTitle.setText("Reagendar actividad\n" + actividadNombre);
+            if (txtSelectedActivity != null) txtSelectedActivity.setText(actividadNombre);
+        }
+
+        // 2. CAPTURAR EL ID DEL LUGAR (Vital para la validación)
+        DocumentReference lugarRef = doc.getDocumentReference("lugarId");
+        if (lugarRef != null) {
+            currentLugarId = lugarRef.getId();
         }
 
         fechaInicioActual = doc.getTimestamp("fechaInicio");
+        Timestamp fechaFinOriginal = doc.getTimestamp("fechaFin");
+
         if (fechaInicioActual != null) {
             java.util.Date d = fechaInicioActual.toDate();
             if (nuevaFechaHora == null) {
@@ -166,108 +159,147 @@ public class ReagActActivity extends AppCompatActivity {
 
             if (txtDate != null) txtDate.setText(dfFecha.format(d));
             if (txtTime != null) txtTime.setText(dfHora.format(d));
+
+            if (fechaFinOriginal != null) {
+                duracionActividadMillis = fechaFinOriginal.toDate().getTime() - fechaInicioActual.toDate().getTime();
+            }
         }
     }
 
-    // ================== DATE / TIME PICKERS ==================
-
+    // ... (Date y Time Pickers igual que antes) ...
     private void mostrarDatePicker() {
-        final Calendar base = (nuevaFechaHora != null)
-                ? (Calendar) nuevaFechaHora.clone()
-                : Calendar.getInstance();
-
-        int year = base.get(Calendar.YEAR);
-        int month = base.get(Calendar.MONTH);
-        int day = base.get(Calendar.DAY_OF_MONTH);
-
-        DatePickerDialog dialog = new DatePickerDialog(
-                this,
-                (view, y, m, d) -> {
-                    if (nuevaFechaHora == null) {
-                        nuevaFechaHora = Calendar.getInstance();
-                    }
-                    nuevaFechaHora.set(Calendar.YEAR, y);
-                    nuevaFechaHora.set(Calendar.MONTH, m);
-                    nuevaFechaHora.set(Calendar.DAY_OF_MONTH, d);
-
-                    if (txtDate != null) {
-                        txtDate.setText(String.format(Locale.getDefault(), "%02d/%02d/%04d",
-                                d, m + 1, y));
-                    }
-                },
-                year, month, day
-        );
-        dialog.show();
+        final Calendar base = (nuevaFechaHora != null) ? (Calendar) nuevaFechaHora.clone() : Calendar.getInstance();
+        new DatePickerDialog(this, (v, y, m, d) -> {
+            if (nuevaFechaHora == null) nuevaFechaHora = Calendar.getInstance();
+            nuevaFechaHora.set(Calendar.YEAR, y);
+            nuevaFechaHora.set(Calendar.MONTH, m);
+            nuevaFechaHora.set(Calendar.DAY_OF_MONTH, d);
+            if (txtDate != null) txtDate.setText(String.format(Locale.getDefault(), "%02d/%02d/%04d", d, m + 1, y));
+        }, base.get(Calendar.YEAR), base.get(Calendar.MONTH), base.get(Calendar.DAY_OF_MONTH)).show();
     }
 
     private void mostrarTimePicker() {
-        final Calendar base = (nuevaFechaHora != null)
-                ? (Calendar) nuevaFechaHora.clone()
-                : Calendar.getInstance();
-
-        int hour = base.get(Calendar.HOUR_OF_DAY);
-        int minute = base.get(Calendar.MINUTE);
-
-        TimePickerDialog dialog = new TimePickerDialog(
-                this,
-                (view, h, m) -> {
-                    if (nuevaFechaHora == null) {
-                        nuevaFechaHora = Calendar.getInstance();
-                    }
-                    nuevaFechaHora.set(Calendar.HOUR_OF_DAY, h);
-                    nuevaFechaHora.set(Calendar.MINUTE, m);
-                    nuevaFechaHora.set(Calendar.SECOND, 0);
-
-                    if (txtTime != null) {
-                        txtTime.setText(String.format(Locale.getDefault(), "%02d:%02d", h, m));
-                    }
-                },
-                hour, minute, true
-        );
-        dialog.show();
+        final Calendar base = (nuevaFechaHora != null) ? (Calendar) nuevaFechaHora.clone() : Calendar.getInstance();
+        new TimePickerDialog(this, (view, h, m) -> {
+            if (nuevaFechaHora == null) nuevaFechaHora = Calendar.getInstance();
+            nuevaFechaHora.set(Calendar.HOUR_OF_DAY, h);
+            nuevaFechaHora.set(Calendar.MINUTE, m);
+            nuevaFechaHora.set(Calendar.SECOND, 0);
+            if (txtTime != null) txtTime.setText(String.format(Locale.getDefault(), "%02d:%02d", h, m));
+        }, base.get(Calendar.HOUR_OF_DAY), base.get(Calendar.MINUTE), true).show();
     }
 
-    // ================== GUARDAR REAGENDAMIENTO ==================
+    // ================== NUEVA LÓGICA DE VALIDACIÓN ==================
 
-    private void guardarReagendamiento() {
+    private void iniciarProcesoReagendamiento() {
         if (nuevaFechaHora == null && fechaInicioActual == null) {
             Toast.makeText(this, "Selecciona fecha y hora", Toast.LENGTH_SHORT).show();
             return;
         }
+        if (currentLugarId == null) {
+            Toast.makeText(this, "Error: No se identificó el lugar de la actividad.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        Timestamp nuevaFecha = (nuevaFechaHora != null)
-                ? new Timestamp(nuevaFechaHora.getTime())
-                : fechaInicioActual;
+        Timestamp nuevaFechaInicio = (nuevaFechaHora != null) ? new Timestamp(nuevaFechaHora.getTime()) : fechaInicioActual;
 
-        String motivo = (etReason != null)
-                ? etReason.getText().toString().trim()
-                : "";
+        if (duracionActividadMillis <= 0) duracionActividadMillis = 3600000;
+        long finMillis = nuevaFechaInicio.toDate().getTime() + duracionActividadMillis;
+        Timestamp nuevaFechaFin = new Timestamp(new java.util.Date(finMillis));
 
-        if (btnCreateActivity != null) btnCreateActivity.setEnabled(false);
+        String motivo = (etReason != null) ? etReason.getText().toString().trim() : "";
 
+        mostrarCarga(true);
+
+        // 3. LLAMAR A VALIDAR DISPONIBILIDAD
+        validarDisponibilidad(currentLugarId, nuevaFechaInicio, nuevaFechaFin, () -> {
+            // Si pasa la validación, guardamos
+            procederAGuardar(nuevaFechaInicio, nuevaFechaFin, motivo);
+        });
+    }
+
+    private interface OnDisponibilidadListener {
+        void onDisponible();
+    }
+
+    private void validarDisponibilidad(String lugarId, Timestamp inicioNuevo, Timestamp finNuevo, OnDisponibilidadListener listener) {
+        DocumentReference lugarRef = db.collection("lugares").document(lugarId);
+
+        // Filtros de fecha para el día (optimización)
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(inicioNuevo.toDate());
+        cal.set(Calendar.HOUR_OF_DAY, 0); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0);
+        Timestamp inicioDia = new Timestamp(cal.getTime());
+
+        cal.set(Calendar.HOUR_OF_DAY, 23); cal.set(Calendar.MINUTE, 59); cal.set(Calendar.SECOND, 59);
+        Timestamp finDia = new Timestamp(cal.getTime());
+
+        db.collection("actividades")
+                .whereEqualTo("lugarId", lugarRef)
+                .whereEqualTo("estado", "activa")
+                .whereGreaterThanOrEqualTo("fechaInicio", inicioDia)
+                .whereLessThanOrEqualTo("fechaInicio", finDia)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    boolean hayConflicto = false;
+                    long iniN = inicioNuevo.toDate().getTime();
+                    long finN = finNuevo.toDate().getTime();
+
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        // IMPORTANTE: Ignorar la actividad que estamos editando (yo mismo)
+                        if (doc.getId().equals(actividadId)) continue;
+
+                        Timestamp iniExistente = doc.getTimestamp("fechaInicio");
+                        Timestamp finExistente = doc.getTimestamp("fechaFin");
+
+                        if (iniExistente != null && finExistente != null) {
+                            long iniE = iniExistente.toDate().getTime();
+                            long finE = finExistente.toDate().getTime();
+
+                            // Lógica de superposición
+                            if (iniN < finE && finN > iniE) {
+                                hayConflicto = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (hayConflicto) {
+                        mostrarCarga(false);
+                        Toast.makeText(ReagActActivity.this, "¡Conflicto! Ya existe otra actividad en ese horario y lugar.", Toast.LENGTH_LONG).show();
+                    } else {
+                        listener.onDisponible();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    mostrarCarga(false);
+                    Toast.makeText(this, "Error al verificar disponibilidad.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    // ================== GUARDADO FINAL (Post-Validación) ==================
+
+    private void procederAGuardar(Timestamp nuevaFechaInicio, Timestamp nuevaFechaFin, String motivo) {
         actividadRef.update(
-                        "fechaInicio", nuevaFecha,
+                        "fechaInicio", nuevaFechaInicio,
+                        "fechaFin", nuevaFechaFin,
                         "ultimaActualizacion", FieldValue.serverTimestamp()
                 )
-                .addOnSuccessListener(aVoid -> actualizarCita(nuevaFecha, motivo))
+                .addOnSuccessListener(aVoid -> actualizarCita(nuevaFechaInicio, nuevaFechaFin, motivo))
                 .addOnFailureListener(e -> {
-                    if (btnCreateActivity != null) btnCreateActivity.setEnabled(true);
+                    mostrarCarga(false);
                     Toast.makeText(this, "Error al reagendar: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 
-    /**
-     * Actualiza la primera cita asociada y programa notificación.
-     */
-    private void actualizarCita(Timestamp nuevaFecha, String motivo) {
-
+    private void actualizarCita(Timestamp nuevaFechaInicio, Timestamp nuevaFechaFin, String motivo) {
         db.collection("citas")
                 .whereEqualTo("actividadId", actividadRef)
                 .limit(1)
                 .get()
                 .addOnSuccessListener((QuerySnapshot qs) -> {
-
                     if (qs.isEmpty()) {
+                        mostrarCarga(false);
                         Toast.makeText(this, "Actividad reagendada (sin cita asociada).", Toast.LENGTH_SHORT).show();
                         finish();
                         return;
@@ -276,25 +308,21 @@ public class ReagActActivity extends AppCompatActivity {
                     DocumentSnapshot citaDoc = qs.getDocuments().get(0);
 
                     citaDoc.getReference().update(
-                                    "fecha", nuevaFecha,
+                                    "fecha", nuevaFechaInicio,
+                                    "fechaInicio", nuevaFechaInicio,
+                                    "fechaFin", nuevaFechaFin,
                                     "ultimaActualizacion", FieldValue.serverTimestamp(),
                                     "motivoCambio", motivo
                             )
                             .addOnSuccessListener(aVoid -> {
-
-                                // ===========================
-                                // 🔔 PROGRAMAR NOTIFICACIÓN
-                                // ===========================
+                                // Notificación
                                 actividadRef.get().addOnSuccessListener(snapshot -> {
-
                                     if (!snapshot.exists()) return;
-
-                                    // Leer nombre y días de aviso desde Firestore
                                     String nombre = snapshot.getString("nombre");
                                     Long diasAviso = snapshot.getLong("diasAvisoPrevio");
                                     if (diasAviso == null) diasAviso = 1L;
 
-                                    long fechaCitaMillis = nuevaFecha.toDate().getTime();
+                                    long fechaCitaMillis = nuevaFechaInicio.toDate().getTime();
                                     long tiempoAviso = fechaCitaMillis - TimeUnit.DAYS.toMillis(diasAviso);
 
                                     if (tiempoAviso > System.currentTimeMillis()) {
@@ -305,21 +333,31 @@ public class ReagActActivity extends AppCompatActivity {
                                                 "Tu actividad fue reagendada. Nueva fecha próxima."
                                         );
                                     }
-
                                 });
-                                // ===========================
 
+                                mostrarCarga(false);
                                 Toast.makeText(this, "Actividad reagendada correctamente.", Toast.LENGTH_SHORT).show();
                                 finish();
                             })
                             .addOnFailureListener(e -> {
-                                Toast.makeText(this, "Actividad reagendada, pero la cita no se pudo actualizar.", Toast.LENGTH_LONG).show();
+                                mostrarCarga(false);
+                                Toast.makeText(this, "Error al actualizar cita.", Toast.LENGTH_LONG).show();
                                 finish();
                             });
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Actividad reagendada, pero no se pudo revisar la cita.", Toast.LENGTH_LONG).show();
+                    mostrarCarga(false);
+                    Toast.makeText(this, "Error al buscar cita.", Toast.LENGTH_LONG).show();
                     finish();
                 });
+    }
+
+    private void mostrarCarga(boolean mostrar) {
+        if (loadingOverlay != null) {
+            loadingOverlay.setVisibility(mostrar ? View.VISIBLE : View.GONE);
+        }
+        if (btnCreateActivity != null) {
+            btnCreateActivity.setEnabled(!mostrar);
+        }
     }
 }
