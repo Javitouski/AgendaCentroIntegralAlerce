@@ -8,7 +8,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.concurrent.TimeUnit;
-
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import prog.android.centroalr.notificaciones.NotifScheduler; // 🔔
 import prog.android.centroalr.notificaciones.NotifHelper;    // 🔔
 
@@ -111,6 +113,18 @@ public class ReagActActivity extends AppCompatActivity {
         }
 
         cargarActividadActual();
+        View mainContainer = findViewById(R.id.mainContainer);
+        if (mainContainer != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(mainContainer, (v, insets) -> {
+                // Obtenemos el tamaño exacto de las barras del sistema (arriba y abajo)
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+
+                // Aplicamos ese tamaño como "relleno" (padding) al contenedor principal
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+
+                return insets;
+            });
+        }
     }
 
     // ================== CARGA DE ACTIVIDAD ==================

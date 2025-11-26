@@ -6,7 +6,9 @@ import android.view.View;
 import android.widget.Toast;
 import android.widget.LinearLayout; // Importar LinearLayout
 import android.widget.TextView; // Importar TextView
-
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.appcompat.app.AppCompatActivity;
 
 import prog.android.centroalr.MyApplication; // Importar
@@ -127,6 +129,19 @@ public class PerfilActivity extends AppCompatActivity {
             if (btnMantenedores != null) {
                 btnMantenedores.setVisibility(View.GONE);
             }
+        }
+
+        View mainContainer = findViewById(R.id.mainContainer);
+        if (mainContainer != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(mainContainer, (v, insets) -> {
+                // Obtenemos el tamaño exacto de las barras del sistema (arriba y abajo)
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+
+                // Aplicamos ese tamaño como "relleno" (padding) al contenedor principal
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+
+                return insets;
+            });
         }
     }
 }

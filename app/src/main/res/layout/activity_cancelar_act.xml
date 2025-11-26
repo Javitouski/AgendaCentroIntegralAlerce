@@ -2,6 +2,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
@@ -167,12 +168,6 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Home Indicator -->
-        <View
-            android:layout_width="120dp"
-            android:layout_height="4dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_rounded_black" />
     </LinearLayout>
 
 </LinearLayout>
