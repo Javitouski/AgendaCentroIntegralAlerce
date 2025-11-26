@@ -4,16 +4,17 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -21,8 +22,10 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -33,52 +36,29 @@ public class ModificarActActivity extends AppCompatActivity {
     // Firestore
     private FirebaseFirestore db;
     private String actividadId;
-    private String actividadNombre;
 
     // UI
-    private EditText etNombre;
-    private EditText etDescripcion;
-    private EditText etBeneficiarios;
-    private EditText etCupo;
-    private EditText etDiasAviso;
-    private AutoCompleteTextView autoCompleteTipo;
-    private AutoCompleteTextView autoCompleteLugar;
-    private Button btnFecha;
-    private Button btnHora;
-    private View btnGuardar; // puede ser LinearLayout o MaterialButton, según tu XML
-    private View btnBack;
+    private EditText etNombre, etDescripcion, etBeneficiarios, etCupo, etDiasAviso;
+    private AutoCompleteTextView autoCompleteTipo, autoCompleteLugar;
+    private Button btnFecha, btnHora;
+    private View btnGuardar, btnBack;
+    private View loadingOverlay;
 
-    // Fecha/hora seleccionadas
-    private Calendar fechaSeleccionada;
-    private Timestamp fechaInicioActual; // por si está en Firestore
+    // Datos
+    private Calendar fechaInicioSeleccionada;
+    private long duracionActividadMillis = 0;
 
-    // IDs actuales de referencias (para tipo y lugar)
-    private String currentTipoId;
-    private String currentLugarId;
+    // Listas para Dropdowns
+    private List<String> tiposNombres = new ArrayList<>();
+    private List<String> tiposIds = new ArrayList<>();
+    private String tipoSeleccionadoId;
 
-    // Mapeos simples entre texto visible y IDs de Firestore
-    private final String[] TIPOS_LABEL = {
-            "Taller grupal"
-    };
-    private final String[] TIPOS_ID = {
-            "taller"
-    };
+    private List<String> lugaresNombres = new ArrayList<>();
+    private List<String> lugaresIds = new ArrayList<>();
+    private String lugarSeleccionadoId;
 
-    private final String[] LUGARES_LABEL = {
-            "Oficina principal del centro comunitario",
-            "Sala multiuso 1",
-            "Sala multiuso 2"
-    };
-    private final String[] LUGARES_ID = {
-            "oficina",
-            "salaMultiuso1",
-            "salaMultiuso2"
-    };
-
-    private final SimpleDateFormat dfFechaBtn =
-            new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-    private final SimpleDateFormat dfHoraBtn =
-            new SimpleDateFormat("HH:mm", Locale.getDefault());
+    private final SimpleDateFormat dfFechaBtn = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    private final SimpleDateFormat dfHoraBtn = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,400 +66,297 @@ public class ModificarActActivity extends AppCompatActivity {
         setContentView(R.layout.activity_modificar_act);
 
         db = FirebaseFirestore.getInstance();
-
-        // Extras que vienen desde DetActActivity
         actividadId = getIntent().getStringExtra("actividadId");
-        actividadNombre = getIntent().getStringExtra("actividadNombre");
 
         if (actividadId == null || actividadId.trim().isEmpty()) {
-            Toast.makeText(this, "No se recibió el ID de la actividad.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error: ID no encontrado", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
         initViews();
-        initDropdowns();
         initListeners();
 
-        cargarActividad(); // trae la info actual desde Firestore
         View mainContainer = findViewById(R.id.mainContainer);
         if (mainContainer != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainContainer, (v, insets) -> {
-                // Obtenemos el tamaño exacto de las barras del sistema (arriba y abajo)
                 Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-
-                // Aplicamos ese tamaño como "relleno" (padding) al contenedor principal
                 v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-
                 return insets;
             });
         }
-    }
 
-    // ================== INICIALIZAR VISTAS ==================
+        mostrarCarga(true);
+        cargarTipos(() -> cargarLugares(() -> cargarActividad()));
+    }
 
     private void initViews() {
-        etNombre        = findEditText(R.id.etNombre, R.id.etNombre);
-        etDescripcion   = findEditText(R.id.etDescripcion, 0);
-        etBeneficiarios = findEditText(R.id.etBeneficiarios, 0);
-        etCupo          = findEditText(R.id.etCupo, 0);
-        etDiasAviso     = findEditText(R.id.etDiasAviso, 0);
-
-        autoCompleteTipo  = findViewByIdSafe(AutoCompleteTextView.class, R.id.autoCompleteTipo);
-        autoCompleteLugar = findViewByIdSafe(AutoCompleteTextView.class, R.id.autoCompleteLugar);
-
-        btnFecha   = findViewByIdSafe(Button.class, R.id.btnFecha);
-        btnHora    = findViewByIdSafe(Button.class, R.id.btnHora);
-
-        // Botón inferior "Editar / Guardar cambios"
+        etNombre = findViewById(R.id.etNombre);
+        etDescripcion = findViewById(R.id.etDescripcion);
+        etBeneficiarios = findViewById(R.id.etBeneficiarios);
+        etCupo = findViewById(R.id.etCupo);
+        etDiasAviso = findViewById(R.id.etDiasAviso);
+        autoCompleteTipo = findViewById(R.id.autoCompleteTipo);
+        autoCompleteLugar = findViewById(R.id.autoCompleteLugar);
+        btnFecha = findViewById(R.id.btnFecha);
+        btnHora = findViewById(R.id.btnHora);
         btnGuardar = findViewById(R.id.btnGuardarCambios);
-        if (btnGuardar == null) {
-
-            btnGuardar = findViewById(R.id.btnGuardarCambios);
-        }
-
-        // Flecha back
         btnBack = findViewById(R.id.btnBack);
+        loadingOverlay = findViewById(R.id.loadingOverlay);
     }
-
-    // Helpers para evitar NullPointer si usas otros ids
-    private EditText findEditText(int... ids) {
-        for (int id : ids) {
-            if (id == 0) continue;
-            View v = findViewById(id);
-            if (v instanceof EditText) return (EditText) v;
-        }
-        return null;
-    }
-
-    private <T> T findViewByIdSafe(Class<T> clazz, int id) {
-        if (id == 0) return null;
-        View v = findViewById(id);
-        if (clazz.isInstance(v)) {
-            return clazz.cast(v);
-        }
-        return null;
-    }
-
-    // ================== DROPDOWNS (tipo / lugar) ==================
-
-    private void initDropdowns() {
-        // Si quieres que realmente sean dropdown, aquí irían ArrayAdapter
-        // Por ahora dejamos solo el texto manual, puedes mejorar esto luego.
-        if (autoCompleteTipo != null && autoCompleteTipo.getText().toString().isEmpty()) {
-            autoCompleteTipo.setText("Taller grupal", false);
-        }
-        if (autoCompleteLugar != null && autoCompleteLugar.getText().toString().isEmpty()) {
-            autoCompleteLugar.setText("Oficina principal del centro comunitario", false);
-        }
-    }
-
-    // ================== LISTENERS (fecha, hora, guardar, back) ==================
 
     private void initListeners() {
-        if (btnBack != null) {
-            btnBack.setOnClickListener(v -> finish());
+        if (btnBack != null) btnBack.setOnClickListener(v -> finish());
+        if (btnFecha != null) btnFecha.setOnClickListener(v -> mostrarDatePicker());
+        if (btnHora != null) btnHora.setOnClickListener(v -> mostrarTimePicker());
+        if (btnGuardar != null) btnGuardar.setOnClickListener(v -> validarYGuardar());
+
+        autoCompleteTipo.setOnItemClickListener((parent, view, position, id) ->
+                tipoSeleccionadoId = tiposIds.get(position));
+
+        autoCompleteLugar.setOnItemClickListener((parent, view, position, id) ->
+                lugarSeleccionadoId = lugaresIds.get(position));
+    }
+
+    private void cargarTipos(Runnable onComplete) {
+        db.collection("tiposActividades").get().addOnSuccessListener(qs -> {
+            tiposNombres.clear(); tiposIds.clear();
+            for (DocumentSnapshot doc : qs.getDocuments()) {
+                String n = doc.getString("nombre");
+                if (n != null) { tiposNombres.add(n); tiposIds.add(doc.getId()); }
+            }
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, tiposNombres);
+            autoCompleteTipo.setAdapter(adapter);
+            onComplete.run();
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Error al cargar tipos", Toast.LENGTH_SHORT).show();
+            onComplete.run();
+        });
+    }
+
+    private void cargarLugares(Runnable onComplete) {
+        db.collection("lugares").get().addOnSuccessListener(qs -> {
+            lugaresNombres.clear(); lugaresIds.clear();
+            for (DocumentSnapshot doc : qs.getDocuments()) {
+                String n = doc.getString("descripcion");
+                if (n == null) n = doc.getString("nombre");
+                if (n != null) { lugaresNombres.add(n); lugaresIds.add(doc.getId()); }
+            }
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, lugaresNombres);
+            autoCompleteLugar.setAdapter(adapter);
+            onComplete.run();
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Error al cargar lugares", Toast.LENGTH_SHORT).show();
+            onComplete.run();
+        });
+    }
+
+    private void cargarActividad() {
+        db.collection("actividades").document(actividadId).get()
+                .addOnSuccessListener(doc -> {
+                    mostrarCarga(false);
+                    if (!doc.exists()) {
+                        Toast.makeText(this, "La actividad no existe", Toast.LENGTH_SHORT).show();
+                        finish();
+                        return;
+                    }
+                    llenarCampos(doc);
+                })
+                .addOnFailureListener(e -> {
+                    mostrarCarga(false);
+                    Toast.makeText(this, "Error al cargar actividad", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void llenarCampos(DocumentSnapshot doc) {
+        etNombre.setText(doc.getString("nombre"));
+        etDescripcion.setText(doc.getString("descripcion"));
+        etBeneficiarios.setText(doc.getString("beneficiariosDescripcion"));
+
+        Long cupo = doc.getLong("cupo");
+        if (cupo != null) etCupo.setText(String.valueOf(cupo));
+
+        Long dias = doc.getLong("diasAvisoPrevio");
+        if (dias != null) etDiasAviso.setText(String.valueOf(dias));
+
+        Timestamp inicio = doc.getTimestamp("fechaInicio");
+        Timestamp fin = doc.getTimestamp("fechaFin");
+
+        if (inicio != null) {
+            fechaInicioSeleccionada = Calendar.getInstance();
+            fechaInicioSeleccionada.setTime(inicio.toDate());
+            btnFecha.setText(dfFechaBtn.format(inicio.toDate()));
+            btnHora.setText(dfHoraBtn.format(inicio.toDate()));
+
+            if (fin != null) {
+                duracionActividadMillis = fin.toDate().getTime() - inicio.toDate().getTime();
+            }
         }
 
-        if (btnFecha != null) {
-            btnFecha.setOnClickListener(v -> mostrarDatePicker());
+        DocumentReference tipoRef = doc.getDocumentReference("tipoActividadId");
+        if (tipoRef != null) {
+            tipoSeleccionadoId = tipoRef.getId();
+            int index = tiposIds.indexOf(tipoSeleccionadoId);
+            if (index >= 0) autoCompleteTipo.setText(tiposNombres.get(index), false);
         }
 
-        if (btnHora != null) {
-            btnHora.setOnClickListener(v -> mostrarTimePicker());
-        }
-
-        if (btnGuardar != null) {
-            btnGuardar.setOnClickListener(v -> validarYGuardar());
+        DocumentReference lugarRef = doc.getDocumentReference("lugarId");
+        if (lugarRef != null) {
+            lugarSeleccionadoId = lugarRef.getId();
+            int index = lugaresIds.indexOf(lugarSeleccionadoId);
+            if (index >= 0) {
+                autoCompleteLugar.setText(lugaresNombres.get(index), false);
+            } else {
+                autoCompleteLugar.setText("Lugar no encontrado", false);
+            }
         }
     }
 
     private void mostrarDatePicker() {
-        final Calendar base = (fechaSeleccionada != null)
-                ? (Calendar) fechaSeleccionada.clone()
-                : Calendar.getInstance();
-
-        int year  = base.get(Calendar.YEAR);
-        int month = base.get(Calendar.MONTH);
-        int day   = base.get(Calendar.DAY_OF_MONTH);
-
-        DatePickerDialog dialog = new DatePickerDialog(
-                this,
-                (view, y, m, d) -> {
-                    if (fechaSeleccionada == null) {
-                        fechaSeleccionada = Calendar.getInstance();
-                    }
-                    fechaSeleccionada.set(Calendar.YEAR, y);
-                    fechaSeleccionada.set(Calendar.MONTH, m);
-                    fechaSeleccionada.set(Calendar.DAY_OF_MONTH, d);
-
-                    if (btnFecha != null) {
-                        btnFecha.setText(String.format(Locale.getDefault(), "%02d/%02d/%04d",
-                                d, m + 1, y));
-                    }
-                },
-                year, month, day
-        );
-        dialog.show();
+        if (fechaInicioSeleccionada == null) fechaInicioSeleccionada = Calendar.getInstance();
+        new DatePickerDialog(this, (v, y, m, d) -> {
+            fechaInicioSeleccionada.set(Calendar.YEAR, y);
+            fechaInicioSeleccionada.set(Calendar.MONTH, m);
+            fechaInicioSeleccionada.set(Calendar.DAY_OF_MONTH, d);
+            btnFecha.setText(dfFechaBtn.format(fechaInicioSeleccionada.getTime()));
+        }, fechaInicioSeleccionada.get(Calendar.YEAR), fechaInicioSeleccionada.get(Calendar.MONTH),
+                fechaInicioSeleccionada.get(Calendar.DAY_OF_MONTH)).show();
     }
 
     private void mostrarTimePicker() {
-        final Calendar base = (fechaSeleccionada != null)
-                ? (Calendar) fechaSeleccionada.clone()
-                : Calendar.getInstance();
-
-        int hour   = base.get(Calendar.HOUR_OF_DAY);
-        int minute = base.get(Calendar.MINUTE);
-
-        TimePickerDialog dialog = new TimePickerDialog(
-                this,
-                (view, h, m) -> {
-                    if (fechaSeleccionada == null) {
-                        fechaSeleccionada = Calendar.getInstance();
-                    }
-                    fechaSeleccionada.set(Calendar.HOUR_OF_DAY, h);
-                    fechaSeleccionada.set(Calendar.MINUTE, m);
-                    fechaSeleccionada.set(Calendar.SECOND, 0);
-
-                    if (btnHora != null) {
-                        btnHora.setText(String.format(Locale.getDefault(), "%02d:%02d", h, m));
-                    }
-                },
-                hour, minute, true
-        );
-        dialog.show();
+        if (fechaInicioSeleccionada == null) fechaInicioSeleccionada = Calendar.getInstance();
+        new TimePickerDialog(this, (v, h, m) -> {
+            fechaInicioSeleccionada.set(Calendar.HOUR_OF_DAY, h);
+            fechaInicioSeleccionada.set(Calendar.MINUTE, m);
+            btnHora.setText(dfHoraBtn.format(fechaInicioSeleccionada.getTime()));
+        }, fechaInicioSeleccionada.get(Calendar.HOUR_OF_DAY),
+                fechaInicioSeleccionada.get(Calendar.MINUTE), true).show();
     }
 
-    // ================== CARGAR ACTIVIDAD DESDE FIRESTORE ==================
+    // ================== VALIDACIÓN Y GUARDADO ==================
 
-    private void cargarActividad() {
+    private void validarYGuardar() {
+        if (fechaInicioSeleccionada == null) {
+            Toast.makeText(this, "Fecha requerida", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (lugarSeleccionadoId == null) {
+            Toast.makeText(this, "Lugar requerido", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mostrarCarga(true);
+
+        // 1. Calcular fechas
+        if (duracionActividadMillis <= 0) duracionActividadMillis = 3600000;
+        Timestamp tsInicio = new Timestamp(fechaInicioSeleccionada.getTime());
+        Timestamp tsFin = new Timestamp(new java.util.Date(fechaInicioSeleccionada.getTimeInMillis() + duracionActividadMillis));
+
+        // 2. Validar Disponibilidad ANTES de guardar
+        validarDisponibilidad(lugarSeleccionadoId, tsInicio, tsFin, () -> {
+            // Si no hay conflicto, procedemos a actualizar
+            procederAActualizar(tsInicio, tsFin);
+        });
+    }
+
+    // --- VALIDACIÓN ---
+    private interface OnDisponibilidadListener {
+        void onDisponible();
+    }
+
+    private void validarDisponibilidad(String lugarId, Timestamp inicioNuevo, Timestamp finNuevo, OnDisponibilidadListener listener) {
+        DocumentReference lugarRef = db.collection("lugares").document(lugarId);
+
+        // Filtro por día para optimizar
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(inicioNuevo.toDate());
+        cal.set(Calendar.HOUR_OF_DAY, 0); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0);
+        Timestamp inicioDia = new Timestamp(cal.getTime());
+
+        cal.set(Calendar.HOUR_OF_DAY, 23); cal.set(Calendar.MINUTE, 59); cal.set(Calendar.SECOND, 59);
+        Timestamp finDia = new Timestamp(cal.getTime());
+
         db.collection("actividades")
-                .document(actividadId)
+                .whereEqualTo("lugarId", lugarRef)
+                .whereEqualTo("estado", "activa")
+                .whereGreaterThanOrEqualTo("fechaInicio", inicioDia)
+                .whereLessThanOrEqualTo("fechaInicio", finDia)
                 .get()
-                .addOnSuccessListener(this::onActividadLoaded)
+                .addOnSuccessListener(querySnapshot -> {
+                    boolean hayConflicto = false;
+                    long iniN = inicioNuevo.toDate().getTime();
+                    long finN = finNuevo.toDate().getTime();
+
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        // ¡IMPORTANTE! Ignorar la misma actividad que estamos editando
+                        if (doc.getId().equals(actividadId)) continue;
+
+                        Timestamp iniExistente = doc.getTimestamp("fechaInicio");
+                        Timestamp finExistente = doc.getTimestamp("fechaFin");
+
+                        if (iniExistente != null && finExistente != null) {
+                            long iniE = iniExistente.toDate().getTime();
+                            long finE = finExistente.toDate().getTime();
+
+                            if (iniN < finE && finN > iniE) {
+                                hayConflicto = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (hayConflicto) {
+                        mostrarCarga(false);
+                        Toast.makeText(ModificarActActivity.this, "¡Conflicto! Ya existe otra actividad en ese lugar y horario.", Toast.LENGTH_LONG).show();
+                    } else {
+                        listener.onDisponible();
+                    }
+                })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Error al cargar la actividad.", Toast.LENGTH_SHORT).show();
-                    finish();
+                    mostrarCarga(false);
+                    Toast.makeText(this, "Error al verificar disponibilidad", Toast.LENGTH_SHORT).show();
                 });
     }
 
-    private void onActividadLoaded(DocumentSnapshot doc) {
-        if (!doc.exists()) {
-            Toast.makeText(this, "La actividad ya no existe.", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-
-        // Nombre
-        String nombre = doc.getString("nombre");
-        if (etNombre != null && nombre != null) {
-            etNombre.setText(nombre);
-        }
-        actividadNombre = nombre; // actualizamos
-
-        // Descripción
-        String descripcion = doc.getString("descripcion");
-        if (etDescripcion != null && descripcion != null) {
-            etDescripcion.setText(descripcion);
-        }
-
-        // Beneficiarios
-        String benef = doc.getString("beneficiariosDescripcion");
-        if (etBeneficiarios != null && benef != null) {
-            etBeneficiarios.setText(benef);
-        }
-
-        // Cupo
-        Long cupo = doc.getLong("cupo");
-        if (etCupo != null && cupo != null) {
-            etCupo.setText(String.valueOf(cupo));
-        }
-
-        // Días de aviso previo
-        Long diasAviso = doc.getLong("diasAvisoPrevio");
-        if (etDiasAviso != null && diasAviso != null) {
-            etDiasAviso.setText(String.valueOf(diasAviso));
-        }
-
-        // Fecha/hora
-        fechaInicioActual = doc.getTimestamp("fechaInicio");
-        if (fechaInicioActual != null) {
-            java.util.Date d = fechaInicioActual.toDate();
-            if (fechaSeleccionada == null) {
-                fechaSeleccionada = Calendar.getInstance();
-            }
-            fechaSeleccionada.setTime(d);
-
-            if (btnFecha != null) {
-                btnFecha.setText(dfFechaBtn.format(d));
-            }
-            if (btnHora != null) {
-                btnHora.setText(dfHoraBtn.format(d));
-            }
-        }
-
-        // Tipo
-        DocumentReference tipoRef = doc.getDocumentReference("tipoActividadId");
-        currentTipoId = (tipoRef != null) ? tipoRef.getId() : null;
-        if (autoCompleteTipo != null && currentTipoId != null) {
-            autoCompleteTipo.setText(labelDesdeTipoId(currentTipoId), false);
-        }
-
-        // Lugar
-        DocumentReference lugarRef = doc.getDocumentReference("lugarId");
-        currentLugarId = (lugarRef != null) ? lugarRef.getId() : null;
-        if (autoCompleteLugar != null && currentLugarId != null) {
-            autoCompleteLugar.setText(labelDesdeLugarId(currentLugarId), false);
-        }
-    }
-
-    // ================== GUARDAR CAMBIOS ==================
-
-    private void validarYGuardar() {
-        String nombre = texto(etNombre);
-        String descripcion = texto(etDescripcion);
-        String beneficiarios = texto(etBeneficiarios);
-        String cupoStr = texto(etCupo);
-        String diasAvisoStr = texto(etDiasAviso);
-
-        if (nombre.isEmpty()) {
-            if (etNombre != null) {
-                etNombre.setError("Ingresa un nombre");
-                etNombre.requestFocus();
-            }
-            return;
-        }
-
-        if (descripcion.isEmpty()) {
-            if (etDescripcion != null) {
-                etDescripcion.setError("Ingresa una descripción");
-                etDescripcion.requestFocus();
-            }
-            return;
-        }
-
-        long cupo;
-        long diasAviso;
-        try {
-            cupo = Long.parseLong(cupoStr);
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Cupo debe ser un número", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        try {
-            diasAviso = Long.parseLong(diasAvisoStr);
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Días de aviso debe ser un número", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (fechaSeleccionada == null && fechaInicioActual == null) {
-            Toast.makeText(this, "Selecciona fecha y hora", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Fecha/hora final a guardar
-        Timestamp nuevaFechaInicio;
-        if (fechaSeleccionada != null) {
-            nuevaFechaInicio = new Timestamp(fechaSeleccionada.getTime());
-        } else {
-            // Si el usuario no tocó la fecha/hora, mantenemos la original
-            nuevaFechaInicio = fechaInicioActual;
-        }
-
-        // Tipo y lugar: si no se reconoce el texto, se usa el ID actual
-        String tipoTexto = (autoCompleteTipo != null)
-                ? autoCompleteTipo.getText().toString()
-                : null;
-        String lugarTexto = (autoCompleteLugar != null)
-                ? autoCompleteLugar.getText().toString()
-                : null;
-
-        String nuevoTipoId = tipoIdDesdeLabel(tipoTexto);
-        if (nuevoTipoId == null) nuevoTipoId = currentTipoId;
-
-        String nuevoLugarId = lugarIdDesdeLabel(lugarTexto);
-        if (nuevoLugarId == null) nuevoLugarId = currentLugarId;
-
-        DocumentReference tipoRef = (nuevoTipoId != null)
-                ? db.collection("tiposActividades").document(nuevoTipoId)
-                : null;
-
-        DocumentReference lugarRef = (nuevoLugarId != null)
-                ? db.collection("lugares").document(nuevoLugarId)
-                : null;
-
-        // Construimos el mapa de cambios
+    // --- ACTUALIZAR ---
+    private void procederAActualizar(Timestamp tsInicio, Timestamp tsFin) {
         Map<String, Object> updates = new HashMap<>();
-        updates.put("nombre", nombre);
-        updates.put("descripcion", descripcion);
-        updates.put("beneficiariosDescripcion", beneficiarios);
-        updates.put("cupo", cupo);
-        updates.put("diasAvisoPrevio", diasAviso);
-        updates.put("fechaInicio", nuevaFechaInicio);
-        updates.put("fechaFin", nuevaFechaInicio);
-        if (tipoRef != null)  updates.put("tipoActividadId", tipoRef);
-        if (lugarRef != null) updates.put("lugarId", lugarRef);
+        updates.put("nombre", etNombre.getText().toString().trim());
+        updates.put("descripcion", etDescripcion.getText().toString().trim());
+        updates.put("beneficiariosDescripcion", etBeneficiarios.getText().toString().trim());
+
+        String cupo = etCupo.getText().toString().trim();
+        updates.put("cupo", cupo.isEmpty() ? 0 : Long.parseLong(cupo));
+
+        String dias = etDiasAviso.getText().toString().trim();
+        updates.put("diasAvisoPrevio", dias.isEmpty() ? 0 : Long.parseLong(dias));
+
+        updates.put("fechaInicio", tsInicio);
+        updates.put("fechaFin", tsFin);
+
+        if (tipoSeleccionadoId != null)
+            updates.put("tipoActividadId", db.collection("tiposActividades").document(tipoSeleccionadoId));
+        if (lugarSeleccionadoId != null)
+            updates.put("lugarId", db.collection("lugares").document(lugarSeleccionadoId));
+
         updates.put("ultimaActualizacion", FieldValue.serverTimestamp());
 
-        if (btnGuardar != null) btnGuardar.setEnabled(false);
-
-        db.collection("actividades")
-                .document(actividadId)
-                .update(updates)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Actividad actualizada correctamente", Toast.LENGTH_SHORT).show();
+        db.collection("actividades").document(actividadId).update(updates)
+                .addOnSuccessListener(v -> {
+                    mostrarCarga(false);
+                    Toast.makeText(this, "Actualizado correctamente", Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    if (btnGuardar != null) btnGuardar.setEnabled(true);
-                    Toast.makeText(this, "Error al actualizar: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    mostrarCarga(false);
+                    Toast.makeText(this, "Error al actualizar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
-    // ================== HELPERS DE TEXTO Y MAPEOS ==================
-
-    private String texto(EditText et) {
-        if (et == null) return "";
-        return et.getText().toString().trim();
-    }
-
-    private String labelDesdeTipoId(String id) {
-        if (id == null) return "";
-        for (int i = 0; i < TIPOS_ID.length; i++) {
-            if (id.equals(TIPOS_ID[i])) return TIPOS_LABEL[i];
+    private void mostrarCarga(boolean mostrar) {
+        if (loadingOverlay != null) {
+            loadingOverlay.setVisibility(mostrar ? View.VISIBLE : View.GONE);
         }
-        return "Tipo: " + id;
-    }
-
-    private String labelDesdeLugarId(String id) {
-        if (id == null) return "";
-        for (int i = 0; i < LUGARES_ID.length; i++) {
-            if (id.equals(LUGARES_ID[i])) return LUGARES_LABEL[i];
-        }
-        // fallback
-        String s = id.replace("_", " ").replace("-", " ");
-        if (s.isEmpty()) return "Lugar no especificado";
-        return s.substring(0, 1).toUpperCase() + s.substring(1);
-    }
-
-    private String tipoIdDesdeLabel(String label) {
-        if (label == null) return null;
-        for (int i = 0; i < TIPOS_LABEL.length; i++) {
-            if (label.equalsIgnoreCase(TIPOS_LABEL[i])) {
-                return TIPOS_ID[i];
-            }
-        }
-        return null; // fuerza uso de currentTipoId
-    }
-
-    private String lugarIdDesdeLabel(String label) {
-        if (label == null) return null;
-        for (int i = 0; i < LUGARES_LABEL.length; i++) {
-            if (label.equalsIgnoreCase(LUGARES_LABEL[i])) {
-                return LUGARES_ID[i];
-            }
-        }
-        return null; // fuerza uso de currentLugarId
+        if (btnGuardar != null) btnGuardar.setEnabled(!mostrar);
     }
 }

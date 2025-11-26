@@ -405,4 +405,10 @@
 
     </LinearLayout>
 
+    <include
+        android:id="@+id/loadingOverlay"
+        layout="@layout/loading_dialog"
+        android:visibility="gone"
+        tools:visibility="gone" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
