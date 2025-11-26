@@ -2,7 +2,7 @@ package prog.android.centroalr;
 
 import android.content.pm.ApplicationInfo;
 import android.app.Application;
-
+import androidx.appcompat.app.AppCompatDelegate;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.appcheck.FirebaseAppCheck;
 import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory;
@@ -22,7 +22,7 @@ private int contador;
     @Override
     public void onCreate() {
         super.onCreate();
-
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         // -------------------------
         // 🟩 Inicialización Firebase ------
 
