@@ -2,6 +2,7 @@ package prog.android.centroalr;
 
 import android.content.pm.ApplicationInfo;
 import android.app.Application;
+
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.appcheck.FirebaseAppCheck;
 import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory;
@@ -10,17 +11,22 @@ import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderF
 // Importa modelo de Usuario
 import prog.android.centroalr.model.Usuario;
 
-public class MyApplication extends Application {
+// 🔔 Importación del canal de notificaciones
+import prog.android.centroalr.notificaciones.NotifHelper;
 
-    // Añade la variable "global" para guardar el perfil
-    // Esta será el "archivador"
+public class MyApplication extends Application {
+private int contador;
+    // Archivador global del usuario
     private Usuario usuarioActual;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        // Código de App Check
+        // -------------------------
+        // 🟩 Inicialización Firebase ------
+
+        // -------------------------
         FirebaseApp.initializeApp(this);
         FirebaseAppCheck appCheck = FirebaseAppCheck.getInstance();
 
@@ -33,29 +39,25 @@ public class MyApplication extends Application {
                     PlayIntegrityAppCheckProviderFactory.getInstance()
             );
         }
+
+        // ----------------------------------------------
+        // 🔔 Crear canal de notificaciones (Android 8+)
+        // ----------------------------------------------
+        NotifHelper.crearCanal(this);
     }
 
-    // Añade los métodos para acceder al "archivador"
+    // ------------------------------------
+    // Métodos del archivador de usuario
+    // ------------------------------------
 
-    /**
-     * Método para GUARDAR el perfil del usuario en el almacén global.
-     * El LoginController usará esto.
-     */
     public void setUsuarioActual(Usuario usuario) {
         this.usuarioActual = usuario;
     }
 
-    /**
-     * Método para LEER el perfil del usuario desde el almacén global.
-     * Todas las demás pantallas usarán esto para chequear permisos.
-     */
     public Usuario getUsuarioActual() {
         return this.usuarioActual;
     }
 
-    /**
-     * Método para LIMPIAR el perfil al cerrar sesión.
-     */
     public void clearUsuarioActual() {
         this.usuarioActual = null;
     }

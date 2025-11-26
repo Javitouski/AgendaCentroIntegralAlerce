@@ -88,6 +88,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="24dp">
+
                     <ImageView
                         android:id="@+id/ivProfilePicture"
                         android:layout_width="100dp"
@@ -137,7 +138,6 @@
                     android:layout_height="1dp"
                     android:background="#49454F"
                     android:layout_marginBottom="24dp"/>
-
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -194,6 +194,17 @@
                         android:src="@drawable/ic_arrow_down"
                         app:tint="#4C4C4C"/>
                 </LinearLayout>
+
+                <!-- Botón morado para abrir pantalla Adjuntar Archivos -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSubirArchivoInfUsuario"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Subir archivo"
+                    android:layout_marginTop="24dp"
+                    app:icon="@drawable/ic_upload"
+                    app:iconPadding="8dp"
+                    app:cornerRadius="16dp"/>
 
             </LinearLayout>
         </LinearLayout>

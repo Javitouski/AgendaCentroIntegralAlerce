@@ -25,7 +25,6 @@ android {
                 "proguard-rules.pro"
             )
         }
-
     }
 
     compileOptions {
@@ -35,29 +34,43 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-splashscreen:1.0.1")
-    // Firebase App Check y BoM
-    implementation("com.google.firebase:firebase-appcheck-debug:17.1.2")
+
+    // =======================================
+    // 🔥 F I R E B A S E   (CORRECTO)
+    // =======================================
+
+    // Usamos SOLO UN BOM (válido y estable)
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
 
-    // Firebase core services
+    // Firebase Core
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-appcheck-playintegrity")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
 
-    // AndroidX
+    // Debug App Check
+    implementation("com.google.firebase:firebase-appcheck-debug:17.1.2")
+
+    // =======================================
+    // 🔧 ANDROIDX + UI
+    // =======================================
+
+    implementation("androidx.core:core-splashscreen:1.0.1")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    implementation(libs.firebase.appcheck.debug)
 
-    // Otros componentes UI
     implementation("androidx.gridlayout:gridlayout:1.0.0")
     implementation("androidx.cardview:cardview:1.0.0")
-    implementation(libs.firebase.firestore)
 
-    // Tests
+    // ❌ ELIMINADO: implementation(libs.firebase.firestore)
+    // (duplicaba Firestore y generaba conflicto)
+
+    // =======================================
+    // 🧪 TESTING
+    // =======================================
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
