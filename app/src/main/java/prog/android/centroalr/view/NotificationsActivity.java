@@ -2,6 +2,7 @@ package prog.android.centroalr.view;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;   // ⬅️ AGREGADO
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import androidx.core.graphics.Insets;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import prog.android.centroalr.R;
+import prog.android.centroalr.notificaciones.NotifHelper;   // ⬅️ AGREGADO
 import prog.android.centroalr.view.NotificationAdapter;
 
 public class NotificationsActivity extends AppCompatActivity {
@@ -37,6 +39,12 @@ public class NotificationsActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
+        NotifHelper.enviarNotificacion(
+                this,
+                "PRUEBA DEFINITIVA",
+                "Si no ves esta notificación, algo del sistema está bloqueando."
+        );
+
         recycler = findViewById(R.id.notifications_recycler);
         emptyState = findViewById(R.id.empty_state);
         btnBack = findViewById(R.id.btn_back);
@@ -50,15 +58,27 @@ public class NotificationsActivity extends AppCompatActivity {
         btnMarkAll.setOnClickListener(v -> marcarTodasLeidas());
 
         cargarNotificaciones();
+
+        // -----------------------------------------
+        // 🔔 BOTÓN DE PRUEBA DE NOTIFICACIÓN
+        // -----------------------------------------
+        Button btnTest = findViewById(R.id.btnTestNotif);
+        if (btnTest != null) {
+            btnTest.setOnClickListener(v -> {
+                NotifHelper.enviarNotificacion(
+                        NotificationsActivity.this,
+                        "Notificación de prueba",
+                        "El sistema de notificaciones funciona correctamente 😊"
+                );
+            });
+        }
+        // -----------------------------------------
+
         View mainContainer = findViewById(R.id.mainContainer);
         if (mainContainer != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainContainer, (v, insets) -> {
-                // Obtenemos el tamaño exacto de las barras del sistema (arriba y abajo)
                 Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-
-                // Aplicamos ese tamaño como "relleno" (padding) al contenedor principal
                 v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-
                 return insets;
             });
         }

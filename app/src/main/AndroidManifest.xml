@@ -2,8 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Internet para Firebase/Auth -->
+    <!-- Permisos necesarios -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".MyApplication"
@@ -18,12 +19,12 @@
         android:usesCleartextTraffic="false"
         tools:targetApi="31">
 
-        <!-- 🔔 RECEIVER PARA NOTIFICACIONES (agregado correctamente) -->
+        <!-- 🔔 RECEIVER PARA NOTIFICACIONES -->
         <receiver
             android:name=".notificaciones.NotifReceiver"
             android:exported="true" />
 
-        <!-- Launcher -->
+        <!-- 🟢 Launcher -->
         <activity
             android:name=".view.LogInActivity"
             android:exported="true"
@@ -37,7 +38,7 @@
         </activity>
 
         <!-- Bandeja interna de notificaciones -->
-        <activity android:name=".view.NotificationsActivity"/>
+        <activity android:name=".view.NotificationsActivity" />
 
         <!-- Pantallas internas -->
         <activity
@@ -60,13 +61,12 @@
             android:exported="false"
             android:label="Lista de actividades" />
 
-        <!-- Activity que recibirá el enlace del correo de Firebase (reset password) -->
+        <!-- Activity que recibe enlace para reset de contraseña -->
         <activity
             android:name=".view.NewPasswordActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustPan">
 
-            <!-- Android App Links verificados para Hosting de Firebase -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -85,80 +85,34 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".view.AgndSemActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.PerfilActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.InfUsuarioActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.DetActActivity"
-            android:exported="false" />
+        <activity android:name=".view.AgndSemActivity" android:exported="false" />
+        <activity android:name=".view.PerfilActivity" android:exported="false" />
+        <activity android:name=".view.InfUsuarioActivity" android:exported="false" />
+        <activity android:name=".view.DetActActivity" android:exported="false" />
 
         <activity
             android:name=".view.ChangePasswordActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
         <activity android:name=".view.AdjuntarArchivosActivity" />
 
+        <activity android:name=".view.CancelActActivity" android:exported="false" />
+        <activity android:name=".view.ReagActActivity" android:exported="false" />
+        <activity android:name=".view.ModificarActActivity" android:exported="false" />
+        <activity android:name=".view.CrearActActivity" android:exported="false" />
 
-        <activity
-            android:name=".view.CancelActActivity"
-            android:exported="false" />
+        <activity android:name=".view.CrearUsuarioActivity" android:exported="false" />
+        <activity android:name=".view.GestionUsuariosActivity" android:exported="false" />
+        <activity android:name=".view.EditarPermisosActivity" android:exported="false" />
 
-        <activity
-            android:name=".view.ReagActActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.ModificarActActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.CrearActActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.CrearUsuarioActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.GestionUsuariosActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.EditarPermisosActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.MantenedoresHubActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.MantenedorLugaresActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.MantenedorTiposActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.MantenedorProyectosActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.MantenedorSociosActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.MantenedorOferentesActivity"
-            android:exported="false" />
+        <!-- Mantenedores -->
+        <activity android:name=".view.MantenedoresHubActivity" android:exported="false" />
+        <activity android:name=".view.MantenedorLugaresActivity" android:exported="false" />
+        <activity android:name=".view.MantenedorTiposActivity" android:exported="false" />
+        <activity android:name=".view.MantenedorProyectosActivity" android:exported="false" />
+        <activity android:name=".view.MantenedorSociosActivity" android:exported="false" />
+        <activity android:name=".view.MantenedorOferentesActivity" android:exported="false" />
 
     </application>
 

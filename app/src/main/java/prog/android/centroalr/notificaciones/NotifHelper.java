@@ -1,26 +1,16 @@
 package prog.android.centroalr.notificaciones;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
-import android.os.Build;
+import android.content.Intent;
 
 public class NotifHelper {
 
-    public static final String CHANNEL_ID = "CITAS_CHANNEL";
+    public static void enviarNotificacion(Context context, String titulo, String mensaje) {
+        Intent intent = new Intent(context, NotifReceiver.class);
+        intent.putExtra("titulo", titulo);
+        intent.putExtra("mensaje", mensaje);
 
-    public static void crearCanal(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "Recordatorios del Centro Integral",
-                    NotificationManager.IMPORTANCE_HIGH
-            );
-            channel.setDescription("Notificaciones previas a actividades y citas");
-
-            NotificationManager manager = context.getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(channel);
-        }
+        // Asegurar que se use applicationContext
+        context.getApplicationContext().sendBroadcast(intent);
     }
 }
