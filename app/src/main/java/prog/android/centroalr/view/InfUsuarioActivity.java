@@ -46,20 +46,7 @@ public class InfUsuarioActivity extends AppCompatActivity implements InfUsuarioV
         controller = new InfUsuarioController(this, usuarioActual);
         controller.cargarDatos();
 
-        // 4. Configurar botón para subir archivo
-        configurarBotonSubirArchivo();
-        View mainContainer = findViewById(R.id.mainContainer);
-        if (mainContainer != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(mainContainer, (v, insets) -> {
-                // Obtenemos el tamaño exacto de las barras del sistema (arriba y abajo)
-                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-                // Aplicamos ese tamaño como "relleno" (padding) al contenedor principal
-                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-
-                return insets;
-            });
-        }
     }
 
     private void initViews() {
@@ -67,7 +54,6 @@ public class InfUsuarioActivity extends AppCompatActivity implements InfUsuarioV
         etFuncion = findViewById(R.id.etFuncion);
         tvPermisoSeleccionado = findViewById(R.id.tvPermisoSeleccionado);
         btnBack = findViewById(R.id.btnBack);
-        btnSubirArchivo = findViewById(R.id.btnSubirArchivoInfUsuario); // ← NUEVO
 
         // Configurar botón volver
         if (btnBack != null) {
@@ -79,22 +65,7 @@ public class InfUsuarioActivity extends AppCompatActivity implements InfUsuarioV
         deshabilitarEdicion(etFuncion);
     }
 
-    private void configurarBotonSubirArchivo() {
-        if (btnSubirArchivo != null) {
-            btnSubirArchivo.setOnClickListener(v -> {
 
-                if (usuarioActual == null) {
-                    Toast.makeText(this, "No se encontró el usuario actual", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // Enviar ID del usuario a la pantalla de adjuntar archivos
-                Intent i = new Intent(InfUsuarioActivity.this, AdjuntarArchivosActivity.class);
-                i.putExtra("idUsuario", usuarioActual.getUid());
-                startActivity(i);
-            });
-        }
-    }
 
     private void deshabilitarEdicion(EditText et) {
         if (et != null) {
