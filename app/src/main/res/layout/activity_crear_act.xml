@@ -1,579 +1,646 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:id="@+id/mainContainer"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:background="#FFFFFF"
-	tools:context=".view.CrearActActivity">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    tools:context=".view.CrearActActivity">
 
-	<LinearLayout
-		android:id="@+id/topBar"
-		android:layout_width="match_parent"
-		android:layout_height="?attr/actionBarSize"
-		android:gravity="center_vertical"
-		android:orientation="horizontal"
-		android:paddingHorizontal="16dp"
-		app:layout_constraintTop_toTopOf="parent">
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintTop_toTopOf="parent">
 
-		<ImageButton
-			android:id="@+id/btnBack"
-			android:layout_width="48dp"
-			android:layout_height="48dp"
-			android:background="?attr/selectableItemBackgroundBorderless"
-			android:contentDescription="Volver"
-			android:src="@drawable/ic_arrow_back"
-			app:tint="@android:color/black" />
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Volver"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@android:color/black" />
 
-		<TextView
-			android:id="@+id/tvTitulo"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:gravity="center"
-			android:text="Crea una nueva actividad"
-			android:textColor="#18990D"
-			android:textSize="20sp"
-			android:textStyle="bold" />
+        <TextView
+            android:id="@+id/tvTitulo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Crea una nueva actividad"
+            android:textColor="#18990D"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
-		<Space
-			android:layout_width="48dp"
-			android:layout_height="48dp" />
-	</LinearLayout>
+        <Space
+            android:layout_width="48dp"
+            android:layout_height="48dp" />
+    </LinearLayout>
 
-	<ScrollView
-		android:id="@+id/scrollContenido"
-		android:layout_width="0dp"
-		android:layout_height="0dp"
-		android:fillViewport="true"
-		app:layout_constraintBottom_toTopOf="@id/bottomBar"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/topBar">
+    <ScrollView
+        android:id="@+id/scrollContenido"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@id/bottomBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topBar">
 
-		<androidx.constraintlayout.widget.ConstraintLayout
-			android:id="@+id/contenedorCampos"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:padding="24dp">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/contenedorCampos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="24dp">
 
-			<TextView
-				android:id="@+id/labelNombre"
-				style="@style/TextAppearance.AppCompat.Title"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="Nombre"
-				android:textColor="#18990D"
-				android:textSize="18sp"
-				android:textStyle="bold"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toTopOf="parent" />
-			<com.google.android.material.textfield.TextInputLayout
-				android:id="@+id/inputNombre"
-				style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				android:hint="Ej: Taller de Yoga"
-				app:boxBackgroundColor="@color/gray_bg"
-				app:boxStrokeWidth="0dp"
-				app:boxStrokeWidthFocused="0dp"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/labelNombre">
-				<com.google.android.material.textfield.TextInputEditText
-					android:id="@+id/etNombre"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:inputType="textCapSentences"
-					android:textColor="#1D1B20" />
-			</com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/labelNombre"
+                style="@style/TextAppearance.AppCompat.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nombre"
+                android:textColor="#18990D"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-			<TextView
-				android:id="@+id/labelDescripcion"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="24dp"
-				android:text="Descripción"
-				android:textColor="#18990D"
-				android:textSize="18sp"
-				android:textStyle="bold"
-				app:layout_constraintTop_toBottomOf="@id/inputNombre"
-				app:layout_constraintStart_toStartOf="parent" />
-			<com.google.android.material.textfield.TextInputLayout
-				android:id="@+id/inputDescripcion"
-				style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				android:hint="Breve descripción..."
-				app:boxBackgroundColor="@color/gray_bg"
-				app:boxStrokeWidth="0dp"
-				app:boxStrokeWidthFocused="0dp"
-				app:layout_constraintTop_toBottomOf="@id/labelDescripcion"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintEnd_toEndOf="parent">
-				<com.google.android.material.textfield.TextInputEditText
-					android:id="@+id/etDescripcion"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:gravity="top"
-					android:inputType="textMultiLine"
-					android:minLines="3"
-					android:textColor="#1D1B20" />
-			</com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputNombre"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Ej: Taller de Yoga"
+                app:boxBackgroundColor="@color/gray_bg"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/labelNombre">
 
-			<TextView
-				android:id="@+id/labelTipo"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="24dp"
-				android:text="Tipo de actividad"
-				android:textColor="#18990D"
-				android:textSize="18sp"
-				android:textStyle="bold"
-				app:layout_constraintTop_toBottomOf="@id/inputDescripcion"
-				app:layout_constraintStart_toStartOf="parent" />
-			<com.google.android.material.textfield.TextInputLayout
-				android:id="@+id/dropdownTipo"
-				style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				app:boxBackgroundColor="@color/gray_bg"
-				app:boxStrokeWidth="0dp"
-				app:boxStrokeWidthFocused="0dp"
-				app:layout_constraintTop_toBottomOf="@id/labelTipo"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintEnd_toEndOf="parent">
-				<AutoCompleteTextView
-					android:id="@+id/autoCompleteTipo"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:inputType="none"
-					android:hint="Selecciona un tipo" />
-			</com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etNombre"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapSentences"
+                    android:textColor="#1D1B20" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-			<TextView
-				android:id="@+id/labelPeriodicidad"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="24dp"
-				android:text="Periodicidad"
-				android:textColor="#18990D"
-				android:textSize="18sp"
-				android:textStyle="bold"
-				app:layout_constraintTop_toBottomOf="@id/dropdownTipo"
-				app:layout_constraintStart_toStartOf="parent" />
-			<RadioGroup
-				android:id="@+id/rgPeriodicidad"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				android:orientation="horizontal"
-				app:layout_constraintTop_toBottomOf="@id/labelPeriodicidad"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintEnd_toEndOf="parent">
-				<RadioButton
-					android:id="@+id/rbPuntual"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:text="Puntual"
-					android:checked="true"
-					android:textSize="16sp"/>
-				<RadioButton
-					android:id="@+id/rbPeriodica"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginStart="24dp"
-					android:text="Periódica"
-					android:textSize="16sp"/>
-			</RadioGroup>
+            <TextView
+                android:id="@+id/labelDescripcion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Descripción"
+                android:textColor="#18990D"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/inputNombre" />
 
-			<TextView
-				android:id="@+id/labelFecha"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="24dp"
-				android:text="Fecha de Inicio"
-				android:textColor="#18990D"
-				android:textSize="18sp"
-				android:textStyle="bold"
-				app:layout_constraintTop_toBottomOf="@id/rgPeriodicidad"
-				app:layout_constraintStart_toStartOf="parent" />
-			<com.google.android.material.button.MaterialButton
-				android:id="@+id/btnFecha"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				android:backgroundTint="@color/bright_green_button"
-				android:paddingHorizontal="20dp"
-				android:paddingVertical="14dp"
-				android:text="Seleccionar fecha"
-				android:textAllCaps="false"
-				android:textColor="@color/white"
-				android:textSize="16sp"
-				app:cornerRadius="100dp"
-				app:layout_constraintTop_toBottomOf="@id/labelFecha"
-				app:layout_constraintStart_toStartOf="parent" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputDescripcion"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Breve descripción..."
+                app:boxBackgroundColor="@color/gray_bg"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/labelDescripcion">
 
-			<TextView
-				android:id="@+id/labelHora"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="24dp"
-				android:text="Hora de Inicio"
-				android:textColor="#18990D"
-				android:textSize="18sp"
-				android:textStyle="bold"
-				app:layout_constraintTop_toBottomOf="@id/btnFecha"
-				app:layout_constraintStart_toStartOf="parent" />
-			<com.google.android.material.button.MaterialButton
-				android:id="@+id/btnHora"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				android:backgroundTint="@color/bright_green_button"
-				android:paddingHorizontal="35dp"
-				android:paddingVertical="14dp"
-				android:text="Seleccionar hora"
-				android:textAllCaps="false"
-				android:textColor="@color/white"
-				android:textSize="16sp"
-				app:cornerRadius="100dp"
-				app:layout_constraintTop_toBottomOf="@id/labelHora"
-				app:layout_constraintStart_toStartOf="parent" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDescripcion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:inputType="textMultiLine"
+                    android:minLines="3"
+                    android:textColor="#1D1B20" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-			<LinearLayout
-				android:id="@+id/grupoFechaFin"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:orientation="vertical"
-				android:visibility="gone"
-				tools:visibility="visible"
-				app:layout_constraintTop_toBottomOf="@id/btnHora"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintEnd_toEndOf="parent">
+            <TextView
+                android:id="@+id/labelTipo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Tipo de actividad"
+                android:textColor="#18990D"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/inputDescripcion" />
 
-				<TextView
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginTop="16dp"
-					android:text="Frecuencia de repetición"
-					android:textColor="#18990D"
-					android:textSize="18sp"
-					android:textStyle="bold" />
-				<com.google.android.material.textfield.TextInputLayout
-					style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginTop="8dp"
-					app:boxBackgroundColor="@color/gray_bg"
-					app:boxStrokeWidth="0dp">
-					<AutoCompleteTextView
-						android:id="@+id/autoCompleteFrecuencia"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:inputType="none"
-						android:hint="Ej: Semanal"
-						android:text="Semanal" />
-				</com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/dropdownTipo"
+                style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:boxBackgroundColor="@color/gray_bg"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/labelTipo">
 
-				<TextView
-					android:id="@+id/labelFechaFin"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginTop="16dp"
-					android:text="Fecha de Fin"
-					android:textColor="#18990D"
-					android:textSize="18sp"
-					android:textStyle="bold" />
-				<com.google.android.material.button.MaterialButton
-					android:id="@+id/btnFechaFin"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginTop="8dp"
-					android:backgroundTint="@color/bright_green_button"
-					android:paddingHorizontal="20dp"
-					android:paddingVertical="14dp"
-					android:text="Seleccionar fecha de fin"
-					android:textAllCaps="false"
-					android:textColor="@color/white"
-					android:textSize="16sp"
-					app:cornerRadius="100dp" />
-			</LinearLayout>
+                <AutoCompleteTextView
+                    android:id="@+id/autoCompleteTipo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Selecciona un tipo"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-			<TextView
-				android:id="@+id/labelLugar"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="24dp"
-				android:text="Lugar"
-				android:textColor="#18990D"
-				android:textSize="18sp"
-				android:textStyle="bold"
-				app:layout_constraintTop_toBottomOf="@id/grupoFechaFin"
-				app:layout_constraintStart_toStartOf="parent" />
-			<com.google.android.material.textfield.TextInputLayout
-				android:id="@+id/inputLugar"
-				style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				app:boxBackgroundColor="@color/gray_bg"
-				app:boxStrokeWidth="0dp"
-				app:boxStrokeWidthFocused="0dp"
-				app:layout_constraintTop_toBottomOf="@id/labelLugar"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintEnd_toEndOf="parent">
-				<AutoCompleteTextView
-					android:id="@+id/autoCompleteLugar"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:inputType="none"
-					android:hint="Selecciona un lugar" />
-			</com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/labelPeriodicidad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Periodicidad"
+                android:textColor="#18990D"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dropdownTipo" />
 
-			<TextView
-				android:id="@+id/labelCupo"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="24dp"
-				android:text="Cupo máximo"
-				android:textColor="#18990D"
-				android:textSize="18sp"
-				android:textStyle="bold"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/inputLugar" />
-			<com.google.android.material.textfield.TextInputLayout
-				android:id="@+id/inputCupo"
-				style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				android:hint="Ej: 20"
-				app:boxBackgroundColor="@color/gray_bg"
-				app:boxStrokeWidth="0dp"
-				app:boxStrokeWidthFocused="0dp"
-				app:layout_constraintTop_toBottomOf="@id/labelCupo"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintEnd_toEndOf="parent">
-				<com.google.android.material.textfield.TextInputEditText
-					android:id="@+id/etCupo"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:inputType="number" />
-			</com.google.android.material.textfield.TextInputLayout>
+            <RadioGroup
+                android:id="@+id/rgPeriodicidad"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/labelPeriodicidad">
 
-			<TextView
-				android:id="@+id/labelDiasAviso"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="24dp"
-				android:text="Días de aviso previo"
-				android:textColor="#18990D"
-				android:textSize="18sp"
-				android:textStyle="bold"
-				app:layout_constraintTop_toBottomOf="@id/inputCupo"
-				app:layout_constraintStart_toStartOf="parent" />
-			<com.google.android.material.textfield.TextInputLayout
-				android:id="@+id/inputDiasAviso"
-				style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				android:hint="Ej: 2"
-				app:boxBackgroundColor="@color/gray_bg"
-				app:boxStrokeWidth="0dp"
-				app:boxStrokeWidthFocused="0dp"
-				app:layout_constraintTop_toBottomOf="@id/labelDiasAviso"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintEnd_toEndOf="parent">
-				<com.google.android.material.textfield.TextInputEditText
-					android:id="@+id/etDiasAviso"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:inputType="number" />
-			</com.google.android.material.textfield.TextInputLayout>
+                <RadioButton
+                    android:id="@+id/rbPuntual"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Puntual"
+                    android:textSize="16sp" />
 
-			<TextView
-				android:id="@+id/labelBeneficiarios"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="24dp"
-				android:text="Beneficiarios"
-				android:textColor="#18990D"
-				android:textSize="18sp"
-				android:textStyle="bold"
-				app:layout_constraintTop_toBottomOf="@id/inputDiasAviso"
-				app:layout_constraintStart_toStartOf="parent" />
-			<com.google.android.material.textfield.TextInputLayout
-				android:id="@+id/inputBeneficiarios"
-				style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				android:hint="Ej: Personas mayores de la comunidad"
-				app:boxBackgroundColor="@color/gray_bg"
-				app:boxStrokeWidth="0dp"
-				app:boxStrokeWidthFocused="0dp"
-				app:layout_constraintTop_toBottomOf="@id/labelBeneficiarios"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintEnd_toEndOf="parent">
-				<com.google.android.material.textfield.TextInputEditText
-					android:id="@+id/etBeneficiarios"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:gravity="top"
-					android:inputType="textMultiLine"
-					android:minLines="2"
-					android:textColor="#1D1B20"/>
-			</com.google.android.material.textfield.TextInputLayout>
+                <RadioButton
+                    android:id="@+id/rbPeriodica"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:text="Periódica"
+                    android:textSize="16sp" />
+            </RadioGroup>
 
-			<TextView
-				android:id="@+id/labelProyecto"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="24dp"
-				android:text="Proyecto"
-				android:textColor="#18990D"
-				android:textSize="18sp"
-				android:textStyle="bold"
-				app:layout_constraintTop_toBottomOf="@id/inputBeneficiarios"
-				app:layout_constraintStart_toStartOf="parent" />
-			<com.google.android.material.textfield.TextInputLayout
-				android:id="@+id/inputProyecto"
-				style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				app:boxBackgroundColor="@color/gray_bg"
-				app:boxStrokeWidth="0dp"
-				app:boxStrokeWidthFocused="0dp"
-				app:layout_constraintTop_toBottomOf="@id/labelProyecto"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintEnd_toEndOf="parent">
-				<AutoCompleteTextView
-					android:id="@+id/autoCompleteProyecto"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:inputType="none"
-					android:hint="Selecciona un proyecto" />
-			</com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/labelFecha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Fecha de Inicio"
+                android:textColor="#18990D"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rgPeriodicidad" />
 
-			<TextView
-				android:id="@+id/labelSocio"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="24dp"
-				android:text="Socio Comunitario"
-				android:textColor="#18990D"
-				android:textSize="18sp"
-				android:textStyle="bold"
-				app:layout_constraintTop_toBottomOf="@id/inputProyecto"
-				app:layout_constraintStart_toStartOf="parent" />
-			<com.google.android.material.textfield.TextInputLayout
-				android:id="@+id/inputSocio"
-				style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				app:boxBackgroundColor="@color/gray_bg"
-				app:boxStrokeWidth="0dp"
-				app:boxStrokeWidthFocused="0dp"
-				app:layout_constraintTop_toBottomOf="@id/labelSocio"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintEnd_toEndOf="parent">
-				<AutoCompleteTextView
-					android:id="@+id/autoCompleteSocio"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:inputType="none"
-					android:hint="Selecciona un socio" />
-			</com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFecha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/bright_green_button"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="14dp"
+                android:text="Seleccionar fecha"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                app:cornerRadius="100dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/labelFecha" />
 
-			<TextView
-				android:id="@+id/labelOferente"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="24dp"
-				android:text="Oferente"
-				android:textColor="#18990D"
-				android:textSize="18sp"
-				android:textStyle="bold"
-				app:layout_constraintTop_toBottomOf="@id/inputSocio"
-				app:layout_constraintStart_toStartOf="parent" />
-			<com.google.android.material.textfield.TextInputLayout
-				android:id="@+id/inputOferente"
-				style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				app:boxBackgroundColor="@color/gray_bg"
-				app:boxStrokeWidth="0dp"
-				app:boxStrokeWidthFocused="0dp"
-				app:layout_constraintTop_toBottomOf="@id/labelOferente"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintEnd_toEndOf="parent">
-				<AutoCompleteTextView
-					android:id="@+id/autoCompleteOferente"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:inputType="none"
-					android:hint="Selecciona un oferente" />
-			</com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/labelHora"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Hora de Inicio"
+                android:textColor="#18990D"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnFecha" />
 
-			<View
-				android:id="@+id/spaceBottom"
-				android:layout_width="0dp"
-				android:layout_height="16dp"
-				app:layout_constraintTop_toBottomOf="@id/inputOferente"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintEnd_toEndOf="parent" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnHora"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/bright_green_button"
+                android:paddingHorizontal="35dp"
+                android:paddingVertical="14dp"
+                android:text="Seleccionar hora"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                app:cornerRadius="100dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/labelHora" />
 
-		</androidx.constraintlayout.widget.ConstraintLayout>
-	</ScrollView>
+            <LinearLayout
+                android:id="@+id/grupoFechaFin"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnHora">
 
-	<LinearLayout
-		android:id="@+id/bottomBar"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="vertical"
-		android:background="@android:color/white"
-		android:elevation="8dp"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintEnd_toEndOf="parent">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Frecuencia de repetición"
+                    android:textColor="#18990D"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
-		<com.google.android.material.button.MaterialButton
-			android:id="@+id/btnCrearActividad"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginHorizontal="24dp"
-			android:layout_marginTop="16dp"
-			android:layout_marginBottom="8dp"
-			android:backgroundTint="@color/bright_green_button"
-			android:paddingVertical="14dp"
-			android:text="Crear actividad"
-			android:textColor="@color/white"
-			android:textSize="16sp"
-			app:cornerRadius="100dp" />
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:boxBackgroundColor="@color/gray_bg"
+                    app:boxStrokeWidth="0dp">
 
-	</LinearLayout>
+                    <AutoCompleteTextView
+                        android:id="@+id/autoCompleteFrecuencia"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Ej: Semanal"
+                        android:inputType="none"
+                        android:text="Semanal" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-	<include
-		android:id="@+id/loadingOverlay"
-		layout="@layout/loading_dialog"
-		android:layout_width="0dp"
-		android:layout_height="0dp"
-		android:elevation="20dp"
-		android:visibility="gone"
-		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintEnd_toEndOf="parent"
-		tools:visibility="visible" />
+                <TextView
+                    android:id="@+id/labelFechaFin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Fecha de Fin"
+                    android:textColor="#18990D"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnFechaFin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:backgroundTint="@color/bright_green_button"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="14dp"
+                    android:text="Seleccionar fecha de fin"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    app:cornerRadius="100dp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/labelLugar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Lugar"
+                android:textColor="#18990D"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/grupoFechaFin" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputLugar"
+                style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:boxBackgroundColor="@color/gray_bg"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/labelLugar">
+
+                <AutoCompleteTextView
+                    android:id="@+id/autoCompleteLugar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Selecciona un lugar"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/labelCupo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Cupo máximo"
+                android:textColor="#18990D"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/inputLugar" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputCupo"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Ej: 20"
+                app:boxBackgroundColor="@color/gray_bg"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/labelCupo">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCupo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/labelDiasAviso"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Días de aviso previo"
+                android:textColor="#18990D"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/inputCupo" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputDiasAviso"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Ej: 2"
+                app:boxBackgroundColor="@color/gray_bg"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/labelDiasAviso">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDiasAviso"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/labelBeneficiarios"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Beneficiarios"
+                android:textColor="#18990D"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/inputDiasAviso" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputBeneficiarios"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Ej: Personas mayores de la comunidad"
+                app:boxBackgroundColor="@color/gray_bg"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/labelBeneficiarios">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etBeneficiarios"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:inputType="textMultiLine"
+                    android:minLines="2"
+                    android:textColor="#1D1B20" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/labelProyecto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Proyecto"
+                android:textColor="#18990D"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/inputBeneficiarios" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputProyecto"
+                style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:boxBackgroundColor="@color/gray_bg"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/labelProyecto">
+
+                <AutoCompleteTextView
+                    android:id="@+id/autoCompleteProyecto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Selecciona un proyecto"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/labelSocio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Socio Comunitario"
+                android:textColor="#18990D"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/inputProyecto" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputSocio"
+                style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:boxBackgroundColor="@color/gray_bg"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/labelSocio">
+
+                <AutoCompleteTextView
+                    android:id="@+id/autoCompleteSocio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Selecciona un socio"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/labelOferente"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Oferente"
+                android:textColor="#18990D"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/inputSocio" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputOferente"
+                style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:boxBackgroundColor="@color/gray_bg"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/labelOferente">
+
+                <AutoCompleteTextView
+                    android:id="@+id/autoCompleteOferente"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Selecciona un oferente"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- NUEVO: sección de archivo adjunto -->
+            <TextView
+                android:id="@+id/labelArchivo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Archivo adjunto"
+                android:textColor="#18990D"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/inputOferente" />
+
+            <TextView
+                android:id="@+id/txtNombreArchivo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Ningún archivo seleccionado"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/labelArchivo" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSubirArchivo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Seleccionar archivo"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                app:cornerRadius="100dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/txtNombreArchivo" />
+
+            <!-- Espacio final para que no quede pegado al borde -->
+            <View
+                android:id="@+id/spaceBottom"
+                android:layout_width="0dp"
+                android:layout_height="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnSubirArchivo" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@android:color/white"
+        android:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCrearActividad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/bright_green_button"
+            android:paddingVertical="14dp"
+            android:text="Crear actividad"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:cornerRadius="100dp" />
+
+    </LinearLayout>
+
+    <include
+        android:id="@+id/loadingOverlay"
+        layout="@layout/loading_dialog"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:elevation="20dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

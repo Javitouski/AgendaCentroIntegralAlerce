@@ -1,9 +1,13 @@
 package prog.android.centroalr.view;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -13,11 +17,15 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
@@ -25,6 +33,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -48,14 +58,23 @@ public class CrearActActivity extends AppCompatActivity {
     private RadioButton rbPuntual, rbPeriodica;
     private LinearLayout grupoFechaFin;
     private Button btnFechaFin;
-    private View loadingOverlay; // Overlay de carga
+    private View loadingOverlay;
 
     // Vistas Opcionales
     private AutoCompleteTextView autoCompleteProyecto, autoCompleteSocio, autoCompleteOferente;
 
+    // === ARCHIVO ===
+    private Button btnSubirArchivo;
+    private TextView txtNombreArchivo;
+    private Uri uriArchivoSeleccionado;
+
     // Firebase y Usuario
     private FirebaseFirestore db;
     private Usuario usuarioActual;
+
+    // Storage
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
 
     // Calendarios
     private Calendar fechaInicioSeleccionada;
@@ -83,6 +102,26 @@ public class CrearActActivity extends AppCompatActivity {
     private List<String> oferentesIds = new ArrayList<>();
     private String oferenteSeleccionadoId;
 
+    // Launcher para escoger archivo
+    private final ActivityResultLauncher<Intent> seleccionarArchivoLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            uriArchivoSeleccionado = result.getData().getData();
+                            String nombre = obtenerNombreArchivo(uriArchivoSeleccionado);
+                            if (nombre == null || nombre.isEmpty()) {
+                                nombre = "Archivo seleccionado";
+                            }
+                            if (txtNombreArchivo != null) {
+                                txtNombreArchivo.setText(nombre);
+                            }
+                        } else {
+                            Toast.makeText(this, "No se seleccionó archivo", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+            );
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,6 +137,8 @@ public class CrearActActivity extends AppCompatActivity {
         }
 
         db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
 
         View btnBack = findViewById(R.id.btnBack);
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());
@@ -127,7 +168,19 @@ public class CrearActActivity extends AppCompatActivity {
         autoCompleteSocio = findViewById(R.id.autoCompleteSocio);
         autoCompleteOferente = findViewById(R.id.autoCompleteOferente);
 
-        loadingOverlay = findViewById(R.id.loadingOverlay); // Inicializar Loading
+        loadingOverlay = findViewById(R.id.loadingOverlay);
+
+        // ARCHIVO
+        btnSubirArchivo = findViewById(R.id.btnSubirArchivo);
+        txtNombreArchivo = findViewById(R.id.txtNombreArchivo);
+
+        if (txtNombreArchivo != null) {
+            txtNombreArchivo.setText("Ningún archivo seleccionado");
+        }
+
+        if (btnSubirArchivo != null) {
+            btnSubirArchivo.setOnClickListener(v -> abrirSelectorArchivos());
+        }
 
         // Cargas
         cargarTiposActividad();
@@ -164,7 +217,43 @@ public class CrearActActivity extends AppCompatActivity {
         }
     }
 
-    // ... (Métodos de DatePicker y TimePicker iguales que antes) ...
+    // ==========================
+    // ARCHIVO
+    // ==========================
+
+    private void abrirSelectorArchivos() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*"); // cualquier tipo de archivo
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        seleccionarArchivoLauncher.launch(Intent.createChooser(intent, "Selecciona un archivo"));
+    }
+
+    private String obtenerNombreArchivo(Uri uri) {
+        if (uri == null) return "";
+        String resultado = null;
+        if ("content".equals(uri.getScheme())) {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (index >= 0) {
+                        resultado = cursor.getString(index);
+                    }
+                }
+            } finally {
+                if (cursor != null) cursor.close();
+            }
+        }
+        if (resultado == null) {
+            resultado = uri.getLastPathSegment();
+        }
+        return resultado;
+    }
+
+    // ==========================
+    // FECHAS / HORAS
+    // ==========================
+
     private void setupFrecuenciaDropdown() {
         if (autoCompleteFrecuencia != null) {
             String[] frecuencias = new String[]{"Diaria", "Semanal", "Mensual"};
@@ -209,7 +298,9 @@ public class CrearActActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    // --- VALIDACIÓN PRINCIPAL ---
+    // ==========================
+    // VALIDACIÓN PRINCIPAL
+    // ==========================
 
     private void validarYGuardar() {
         String nombre = texto(etNombre);
@@ -232,7 +323,8 @@ public class CrearActActivity extends AppCompatActivity {
 
         // Aforo
         int capacidadMaxima = 0;
-        if (capacidadPorLugar.containsKey(lugarSeleccionadoId)) capacidadMaxima = capacidadPorLugar.get(lugarSeleccionadoId);
+        if (capacidadPorLugar.containsKey(lugarSeleccionadoId))
+            capacidadMaxima = capacidadPorLugar.get(lugarSeleccionadoId);
         if (capacidadMaxima > 0 && cupo > capacidadMaxima) {
             etCupo.setError("Excede capacidad (" + capacidadMaxima + ")"); return;
         }
@@ -240,21 +332,19 @@ public class CrearActActivity extends AppCompatActivity {
         // Fechas
         Timestamp fechaInicioTS = new Timestamp(fechaInicioSeleccionada.getTime());
 
-        // Calcular Fecha FIN de la actividad puntual (por defecto 1 hora si no se define otra cosa)
+        // Fin de la sesión = 1 hora después
         long unaHora = 3600000;
-        Timestamp fechaFinActividadTS = new Timestamp(new java.util.Date(fechaInicioSeleccionada.getTimeInMillis() + unaHora));
+        Timestamp fechaFinActividadTS = new Timestamp(
+                new java.util.Date(fechaInicioSeleccionada.getTimeInMillis() + unaHora)
+        );
 
-        // === AQUÍ EMPIEZA LA VALIDACIÓN DE CHOQUES ===
-        mostrarCarga(true); // Bloqueamos pantalla
+        mostrarCarga(true);
 
-        // Llamamos a la función que consulta Firebase antes de guardar
         validarDisponibilidad(lugarSeleccionadoId, fechaInicioTS, fechaFinActividadTS, () -> {
-            // Si llegamos aquí, NO hay conflicto. Procedemos a guardar.
             procederAGuardar(nombre, cupo, diasAviso, fechaInicioTS, fechaFinActividadTS);
         });
     }
 
-    // --- NUEVO MÉTODO: VALIDACIÓN EN FIRESTORE ---
     private interface OnDisponibilidadListener {
         void onDisponible();
     }
@@ -262,10 +352,6 @@ public class CrearActActivity extends AppCompatActivity {
     private void validarDisponibilidad(String lugarId, Timestamp inicioNuevo, Timestamp finNuevo, OnDisponibilidadListener listener) {
         DocumentReference lugarRef = db.collection("lugares").document(lugarId);
 
-        // Consultamos actividades en el mismo lugar
-        // Optimización: Filtramos por día para no descargar toda la base de datos
-
-        // Calcular inicio y fin del día para el filtro
         Calendar cal = Calendar.getInstance();
         cal.setTime(inicioNuevo.toDate());
         cal.set(Calendar.HOUR_OF_DAY, 0); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0);
@@ -276,7 +362,7 @@ public class CrearActActivity extends AppCompatActivity {
 
         db.collection("actividades")
                 .whereEqualTo("lugarId", lugarRef)
-                .whereEqualTo("estado", "activa") // Solo validamos con actividades activas
+                .whereEqualTo("estado", "activa")
                 .whereGreaterThanOrEqualTo("fechaInicio", inicioDia)
                 .whereLessThanOrEqualTo("fechaInicio", finDia)
                 .get()
@@ -293,11 +379,9 @@ public class CrearActActivity extends AppCompatActivity {
                             long iniE = iniExistente.toDate().getTime();
                             long finE = finExistente.toDate().getTime();
 
-                            // Fórmula de superposición de rangos:
-                            // (StartA < EndB) and (EndA > StartB)
                             if (iniN < finE && finN > iniE) {
                                 hayConflicto = true;
-                                break; // Encontramos uno, ya no seguimos buscando
+                                break;
                             }
                         }
                     }
@@ -315,12 +399,15 @@ public class CrearActActivity extends AppCompatActivity {
                 });
     }
 
-    // --- MÉTODO DE GUARDADO (Lo que antes estaba en validarYGuardar) ---
-    private void procederAGuardar(String nombre, long cupo, long diasAviso, Timestamp fechaInicioTS, Timestamp fechaFinTS) {
+    // ==========================
+    // GUARDAR ACTIVIDAD
+    // ==========================
+
+    private void procederAGuardar(String nombre, long cupo, long diasAviso,
+                                  Timestamp fechaInicioTS, Timestamp fechaFinTS) {
 
         String periodicidadStr;
         String frecuenciaSeleccionada = "NINGUNA";
-        Timestamp fechaFinRecurrencia;
 
         if (rbPeriodica.isChecked()) {
             periodicidadStr = "periodica";
@@ -331,12 +418,11 @@ public class CrearActActivity extends AppCompatActivity {
 
             if (fechaFinSeleccionada == null) {
                 mostrarCarga(false);
-                Toast.makeText(this, "Selecciona fecha de fin", Toast.LENGTH_SHORT).show(); return;
+                Toast.makeText(this, "Selecciona fecha de fin", Toast.LENGTH_SHORT).show();
+                return;
             }
-            fechaFinRecurrencia = new Timestamp(fechaFinSeleccionada.getTime());
         } else {
             periodicidadStr = "puntual";
-            fechaFinRecurrencia = fechaInicioTS;
         }
 
         String descripcion = texto(etDescripcion);
@@ -345,9 +431,12 @@ public class CrearActActivity extends AppCompatActivity {
         DocumentReference tipoRef = db.collection("tiposActividades").document(tipoSeleccionadoId);
         DocumentReference lugarRef = db.collection("lugares").document(lugarSeleccionadoId);
         DocumentReference usuarioRef = db.collection("usuarios").document(usuarioActual.getUid());
-        DocumentReference proyectoRef = (proyectoSeleccionadoId != null) ? db.collection("proyecto").document(proyectoSeleccionadoId) : null;
-        DocumentReference socioRef = (socioSeleccionadoId != null) ? db.collection("socioComunitario").document(socioSeleccionadoId) : null;
-        DocumentReference oferenteRef = (oferenteSeleccionadoId != null) ? db.collection("oferentes").document(oferenteSeleccionadoId) : null;
+        DocumentReference proyectoRef = (proyectoSeleccionadoId != null)
+                ? db.collection("proyecto").document(proyectoSeleccionadoId) : null;
+        DocumentReference socioRef = (socioSeleccionadoId != null)
+                ? db.collection("socioComunitario").document(socioSeleccionadoId) : null;
+        DocumentReference oferenteRef = (oferenteSeleccionadoId != null)
+                ? db.collection("oferentes").document(oferenteSeleccionadoId) : null;
 
         Map<String, Object> actividad = new HashMap<>();
         actividad.put("nombre", nombre);
@@ -358,10 +447,10 @@ public class CrearActActivity extends AppCompatActivity {
         actividad.put("estado", "activa");
         actividad.put("fechaCreacion", FieldValue.serverTimestamp());
         actividad.put("fechaInicio", fechaInicioTS);
-        actividad.put("fechaFin", fechaFinTS); // Fin de la sesión (1 hora)
+        actividad.put("fechaFin", fechaFinTS);
         actividad.put("periodicidad", periodicidadStr);
         actividad.put("frecuencia", frecuenciaSeleccionada);
-        actividad.put("tieneArchivos", false);
+        actividad.put("tieneArchivos", uriArchivoSeleccionado != null);
         actividad.put("tipoActividadId", tipoRef);
         actividad.put("lugarId", lugarRef);
         actividad.put("creadaPorUsuarioId", usuarioRef);
@@ -369,16 +458,31 @@ public class CrearActActivity extends AppCompatActivity {
         actividad.put("socioComunitarioId", socioRef);
         actividad.put("oferenteId", oferenteRef);
 
-        String finalFrecuencia = frecuenciaSeleccionada;
+        // ==== COPIAS FINALES PARA USAR DENTRO DEL LAMBDA ====
+        final String periodicidadFinal = periodicidadStr;
+        final String frecuenciaFinal = frecuenciaSeleccionada;
+        final DocumentReference usuarioFinal = usuarioRef;
+        final DocumentReference lugarFinal = lugarRef;
+        final Calendar inicioFinal = (fechaInicioSeleccionada != null)
+                ? (Calendar) fechaInicioSeleccionada.clone() : null;
+        final Calendar finFinal = (fechaFinSeleccionada != null)
+                ? (Calendar) fechaFinSeleccionada.clone() : null;
 
         db.collection("actividades").add(actividad)
                 .addOnSuccessListener(docRef -> {
-                    if (periodicidadStr.equals("periodica")) {
-                        crearCitasPeriodicas(docRef, usuarioRef, lugarRef, fechaInicioSeleccionada, fechaFinSeleccionada, finalFrecuencia);
+                    if (uriArchivoSeleccionado != null) {
+                        // Primero subir archivo, luego seguir flujo normal
+                        subirArchivoActividad(docRef, periodicidadFinal, usuarioFinal,
+                                lugarFinal, inicioFinal, finFinal, frecuenciaFinal);
                     } else {
-                        mostrarCarga(false);
-                        Toast.makeText(this, "Actividad creada", Toast.LENGTH_SHORT).show();
-                        finish();
+                        if ("periodica".equals(periodicidadFinal)) {
+                            crearCitasPeriodicas(docRef, usuarioFinal, lugarFinal,
+                                    inicioFinal, finFinal, frecuenciaFinal);
+                        } else {
+                            mostrarCarga(false);
+                            Toast.makeText(this, "Actividad creada", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -387,16 +491,50 @@ public class CrearActActivity extends AppCompatActivity {
                 });
     }
 
+
+    private void subirArchivoActividad(DocumentReference actRef,
+                                       String periodicidad,
+                                       DocumentReference userRef,
+                                       DocumentReference lugarRef,
+                                       Calendar inicio,
+                                       Calendar fin,
+                                       String frecuencia) {
+
+        // Por ahora, NO subimos a Storage, solo marcamos que tiene archivo
+        Map<String, Object> update = new HashMap<>();
+        update.put("tieneArchivos", true);
+
+        actRef.update(update).addOnCompleteListener(task -> {
+            if ("periodica".equals(periodicidad)) {
+                crearCitasPeriodicas(actRef, userRef, lugarRef, inicio, fin, frecuencia);
+            } else {
+                mostrarCarga(false);
+                Toast.makeText(this, "Actividad creada (sin subir archivo aún)", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
+    }
+
+    // ==========================
+    // REPETICIONES PERIÓDICAS
+    // ==========================
+
     private void crearCitasPeriodicas(DocumentReference actRef, DocumentReference userRef, DocumentReference lugarRef, Calendar inicio, Calendar fin, String frecuencia) {
+        if (inicio == null || fin == null) {
+            mostrarCarga(false);
+            Toast.makeText(this, "Fechas de recurrencia inválidas", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         WriteBatch batch = db.batch();
         Calendar iteracion = (Calendar) inicio.clone();
         int fieldToAdd = Calendar.DAY_OF_YEAR;
         int amountToAdd = 7;
 
-        if (frecuencia.equals("DIARIA")) { amountToAdd = 1; }
-        else if (frecuencia.equals("MENSUAL")) { fieldToAdd = Calendar.MONTH; amountToAdd = 1; }
+        if ("DIARIA".equals(frecuencia)) { amountToAdd = 1; }
+        else if ("MENSUAL".equals(frecuencia)) { fieldToAdd = Calendar.MONTH; amountToAdd = 1; }
 
-        iteracion.add(fieldToAdd, amountToAdd); // Empezar desde la siguiente
+        iteracion.add(fieldToAdd, amountToAdd); // empezar desde la siguiente
 
         int count = 0;
         while (!iteracion.after(fin)) {
@@ -412,7 +550,6 @@ public class CrearActActivity extends AppCompatActivity {
             repeticion.put("fechaCreacion", FieldValue.serverTimestamp());
 
             Timestamp tsInicio = new Timestamp(iteracion.getTime());
-            // Fin de la repetición (1 hora después)
             long unaHora = 3600000;
             Timestamp tsFin = new Timestamp(new java.util.Date(iteracion.getTimeInMillis() + unaHora));
 
@@ -450,7 +587,10 @@ public class CrearActActivity extends AppCompatActivity {
         }
     }
 
-    // --- CARGAS ---
+    // ==========================
+    // CARGAS DE COMBOS
+    // ==========================
+
     private void cargarLugares() {
         db.collection("lugares").get().addOnSuccessListener(qs -> {
             lugaresNombres.clear(); lugaresIds.clear(); capacidadPorLugar.clear();
@@ -459,12 +599,17 @@ public class CrearActActivity extends AppCompatActivity {
                 if (n == null) n = doc.getString("nombre");
                 Long c = doc.getLong("capacidad");
                 int cap = (c != null) ? c.intValue() : 0;
-                if (n != null) { lugaresNombres.add(n); lugaresIds.add(doc.getId()); capacidadPorLugar.put(doc.getId(), cap); }
+                if (n != null) {
+                    lugaresNombres.add(n);
+                    lugaresIds.add(doc.getId());
+                    capacidadPorLugar.put(doc.getId(), cap);
+                }
             }
             autoCompleteLugar.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, lugaresNombres));
             autoCompleteLugar.setOnItemClickListener((p, v, pos, id) -> lugarSeleccionadoId = lugaresIds.get(pos));
         });
     }
+
     private void cargarTiposActividad() {
         db.collection("tiposActividades").get().addOnSuccessListener(qs -> {
             tiposNombres.clear(); tiposIds.clear();
@@ -476,6 +621,7 @@ public class CrearActActivity extends AppCompatActivity {
             autoCompleteTipo.setOnItemClickListener((p, v, pos, id) -> tipoSeleccionadoId = tiposIds.get(pos));
         });
     }
+
     private void cargarProyectos() {
         db.collection("proyecto").get().addOnSuccessListener(qs -> {
             proyectosNombres.clear(); proyectosIds.clear();
@@ -487,6 +633,7 @@ public class CrearActActivity extends AppCompatActivity {
             autoCompleteProyecto.setOnItemClickListener((p, v, pos, id) -> proyectoSeleccionadoId = proyectosIds.get(pos));
         });
     }
+
     private void cargarSocios() {
         db.collection("socioComunitario").get().addOnSuccessListener(qs -> {
             sociosNombres.clear(); sociosIds.clear();
@@ -498,6 +645,7 @@ public class CrearActActivity extends AppCompatActivity {
             autoCompleteSocio.setOnItemClickListener((p, v, pos, id) -> socioSeleccionadoId = sociosIds.get(pos));
         });
     }
+
     private void cargarOferentes() {
         db.collection("oferentes").get().addOnSuccessListener(qs -> {
             oferentesNombres.clear(); oferentesIds.clear();
@@ -509,6 +657,10 @@ public class CrearActActivity extends AppCompatActivity {
             autoCompleteOferente.setOnItemClickListener((p, v, pos, id) -> oferenteSeleccionadoId = oferentesIds.get(pos));
         });
     }
+
+    // ==========================
+    // UTIL
+    // ==========================
 
     private String texto(EditText et) { return et != null ? et.getText().toString().trim() : ""; }
 
